@@ -533,7 +533,7 @@ body[data-theme="light"] .date-range-clear:hover{color:#B8860B}
 
 
 /* ── On This Day ── */
-.otd-modal{display:none;position:fixed;inset:0;z-index:600;align-items:center;justify-content:center;overflow:hidden;background:#141210}
+.otd-modal{display:none;position:fixed;inset:0;z-index:600;align-items:center;justify-content:center;overflow:hidden}
 .otd-modal.open{display:flex}
 .otd-bg{position:absolute;inset:-40px;background-size:cover;background-position:center;filter:blur(46px) brightness(.42) saturate(1.15);transform:scale(1.15) translateZ(0);background-color:#141210;will-change:opacity;opacity:1;transition:opacity 1.15s ease}
 .otd-bg.otd-bg-off{opacity:0}
@@ -545,15 +545,13 @@ body[data-theme="light"] .date-range-clear:hover{color:#B8860B}
 .otd-art{position:relative;z-index:1;animation:float 6s ease-in-out infinite}
 .otd-art{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:52px;color:rgba(255,217,64,.3);box-shadow:none}
 .otd-art img{max-width:100%;max-height:100%;display:block;box-shadow:0 24px 60px rgba(0,0,0,.6)}
-#otd-art-img,#otd-art-img2{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);max-width:100%;max-height:100%;display:none;box-shadow:0 24px 60px rgba(0,0,0,.55);opacity:0;transition:opacity .5s var(--ease-out)}
-#otd-art-img.show,#otd-art-img2.show{opacity:1}
-.otd-art{overflow:visible}
+#otd-art-img{max-width:100%;max-height:100%;display:block;box-shadow:0 24px 60px rgba(0,0,0,.55)}
 .otd-art[data-empty]::after{content:attr(data-empty)}
-.otd-art.slide-out-l{transform:scale(.985) translateX(-8px)}
-.otd-art.slide-out-r{transform:scale(.985) translateX(8px)}
-.otd-art{transition:transform .42s var(--ease-out);will-change:transform}
-
-
+.otd-art.slide-out-l{transform:scale(.96) translateX(-16px);opacity:0}
+.otd-art.slide-out-r{transform:scale(.96) translateX(16px);opacity:0}
+.otd-art{transition:transform .5s var(--ease-out),opacity .5s var(--ease-out);will-change:transform,opacity}
+.otd-art.slide-in-l{animation:artInL .5s var(--ease-out) both}
+.otd-art.slide-in-r{animation:artInR .5s var(--ease-out) both}
 @keyframes artInL{from{transform:scale(.96) translateX(16px);opacity:0}to{transform:scale(1) translateX(0);opacity:1}}
 @keyframes artInR{from{transform:scale(.96) translateX(-16px);opacity:0}to{transform:scale(1) translateX(0);opacity:1}}
 .otd-year-big{position:absolute;right:14px;top:12px;font-family:'Boldonse',sans-serif;font-size:34px;color:#fff;line-height:1;text-shadow:0 3px 16px rgba(0,0,0,.75);letter-spacing:.02em;pointer-events:none;z-index:3}
@@ -936,7 +934,7 @@ body[data-theme="light"] .search-clear:hover{color:#B8860B}
 .mini-bar{position:fixed;top:0;left:0;right:0;z-index:150;display:flex;align-items:center;justify-content:center;height:44px;background:rgba(28,26,24,.92);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid rgba(255,255,255,.07);transform:translateY(-100%);transition:transform .28s var(--ease-out)}
 body.scrolled .mini-bar{transform:translateY(0)}
 body.scrolled .site-header{opacity:0;pointer-events:none}
-.mini-title{font-family:'Boldonse',sans-serif;font-size:13px;letter-spacing:.16em;color:#FFD940;text-transform:uppercase;white-space:nowrap;line-height:1}
+.mini-title{font-family:'Boldonse',sans-serif;font-size:15px;letter-spacing:.1em;color:#FFD940;text-transform:uppercase;display:flex;align-items:baseline;gap:8px}
 .mini-title i{font-family:'Playfair Display',serif;font-style:italic;font-weight:500;font-size:19px;text-transform:none;letter-spacing:0}
 body[data-theme="light"] .mini-bar{background:rgba(239,235,227,.94);border-bottom-color:rgba(0,0,0,.08)}
 body[data-theme="light"] .mini-title{color:#B8860B}
@@ -1481,7 +1479,7 @@ body[data-theme="light"] .hdr-orb .rotor-css span{color:rgba(26,23,20,.85)}
 
 <!-- Mini sticky bar -->
 <div class="mini-bar" id="mini-bar">
-  <span class="mini-title">LEEJUNHO CALENDAR</span>
+  <span class="mini-title">LEEJUNHO <i>Calendar</i></span>
 </div>
 
 <!-- Calendar page -->
@@ -1750,7 +1748,7 @@ body[data-theme="light"] .hdr-orb .rotor-css span{color:rgba(26,23,20,.85)}
         <ellipse cx="200" cy="200" rx="196" ry="70" fill="none" stroke="rgba(255,217,64,.25)" stroke-width="1" transform="rotate(-16 200 200)"/>
         <g class="otd-orbit-dot"><circle cx="396" cy="200" r="3" fill="#FFD940"/></g>
       </svg>
-      <div class="otd-art" id="otd-art"><img id="otd-art-img" alt=""><img id="otd-art-img2" alt="" aria-hidden="true"></div>
+      <div class="otd-art" id="otd-art"><img id="otd-art-img" alt=""></div>
       <div class="otd-year-big" id="otd-year-big"></div>
     </div>
     <div class="otd-track" id="otd-track"></div>
@@ -2168,9 +2166,6 @@ function switchPage(p,el){
   // Today button only on calendar page
   var dc=document.getElementById('dock-cal'),df=document.getElementById('dock-feed');
   if(dc&&df){ dc.classList.toggle('active',p==='calendar'); df.classList.toggle('active',p==='feed'); }
-  if(typeof closeDaySo==='function') closeDaySo();
-  var om=document.getElementById('otd-modal');
-  if(om && om.classList.contains('open') && typeof closeOnThisDay==='function') closeOnThisDay();
   if(p==='feed') renderFeed();
 }
 
@@ -2819,30 +2814,13 @@ function renderOtdTrack(dir){
   yb.classList.add('otd-fading'); tk.classList.add('otd-fading');
   var badgeColors={schedule:'#f25142',sns:'#6dc0de',bubble:'#9b72e1',media:'#2ECC71',message:'var(--c-message)'};
   var swap=function(){
-    var layers=[document.getElementById('otd-art-img'), document.getElementById('otd-art-img2')];
+    var im=document.getElementById('otd-art-img');
+    if(photo){ if(im){im.src=photo;im.style.display='block';} }
+    else { if(im){im.style.display='none';} }
+    if(!photo){ art.setAttribute('data-empty','✦'); } else { art.removeAttribute('data-empty'); }
     art.classList.remove('slide-out-l','slide-out-r');
-    if(photo){
-      var front=(window.__otdFront===1)?1:0, back=1-front;
-      var fl=layers[front], bl=layers[back];
-      bl.src=photo; bl.style.display='block';
-      var reveal=function(){
-        void bl.offsetWidth;
-        bl.classList.add('show');
-        fl.classList.remove('show');
-        window.__otdFront=back;
-        setTimeout(function(){
-          if(window.__otdFront!==front){ fl.style.display='none'; fl.removeAttribute('src'); }
-        },560);
-      };
-      if(bl.decode){ bl.decode().then(reveal).catch(reveal); }
-      else if(bl.complete){ reveal(); }
-      else { bl.onload=reveal; bl.onerror=reveal; }
-      art.removeAttribute('data-empty');
-    } else {
-      layers.forEach(function(l){ l.classList.remove('show'); });
-      setTimeout(function(){ layers.forEach(function(l){ if(!l.classList.contains('show')){ l.style.display='none'; l.removeAttribute('src'); } }); },560);
-      art.setAttribute('data-empty','✦');
-    }
+    void art.offsetWidth;
+    art.classList.add(dir<0?'slide-in-r':'slide-in-l');
     setOtdBg(photo);
     // 年份
     yb.classList.remove('otd-fading','anim'); void yb.offsetWidth;
