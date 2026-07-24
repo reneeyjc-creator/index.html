@@ -1907,7 +1907,7 @@ function checkPassword(){
     try{
       applyUnlockedUI();
       checkBackupReminder();
-      if(window.__pendingShare){ var s=window.__pendingShare; window.__pendingShare=null; setTimeout(function(){ applySharedInput(s); },300); }
+      if(window.__pendingShare){ var s=window.__pendingShare; window.__pendingShare=null; setTimeout(function(){ try{ applySharedInput(s); }catch(e){ console.error('[share]',e); } },350); }
     }catch(e){ console.error('[unlock] UI error（已解鎖但畫面更新出錯）', e); }
   }
   function authFail(err, stage){
@@ -3532,7 +3532,7 @@ function handleSharedInput(){
   if(location.search){ history.replaceState(null,'',location.pathname); }
   if(!isUnlocked){
     window.__pendingShare=s;
-    showToast('請先解鎖以新增分享的紀錄', 4000);
+    showToast('請先解鎖，解鎖後會自動帶入分享內容', 4500);
     toggleLock();
     return;
   }
@@ -3542,9 +3542,19 @@ function handleSharedInput(){
 window.handleSharedInput=handleSharedInput;
 // 開站時檢查分享參數(等資料與 UI 就緒)
 (function(){
-  function boot(){ try{ handleSharedInput(); }catch(e){ console.error('[share]',e); } }
-  if(document.readyState==='complete') setTimeout(boot,700);
-  else window.addEventListener('load',function(){ setTimeout(boot,700); });
+  var done=false;
+  function boot(){
+    if(done) return; done=true;
+    try{ handleSharedInput(); }catch(e){ console.error('[share]',e); }
+  }
+  // 必須等 Firebase 還原登入狀態後再判斷,否則會誤以為沒解鎖而跳出密碼視窗
+  try{
+    var off=firebase.auth().onAuthStateChanged(function(){
+      setTimeout(boot,260);
+      if(typeof off==='function') off();
+    });
+  }catch(e){}
+  setTimeout(boot,4000);   // 保險:驗證服務無回應時仍會執行
 })();
 
 // ── Marquee (header banner text): auto = next upcoming schedule; manual text overrides ──
