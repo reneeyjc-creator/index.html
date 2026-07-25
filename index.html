@@ -824,6 +824,16 @@ body[data-theme="light"] .pw-box p{color:rgba(26,23,20,.5)}
 body[data-theme="light"] .date-range-sep{color:rgba(26,23,20,.35)}
 body[data-theme="light"] .of-item:not(.active):hover .of-label{color:rgba(26,23,20,.9)}
 
+/* +N 徽章移出標題列,把整個寬度還給標題 */
+.cell-date-row .cell-plus{margin-left:auto}
+@media(max-width:700px){
+  /* 手機日期列只有 44.3px(日期18+間距5+圓點+徽章23 會爆),改貼縮圖右下角。
+     紀念日流星佔右上 44px 只到 y=42,縮圖底在 y=68,不會撞。 */
+  .cell-date-row .cell-plus{position:absolute;top:51px;right:3px;margin:0;font-size:8px;line-height:13px;padding:0 4px;border-radius:7px;z-index:2}
+  /* 紀念日格多一條 8px 文字(+13.4px)會把兩行推到 114.4px 超過格高,退回一行 */
+  .cal-cell.has-anniv .cell-title{-webkit-line-clamp:1}
+}
+
 /* ── 動態頁跳轉:回到最上方 + 跳年份 ── */
 .feed-jump{position:fixed;right:26px;bottom:106px;z-index:250;display:flex;flex-direction:column;align-items:flex-end;gap:8px;opacity:0;transform:translateY(10px);pointer-events:none;transition:opacity .28s var(--ease-out),transform .28s var(--ease-out)}
 .feed-jump.show{opacity:1;transform:none;pointer-events:auto}
@@ -1626,7 +1636,7 @@ body[data-theme="light"] .hdr-orb .rotor-css span{color:rgba(26,23,20,.85)}
     <div class="settings-item">
       <div>
         <div class="settings-item-label">版本</div>
-        <div class="settings-item-val">v2026.07.25-F</div>
+        <div class="settings-item-val">v2026.07.25-G</div>
       </div>
       <span style="font-size:14px;opacity:.5">🌻</span>
     </div>
@@ -2296,19 +2306,19 @@ function renderCalendar(){
     var photoHTML=firstPhoto
       ?'<div class="cell-photo"><img src="'+firstPhoto+'" alt="" loading="lazy"></div>'
       :'<div class="cell-photo"><div class="cell-photo-empty"></div></div>';
-    var cellTextHTML='';
+    var cellTextHTML='', plusBadge='';
     if(dayRecs.length){
-      var plusBadge=dayRecs.length>1?'<span class="cell-plus">+'+( dayRecs.length-1)+'</span>':'';
+      plusBadge=dayRecs.length>1?'<span class="cell-plus">+'+( dayRecs.length-1)+'</span>':'';
       var firstTitle='<div class="cell-title">'+escHtml(dayRecs[0].title)+'</div>';
       var moreTitles=dayRecs.slice(1).map(function(rec){ return '<div class="cell-title">'+escHtml(rec.title)+'</div>'; }).join('');
       var moreBlock=moreTitles?'<div class="cell-more"><div class="cell-more-inner">'+moreTitles+'</div></div>':'';
-      cellTextHTML='<div class="cell-text-inner"><div class="cell-first-row">'+firstTitle+plusBadge+'</div>'+moreBlock+'</div>';
+      cellTextHTML='<div class="cell-text-inner"><div class="cell-first-row">'+firstTitle+'</div>'+moreBlock+'</div>';
     }
     var annivColor=annivs.length?annivs[0].displayColor:'#FFD940';
     var annivStar=annivs.length?'<span class="cell-anniv-star"><svg viewBox="0 0 60 60" width="58" height="58" fill="none"><defs><linearGradient id="mt'+iso.replace(/-/g,'')+'" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="'+annivColor+'" stop-opacity="0"/><stop offset="100%" stop-color="'+annivColor+'" stop-opacity=".85"/></linearGradient></defs><path d="M6 40C16 33 28 24 42 15" stroke="url(#mt'+iso.replace(/-/g,'')+')" stroke-width="2" stroke-linecap="round"/><path d="M9 37c2-1.4 4-2.8 6-4.2" stroke="url(#mt'+iso.replace(/-/g,'')+')" stroke-width="1.4" stroke-linecap="round" opacity=".5"/><path d="M45 12c.7 4.6 2.4 6.3 7 7-4.6.7-6.3 2.4-7 7-.7-4.6-2.4-6.3-7-7 4.6-.7 6.3-2.4 7-7z" fill="'+annivColor+'"/></svg></span>':'';
     var annivBadge=annivs.length?'<span class="cell-anniv">'+annivs.map(function(a){return '<span class="anniv-chip" title="'+a.label+'" style="--ac:'+a.color+'">'+a.icon+'</span>';}).join('')+'</span>':'';
     var annivText=annivs.length?'<div class="cell-anniv-text" style="color:'+annivs[0].displayColor+'">'+annivs.map(function(a){return escHtml(a.label)+(a.countLabel?' '+a.countLabel:'');}).join('・')+'</div>':'';
-    el.innerHTML=annivStar+'<div class="cell-date-row"><span class="cell-date">'+dateNum+'</span>'+annivBadge+'<span class="cell-dots">'+dots+'</span></div>'+photoHTML+'<div class="cell-text">'+annivText+cellTextHTML+'</div>';
+    el.innerHTML=annivStar+'<div class="cell-date-row"><span class="cell-date">'+dateNum+'</span>'+annivBadge+'<span class="cell-dots">'+dots+'</span>'+plusBadge+'</div>'+photoHTML+'<div class="cell-text">'+annivText+cellTextHTML+'</div>';
     if(dayRecs.length||annivs.length){
       (function(iso,d,cell){
         cell.onclick=function(){ openDaySo(iso,d); };
