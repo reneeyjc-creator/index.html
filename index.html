@@ -26,7 +26,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Boldonse&family=Playfair+Display:ital,wght@1,500&family=Noto+Sans+TC:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Archivo:wght@500;600&family=Boldonse&family=Noto+Sans+TC:wght@400;500;600&display=swap');
 
 *{box-sizing:border-box;margin:0;padding:0}
 :root{/* Core palette */
@@ -48,7 +48,7 @@
   --t:0.25s;
 
   --radius:8px;--radius-lg:14px;}
-body{font-family:'Noto Sans TC',system-ui,sans-serif;background:linear-gradient(160deg,#201F1F 0%,#1A1210 60%,#1C1A22 100%);color:var(--c-text);min-height:100vh;line-height:1.5}
+body{overflow-x:hidden;font-family:'Noto Sans TC',system-ui,sans-serif;background:linear-gradient(160deg,#201F1F 0%,#1A1210 60%,#1C1A22 100%);color:var(--c-text);min-height:100vh;line-height:1.5}
 
 /* ── Site header ── */
 .site-header{background:transparent;padding:54px 24px 0;margin-bottom:48px;border-bottom:none;position:relative;z-index:2;transition:opacity .3s ease}
@@ -183,7 +183,7 @@ body[data-theme="light"] .cal-cell.today .cell-date-row .cell-date{background:#B
 .day-so-body .feed-item{padding:14px 16px;grid-template-columns:36px 1fr 100px;gap:0 12px;align-items:start}
 .day-so-body .feed-item:first-child{border-top:none}
 .feed-num{display:flex;flex-direction:column;align-items:flex-start;gap:0;padding-top:0;min-width:84px}
-.day-num-serif{font-family:'Playfair Display',serif;font-style:italic;font-size:26px;font-weight:500;color:rgba(255,255,255,.25);line-height:1;padding-top:2px;min-width:56px}
+.day-num-serif{font-family:'Boldonse',sans-serif;font-size:22px;font-weight:400;color:rgba(255,255,255,.25);line-height:1;padding-top:2px;min-width:56px}
 .feed-num-date{font-family:'Boldonse',sans-serif;font-size:34px;font-weight:400;color:rgba(255,255,255,.9);line-height:1.05}
 .feed-num-month{font-size:13px;font-weight:600;color:rgba(255,255,255,.45);letter-spacing:.14em;text-transform:uppercase;margin-top:2px}
 .feed-num-time{font-size:12px;color:rgba(255,255,255,.35);letter-spacing:.06em;margin-top:3px}
@@ -537,21 +537,25 @@ body[data-theme="light"] .date-range-clear:hover{color:#B8860B}
 .otd-modal.open{display:flex}
 .otd-bg{position:absolute;inset:-40px;background-size:cover;background-position:center;filter:blur(46px) brightness(.42) saturate(1.15);transform:scale(1.15) translateZ(0);background-color:#141210;will-change:opacity;opacity:1;transition:opacity 1.15s ease}
 .otd-bg.otd-bg-off{opacity:0}
-.otd-player{position:relative;z-index:2;width:100%;max-width:420px;padding:26px 28px 34px;display:flex;flex-direction:column;gap:16px;max-height:100vh;overflow-y:auto}
+.otd-player{position:relative;z-index:2;width:100%;max-width:420px;padding:26px 28px 34px;display:flex;flex-direction:column;gap:16px;max-height:100vh;overflow-y:auto;overflow-x:hidden}
 .otd-player-top{display:flex;align-items:flex-start;justify-content:space-between}
+.otd-head-txt{flex:1 1 0;min-width:0}
 .otd-art-wrap{position:relative;width:100%;aspect-ratio:1;max-height:46vh;display:flex;align-items:center;justify-content:center}
 .otd-art-orbit{position:absolute;inset:-8%;width:116%;height:116%;pointer-events:none;z-index:0}
-.otd-orbit-dot{transform-origin:200px 200px;animation:orbitSpin 20s linear infinite}
-.otd-art{position:relative;z-index:1;animation:float 6s ease-in-out infinite}
-.otd-art{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:52px;color:rgba(255,217,64,.3);box-shadow:none}
+/* 軌道光點:全 transform 合成層版。plane 把正圓壓成 rx196/ry70 並傾斜 -16deg,
+   spin 轉圈,dot 反轉+反壓維持自己是正圓。不再由 SVG 內部 transform 驅動。 */
+.otd-orbit-plane{position:absolute;left:-8%;top:-8%;width:116%;height:116%;pointer-events:none;z-index:0;transform:rotate(-16deg) scaleY(.35714)}
+.otd-orbit-spin{position:absolute;inset:0;animation:orbitSpin 20s linear infinite;will-change:transform}
+.otd-orbit-dot{position:absolute;left:99%;top:50%;width:6px;height:6px;margin:-3px 0 0 -3px;border-radius:50%;background:#FFD940;animation:orbitSpinRev 20s linear infinite;will-change:transform}
+@keyframes orbitSpinRev{from{transform:rotate(0) scaleY(2.8)}to{transform:rotate(-360deg) scaleY(2.8)}}
+.otd-art{position:relative;z-index:1;width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:52px;color:rgba(255,217,64,.3);box-shadow:none;overflow:visible;transition:transform .42s var(--ease-out);will-change:transform}
+.otd-art-float{position:absolute;inset:0;animation:float 6s ease-in-out infinite;will-change:transform}
 .otd-art img{max-width:100%;max-height:100%;display:block;box-shadow:0 24px 60px rgba(0,0,0,.6)}
 #otd-art-img,#otd-art-img2{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);max-width:100%;max-height:100%;display:none;box-shadow:0 24px 60px rgba(0,0,0,.55);opacity:0;transition:opacity .5s var(--ease-out)}
 #otd-art-img.show,#otd-art-img2.show{opacity:1}
-.otd-art{overflow:visible}
-.otd-art[data-empty]::after{content:attr(data-empty)}
+.otd-art[data-empty]::after{content:attr(data-empty);animation:float 6s ease-in-out infinite}
 .otd-art.slide-out-l{transform:scale(.985) translateX(-8px)}
 .otd-art.slide-out-r{transform:scale(.985) translateX(8px)}
-.otd-art{transition:transform .42s var(--ease-out);will-change:transform}
 
 
 @keyframes artInL{from{transform:scale(.96) translateX(16px);opacity:0}to{transform:scale(1) translateX(0);opacity:1}}
@@ -579,12 +583,9 @@ body[data-theme="light"] .date-range-clear:hover{color:#B8860B}
 .otd-dots{display:flex;gap:7px;align-items:center}
 .otd-dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.28);border:none;padding:0;cursor:pointer;transition:all .25s}
 .otd-dot.active{background:#FFD940;width:22px;border-radius:4px}
-.otd-title{font-family:'Noto Sans TC',sans-serif;font-weight:600;font-size:17px;color:#FFD940;letter-spacing:.04em;text-shadow:0 1px 8px rgba(0,0,0,.5)}
-.otd-sub{font-size:11px;color:rgba(255,255,255,.55);margin-top:2px;letter-spacing:.06em}
-.otd-empty{position:relative;z-index:2;text-align:center;color:rgba(255,255,255,.6);font-size:13px;padding:30px}
-.otd-empty .big{display:block;margin-bottom:14px;animation:float 3s ease-in-out infinite}
-.otd-title{font-family:'Noto Sans TC',sans-serif;font-weight:600;font-size:20px;color:#FFD940;letter-spacing:.04em}
+.otd-title{font-family:'Noto Sans TC',sans-serif;font-weight:600;font-size:20px;color:#FFD940;letter-spacing:.04em;text-shadow:0 1px 8px rgba(0,0,0,.5)}
 .otd-sub{font-size:11px;color:rgba(255,255,255,.4);margin-top:2px;letter-spacing:.06em}
+.otd-empty{position:relative;z-index:2;text-align:center;color:rgba(255,255,255,.6);font-size:13px;padding:30px}
 .otd-empty .big{font-size:34px;display:block;margin-bottom:10px;animation:float 3s ease-in-out infinite}
 
 
@@ -601,16 +602,16 @@ body[data-theme="light"] .dock-item:not(.active):hover{color:#1E1B18;background:
 .dock-add:hover{transform:scale(1.1)}
 .dock-add:active{transform:scale(.94)}
 @media(max-width:700px){
-  .bottom-dock{bottom:12px;padding:3px 7px;gap:1px;max-width:calc(100vw - 24px)}
-  .dock-item{padding:4px 8px;min-width:42px;font-size:8px}
-  .dock-item svg{width:18px;height:18px}
+  .bottom-dock{bottom:26px;padding:4px 8px;gap:2px;max-width:calc(100vw - 24px)}
+  .dock-item{padding:5px 9px;min-width:44px;font-size:8.4px}
+  .dock-item svg{width:19px;height:19px}
   .dock-add{width:38px;height:38px}
   .dock-add-plus{font-size:19px}
 }
 
 
 /* ── Light theme ── */
-body[data-theme="light"]{background:linear-gradient(160deg,#F4F1EC,#EDE8E0 60%,#F0EBE4);color:#2A2622}
+body[data-theme="light"]{--c-message:#C9A67E;--c-message-glow:rgba(176,141,95,.3);--c-bg:#F4F1EC;--c-surface:#FFFFFF;--c-surface-alt:#E8E4DC;--c-border:#D8D2C8;--c-border2:#C8C2B8;--c-text:#1A1714;--c-muted:rgba(26,23,20,.5);--c-hint:rgba(26,23,20,.55);--c-accent:#B8860B}
 
 body[data-theme="light"] .cal-month-title,body[data-theme="light"] #cal-title{color:#2A2622 !important}
 body[data-theme="light"] .nav-btn{border-color:rgba(0,0,0,.2);color:rgba(0,0,0,.55)}
@@ -869,8 +870,10 @@ body[data-theme="light"] .sync-pill::before{background:#B8860B;box-shadow:none}
 @media(max-width:700px){.sync-pill{bottom:auto;top:10px;left:10px;padding:4px 10px;font-size:10px}}
 
 
-.otd-title.title-emerge{animation:titleEmerge 1.8s ease both}
-@keyframes titleEmerge{from{opacity:0;letter-spacing:.3em}to{opacity:1;letter-spacing:.04em}}
+/* 原本動畫 letter-spacing,每幀觸發文字重排;改成逐字 translateX,走合成層 */
+.otd-title .tc{display:inline-block;white-space:pre}
+.otd-title.title-emerge .tc{animation:titleEmergeChar 1.8s ease both;will-change:transform,opacity}
+@keyframes titleEmergeChar{from{opacity:0;transform:translateX(calc(var(--i) * .26em))}to{opacity:1;transform:translateX(0)}}
 
 
 /* lightbox nav */
@@ -907,11 +910,18 @@ body[data-theme="light"] input[type="date"],body[data-theme="light"] input[type=
 .search-clear{background:none;border:none;cursor:pointer;color:rgba(255,255,255,.4);font-size:14px;padding:0 4px;flex-shrink:0;transition:color .15s}
 .feed-series-chip{background:none;border:1px solid rgba(255,255,255,.18);border-radius:3px;padding:1px 7px;font-family:'Archivo',sans-serif;font-size:10px;letter-spacing:.1em;color:rgba(255,255,255,.55);cursor:pointer;transition:color .15s,border-color .15s;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .feed-series-chip:hover{color:#FFD940;border-color:#FFD940}
-.feed-place-row{margin-top:5px}
-.feed-place-chip{background:none;border:none;padding:0;font-family:'Archivo',sans-serif;font-size:11px;letter-spacing:.08em;color:rgba(255,255,255,.45);cursor:pointer;transition:color .15s}
+.feed-place-row{margin-top:5px;display:flex;align-items:center;gap:7px}
+.feed-place-chip{background:none;border:none;padding:0;font-family:'Archivo',sans-serif;font-size:11px;letter-spacing:.08em;color:rgba(255,255,255,.45);cursor:pointer;transition:color .15s;text-align:left;min-width:0}
 .feed-place-chip:hover{color:#FFD940}
 body[data-theme="light"] .feed-place-chip{color:rgba(26,23,20,.45)}
 body[data-theme="light"] .feed-place-chip:hover{color:#B8860B}
+/* 地點 → 地圖。細髮線分隔,10px 線稿針點,不搶 chip 的視覺重量 */
+.feed-place-map{flex:0 0 auto;background:none;border:none;margin:0;padding:1px 0 1px 7px;line-height:0;cursor:pointer;color:rgba(255,255,255,.3);border-left:1px solid rgba(255,255,255,.13);transition:color .15s;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;touch-action:manipulation}
+.feed-place-map.lp{color:#FFD940}
+.feed-place-map svg{width:10px;height:10px;display:block;fill:none;stroke:currentColor;stroke-width:1.1;stroke-linejoin:round;stroke-linecap:round}
+.feed-place-map:hover{color:#FFD940}
+body[data-theme="light"] .feed-place-map{color:rgba(26,23,20,.3);border-left-color:rgba(26,23,20,.15)}
+body[data-theme="light"] .feed-place-map:hover{color:#B8860B}
 .batch-toggle{background:none;border:1px solid rgba(255,255,255,.18);border-radius:3px;height:44px;padding:0 14px;font-family:'Archivo',sans-serif;font-size:11px;letter-spacing:.14em;color:rgba(255,255,255,.55);cursor:pointer;flex-shrink:0;transition:color .15s,border-color .15s}
 @media(max-width:700px){.batch-toggle{height:38px;padding:0 11px}}
 .batch-toggle:hover,.batch-toggle.on{color:#FFD940;border-color:#FFD940}
@@ -937,7 +947,6 @@ body[data-theme="light"] .search-clear:hover{color:#B8860B}
 body.scrolled .mini-bar{transform:translateY(0)}
 body.scrolled .site-header{opacity:0;pointer-events:none}
 .mini-title{font-family:'Boldonse',sans-serif;font-size:13px;letter-spacing:.16em;color:#FFD940;text-transform:uppercase;white-space:nowrap;line-height:1}
-.mini-title i{font-family:'Playfair Display',serif;font-style:italic;font-weight:500;font-size:19px;text-transform:none;letter-spacing:0}
 body[data-theme="light"] .mini-bar{background:rgba(239,235,227,.94);border-bottom-color:rgba(0,0,0,.08)}
 body[data-theme="light"] .mini-title{color:#B8860B}
 
@@ -1153,9 +1162,6 @@ body[data-theme="light"] .clock-time.clock-egg{color:#8A6D00}
 .rotor-star{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:13px;color:#FFD940}
 
 /* title: two lines, contrasting fonts (bold sans + italic serif) */
-.hdr-title-stack{margin:0;display:flex;flex-direction:column;align-items:flex-start;line-height:.9}
-.tl-1{font-family:'Boldonse',sans-serif;font-weight:400;font-size:clamp(40px,7.6vw,104px);letter-spacing:-.01em;color:#F5F2EC;text-transform:uppercase;line-height:1;position:relative;z-index:1}
-.tl-2{font-family:'Playfair Display',serif;font-style:italic;font-weight:500;font-size:90px;letter-spacing:0;color:#928A6B;text-transform:capitalize;margin-top:-.34em;margin-left:0;position:relative;z-index:3;top:15px;left:5px}
 
 /* breathing orbit (wgb style, right side) */
 .hdr-orbit-breathe{position:absolute;right:169px;top:64%;transform:translateY(-50%);width:min(59vw,507px);height:auto;aspect-ratio:520/340;flex-shrink:0;opacity:1;cursor:pointer;z-index:0;pointer-events:auto}
@@ -1167,9 +1173,6 @@ body[data-theme="light"] .clock-time.clock-egg{color:#8A6D00}
 
 body[data-theme="light"] .clock-label{color:rgba(26,23,20,.4)}
 body[data-theme="light"] .clock-time{color:rgba(26,23,20,.75)}
-body[data-theme="light"] .tl-1{color:#1A1714}
-body[data-theme="light"] .tl-2{color:rgba(26,23,20,.6)}
-
 @media(max-width:700px){
   .hdr-main{flex-direction:column;padding:24px 18px 20px;gap:18px}
   .hdr-orbit-breathe{width:min(56vw,200px);height:min(56vw,200px);order:-1;right:6px;top:46%}
@@ -1247,8 +1250,8 @@ body[data-theme="light"] .nx-rtext{fill:rgba(26,23,20,.6)}
 
 /* Pure-CSS circular text rotor (fixed radius, theme-independent) */
 .rotor-css{position:absolute;inset:0;width:100%;height:100%;animation:rotorSpin 18s linear infinite}
-.rotor-css span{position:absolute;top:0;left:50%;width:0;height:50%;transform-origin:bottom center;font-family:'Archivo','Noto Sans TC',sans-serif;font-size:11px;font-weight:700;line-height:1;letter-spacing:0;color:rgba(245,242,236,.75);white-space:nowrap}
-.rotor-css span b{display:inline-block;transform:translateX(-50%);font-weight:700;text-transform:uppercase}
+.rotor-css span{position:absolute;top:0;left:50%;width:0;height:50%;transform-origin:bottom center;font-family:'Archivo','Noto Sans TC',sans-serif;font-size:11px;font-weight:600;line-height:1;letter-spacing:0;color:rgba(245,242,236,.75);white-space:nowrap}
+.rotor-css span b{display:inline-block;transform:translateX(-50%);font-weight:600;text-transform:uppercase}
 body[data-theme="light"] .rotor-css span{color:rgba(26,23,20,.78)}
 @media(max-width:700px){.rotor-css span{font-size:8px}}
 
@@ -1315,17 +1318,28 @@ body[data-theme="light"] .cp-meta{color:rgba(26,23,20,.55)}
 .hdr-ref .hdr-krname-vert b:nth-child(3){transition-delay:.18s}
 .hdr-ref .hdr-krname-vert.lit b{color:var(--orb-c);transform:translateX(-2px)}
 .hdr-ref .hdr-krname-vert.spin b{transition:none}
+
+.hdr-ref .hdr-coord{position:relative;display:inline-block;white-space:nowrap}
+.hdr-coord .cd-n{display:inline-block}
+.hdr-coord .cd-l{position:absolute;right:100%;top:0;margin-right:.62em}
+.hdr-coord .cd-r{position:absolute;left:100%;top:0;margin-left:.62em}
+@media(max-width:700px){
+  .hdr-coord .cd-l,.hdr-coord .cd-r{position:static;margin:0}
+  .hdr-coord .cd-l{margin-right:.5em}
+  .hdr-coord .cd-r{margin-left:.5em}
+}
 /* ===== reference-style header ===== */
 .hdr-ref{--orb-c:#E4D24A;position:relative;width:calc(100% + 48px);max-width:none;margin:0 -24px;padding:96px 32px 108px;min-height:390px;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;isolation:isolate}
 .hdr-glow{position:absolute;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none}
 .site-header{isolation:isolate;--glow-c:#e2d880}
 body[data-theme="light"] .site-header{--glow-c:#E6D28C}
-.hdr-ref .hdr-title-stack{position:relative;z-index:2;margin:0;width:100%;display:flex;justify-content:center}
-.hdr-wordmark{display:block;width:min(74%,722px);height:auto;fill:#F5F2EC;transform:translateX(calc(7% + 270px))}
+.hdr-ref .hdr-title-stack{position:relative;z-index:2;margin:0;width:100%;display:flex;flex-direction:row;align-items:center;justify-content:center;line-height:.9}
+.hdr-wm{position:relative;display:block;width:min(74%,722px);transform:translateX(-19px)}
+.hdr-wordmark{display:block;width:100%;height:auto;fill:#F5F2EC}
 body[data-theme="light"] .hdr-wordmark{fill:#1A1714}
-@media(max-width:700px){.hdr-wordmark{width:83.6%;transform:translateX(3%)}}
+@media(max-width:700px){.hdr-wm{width:83.6%;transform:translateX(-8%)}}
 .hdr-ref .hdr-corner{position:absolute;z-index:3}
-.hc-tc{top:62px;left:50%;transform:translateX(-50%)}
+.hc-tc{top:62px;left:calc(50% - 8.4px);transform:translateX(-50%)}
 .hc-bc{bottom:26px;left:50%;transform:translateX(-50%)}
 .hc-lm{left:138px;top:62%;transform:translateY(-50%)}
 .hdr-ref .hdr-coord,.hdr-ref .hdr-role{font-family:'Archivo',sans-serif;font-size:12px;letter-spacing:.22em;color:rgba(245,242,236,.85);white-space:nowrap}
@@ -1334,7 +1348,7 @@ body[data-theme="light"] .hdr-wordmark{fill:#1A1714}
 .hdr-ref .clock-time{font-size:12px;letter-spacing:.14em;color:rgba(245,242,236,.8)}
 .hdr-ref .hdr-krname-vert{position:absolute;right:134px;top:58%;transform:translateY(-50%);writing-mode:vertical-rl;font-family:'Noto Sans TC',sans-serif;font-size:15px;letter-spacing:.16em;color:rgba(245,242,236,.85);z-index:3}
 /* orbit cluster (top-right) */
-.hdr-orb{position:absolute;right:9%;top:24%;width:min(26vw,250px);aspect-ratio:1.3/1;z-index:3;transform:translate(calc(-33.3% - 40px),-32.7%)}
+.hdr-orb{position:absolute;left:94.6%;top:28.9%;width:min(26vw,250px);aspect-ratio:1.3/1;z-index:3;transform:translate(-50%,-50%)}
 .hdr-orb .hdr-rotor{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:66.6%;height:0;padding-bottom:66.6%}
 .hdr-orb .orb-ring{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
 .hdr-orb .rotor-css span{color:rgba(245,242,236,.9);font-size:11px;letter-spacing:.02em}
@@ -1346,12 +1360,12 @@ body[data-theme="light"] .hdr-ref .hdr-krname-vert{color:rgba(26,23,20,.8)}
 body[data-theme="light"] .hdr-orb .rotor-css span{color:rgba(26,23,20,.85)}
 @media(max-width:700px){
   .hdr-ref{padding:76px 18px 60px;min-height:300px;width:calc(100% + 28px);margin:0 -14px}
-  .hdr-orb{right:45px;top:80px;width:min(34vw,141.8px);transform:none}
+  .hdr-orb{left:94.6%;top:28.9%;right:auto;width:min(34vw,141.8px);transform:translate(-50%,-50%)}
   .hdr-ref .hdr-krname-vert{right:12px;font-size:12px;top:auto;bottom:68px;transform:none}
   .hc-lm{left:14px;top:auto;bottom:70px;transform:none}
   .hdr-ref .hdr-clock{flex-direction:column;align-items:flex-start;gap:1px;line-height:1.15}
   .hdr-ref .clock-label{font-size:9px;letter-spacing:.28em}
-  .hc-tc{top:50px}
+  .hc-tc{top:50px;left:50%}
   .hc-bc{bottom:9px}
   .hdr-ref .hdr-coord,.hdr-ref .hdr-role,.hdr-ref .clock-label,.hdr-ref .clock-time{font-size:10px;letter-spacing:.16em}
   .hdr-orb .rotor-css span{font-size:5px;letter-spacing:0}
@@ -1428,9 +1442,19 @@ body[data-theme="light"] .hdr-orb .rotor-css span{color:rgba(26,23,20,.85)}
     </svg>
 
   <div class="hdr-main hdr-ref">
-    <div class="hdr-corner hc-tc"><span class="hdr-coord">19°90´ N 01°25´ E</span></div>
+    <div class="hdr-corner hc-tc"><span class="hdr-coord"><span class="cd-l">19°90´</span><span class="cd-n">N</span><span class="cd-r">01°25´ E</span></span></div>
 
-    <h1 class="hdr-title-stack"><svg class="hdr-wordmark" viewBox="0 0 878.2 401.01" role="img" aria-label="Leejunho Calendar"><!-- Generator: Adobe Illustrator 30.5.1, SVG Export Plug-In . SVG Version: 2.1.4 Build 3) --> <path d="M159.69,83.23c1.84,1.02,3.79,1.84,5.92,2.38,2.2.56,4.4,1.02,6.6,1.38,2.2.36,4.36.68,6.48.96s4.02.46,5.7.54c3.04-9.28,6.84-17.93,11.41-25.94,4.56-8,9.55-15.29,14.95-21.85,5.4-6.56,11.09-12.37,17.05-17.41s11.89-9.3,17.77-12.79c5.88-3.48,11.57-6.1,17.05-7.86,5.48-1.76,10.5-2.64,15.07-2.64,5.84,0,10.55,1.52,14.11,4.56,3.56,3.04,5.34,7.77,5.34,14.17,0,3.76-1.06,7.97-3.18,12.61-2.12,4.64-5.14,9.42-9.06,14.35-3.92,4.92-8.69,9.87-14.29,14.83-5.6,4.96-11.91,9.67-18.91,14.11-7.01,4.44-14.65,8.48-22.93,12.13-8.28,3.64-17.03,6.59-26.23,8.83-3.6,9.77-7.32,19.71-11.17,29.84-3.84,10.13-7.92,20.21-12.25,30.26-4.32,10.05-8.99,19.87-13.99,29.48-5,9.6-10.55,18.77-16.63,27.49,7.12,6.33,14.19,12.55,21.19,18.67s14.15,11.59,21.43,16.39c7.28,4.8,14.81,8.66,22.57,11.59,7.76,2.92,15.97,4.38,24.61,4.38,9.44,0,19.95-1.29,31.03-4.42,28.16-7.96,50.87-21.13,71.61-44.22,1.75-1.95,4.72-6.98,7.57-6.98,2,0,3,.76,3,2.28,0,2.16-13.92,17.93-18.52,23.02-4.6,5.08-11.87,11.51-21.79,19.27-6.72,5.44-13.15,10.09-19.27,13.93s-12.05,6.96-17.77,9.36-11.23,4.16-16.51,5.28-10.37,1.68-15.25,1.68c-9.69,0-18.85-1.86-27.49-5.58-8.65-3.72-17.01-8.54-25.09-14.47-8.09-5.92-16.07-12.57-23.95-19.93-7.88-7.36-15.91-14.73-24.07-22.09-5.28,6.25-10.93,11.95-16.93,17.11-6,5.16-12.43,9.6-19.27,13.33-6.84,3.72-14.13,6.6-21.85,8.64-7.73,2.04-15.95,3.06-24.67,3.06-10.09,0-18.85-1.44-26.29-4.32-7.44-2.88-13.59-6.68-18.43-11.41-4.84-4.72-8.45-10.11-10.81-16.15-2.36-6.04-3.54-12.19-3.54-18.43s1.12-12.2,3.36-18.13c2.24-5.92,5.52-11.19,9.85-15.79,4.32-4.6,9.68-8.3,16.09-11.11,6.4-2.8,13.77-4.2,22.09-4.2s15.89.96,23.17,2.88,14.29,4.5,21.01,7.74,13.17,7.02,19.33,11.35c6.16,4.32,12.17,8.88,18.01,13.69,4.64-7.92,9.1-16.19,13.39-24.79,4.28-8.6,8.44-17.35,12.49-26.23,4.04-8.89,8-17.81,11.89-26.77,3.88-8.96,7.74-17.77,11.59-26.41-1.68,0-3.56-.06-5.64-.18s-4.24-.26-6.48-.42c-2.24-.16-4.46-.38-6.66-.66-2.2-.28-4.26-.62-6.18-1.02-3.6-.64-7.3-1.1-11.11-1.38-3.8-.28-7.38-.84-10.75-1.68s-6.38-2.16-9.06-3.96c-2.68-1.8-4.74-4.5-6.18-8.1-.64-1.52-.96-3-.96-4.44,0-1.12.24-2.24.72-3.36s1.18-2.14,2.1-3.06,2-1.66,3.24-2.22c1.24-.56,2.62-.84,4.14-.84,2.48,0,5.12.76,7.92,2.28,8.35,4.54,14.16,12.87,22.32,17.38ZM57.73,253.83c7.68,0,14.81-1.12,21.37-3.36,6.56-2.24,12.69-5.36,18.37-9.36,5.68-4.01,10.97-8.79,15.85-14.35,4.88-5.56,9.49-11.67,13.81-18.31-5.6-4.4-11.39-8.53-17.35-12.37s-12.19-7.2-18.67-10.09-13.27-5.14-20.35-6.78c-7.08-1.64-14.59-2.46-22.51-2.46-4.72,0-8.87,1-12.43,3s-6.54,4.64-8.95,7.92-4.22,7.04-5.46,11.29c-1.24,4.24-1.86,8.65-1.86,13.21,0,5.04.78,10.07,2.34,15.07s3.9,9.47,7.02,13.39c3.12,3.92,7.08,7.1,11.89,9.55,4.8,2.44,10.45,3.66,16.93,3.66h0ZM205.05,86.46c7.76-2.64,15.15-5.94,22.15-9.9s13.49-8.22,19.45-12.79c5.96-4.56,11.35-9.28,16.15-14.17,4.8-4.88,8.9-9.6,12.31-14.17,3.4-4.56,6-8.78,7.8-12.67,1.8-3.88,2.7-7.1,2.7-9.66,0-3.6-1.84-5.4-5.52-5.4-2.64,0-6.04.96-10.21,2.88-4.16,1.92-8.66,4.64-13.51,8.16-21.91,15.9-43.33,41.55-51.32,67.72Z"/> <path d="M321.46,170.51v8.92h-74.33c.49,2.45,1.28,4.71,2.38,6.79s2.34,3.85,3.73,5.32c1.55,1.63,3.18,2.98,4.89,4.03,1.71,1.06,3.79,1.88,6.23,2.45,1.06.33,2.18.57,3.36.73,1.18.16,2.42.24,3.73.24,3.91,0,7.5-.65,10.76-1.96,3.26-1.3,5.91-3.14,7.95-5.5.49-.57.94-1.18,1.34-1.83.41-.65.77-1.3,1.1-1.96h27.99c-1.14,5.05-2.81,9.45-5.01,13.2s-4.65,6.89-7.34,9.41c-3.1,3.1-6.58,5.75-10.45,7.95-3.87,2.2-8.09,3.91-12.65,5.14-2.2.57-4.48,1.02-6.85,1.34-2.36.32-4.77.49-7.21.49-6.28,0-11.96-.92-17.05-2.75-5.09-1.83-9.64-4.3-13.63-7.4-8.72-6.68-14.71-15.61-17.97-26.77-1.63-5.54-2.45-11.49-2.45-17.85s.86-11.98,2.57-17.6c1.71-5.62,4.11-10.63,7.21-15.04,3.18-4.48,6.91-8.31,11.19-11.49s8.99-5.62,14.12-7.33c5.21-1.71,10.64-2.57,16.26-2.57s10.8.92,16.02,2.75c5.21,1.83,9.82,4.38,13.81,7.64,4.16,3.42,7.76,7.33,10.82,11.74,3.06,4.4,5.4,9.37,7.03,14.91,1.63,5.38,2.45,11.04,2.45,16.99h0ZM247.62,161.09h46.82c-1.3-4.32-3.5-8.03-6.6-11.12-3.02-3.01-6.56-5.14-10.64-6.36-1.06-.24-2.12-.45-3.18-.61s-2.16-.24-3.3-.24c-4.16,0-8.15,1.1-11.98,3.3-1.39.82-2.83,1.96-4.34,3.42-1.51,1.47-2.87,3.3-4.1,5.5-1.14,2.04-2.04,4.07-2.69,6.11h.01Z"/> <path d="M429.04,170.51v8.92h-74.33c.49,2.45,1.28,4.71,2.38,6.79s2.34,3.85,3.73,5.32c1.55,1.63,3.18,2.98,4.89,4.03,1.71,1.06,3.79,1.88,6.23,2.45,1.06.33,2.18.57,3.36.73,1.18.16,2.42.24,3.73.24,3.91,0,7.5-.65,10.76-1.96,3.26-1.3,5.91-3.14,7.95-5.5.49-.57.94-1.18,1.34-1.83.41-.65.77-1.3,1.1-1.96h27.99c-1.14,5.05-2.81,9.45-5.01,13.2s-4.65,6.89-7.34,9.41c-3.1,3.1-6.58,5.75-10.45,7.95-3.87,2.2-8.09,3.91-12.65,5.14-2.2.57-4.48,1.02-6.85,1.34-2.36.32-4.77.49-7.21.49-6.28,0-11.96-.92-17.05-2.75s-9.64-4.3-13.63-7.4c-8.72-6.68-14.71-15.61-17.97-26.77-1.63-5.54-2.45-11.49-2.45-17.85s.86-11.98,2.57-17.6c1.71-5.62,4.11-10.63,7.21-15.04,3.18-4.48,6.91-8.31,11.19-11.49s8.99-5.62,14.12-7.33c5.21-1.71,10.64-2.57,16.26-2.57s10.8.92,16.02,2.75c5.21,1.83,9.82,4.38,13.81,7.64,4.16,3.42,7.76,7.33,10.82,11.74,3.06,4.4,5.4,9.37,7.03,14.91,1.63,5.38,2.45,11.04,2.45,16.99h0ZM355.2,161.09h46.82c-1.3-4.32-3.5-8.03-6.6-11.12-3.02-3.01-6.56-5.14-10.64-6.36-1.06-.24-2.12-.45-3.18-.61s-2.16-.24-3.3-.24c-4.16,0-8.15,1.1-11.98,3.3-1.39.82-2.83,1.96-4.34,3.42-1.51,1.47-2.87,3.3-4.1,5.5-1.14,2.04-2.04,4.07-2.69,6.11h.01Z"/> <path d="M438.2,117.69h27.51v118.58c0,6.52-1.3,11.74-3.91,15.65-2.61,3.91-6.52,6.52-11.74,7.82-2.61.65-5.54.98-8.8.98h-20.17l1.22-26.28h12.22c2.44,0,3.67-1.22,3.67-3.67v-113.08h0ZM436.74,94.35c0-3.5.98-6.64,2.93-9.41.81-1.3,1.89-2.45,3.24-3.42,1.34-.98,2.75-1.67,4.22-2.08,1.55-.49,3.18-.73,4.89-.73s3.22.23,4.77.67c1.55.45,3.01,1.16,4.4,2.14,2.61,1.95,4.4,4.52,5.38,7.7.49,1.63.73,3.34.73,5.14,0,4.48-1.43,8.27-4.28,11.37-2.85,3.1-6.52,4.65-11,4.65-3.51,0-6.52-1.02-9.05-3.06-1.3-.98-2.4-2.1-3.3-3.36s-1.63-2.79-2.2-4.58c-.49-1.55-.73-3.22-.73-5.01v-.02Z"/> <path d="M477.93,197.15v-79.46h27.51v74.57c0,1.71.41,3.18,1.22,4.4.24.41.67.82,1.28,1.22.61.41,1.28.69,2.02.86.73.16,1.42.24,2.08.24s1.26-.06,1.84-.18c.57-.12,1.18-.26,1.83-.43.73-.16,1.35-.39,1.84-.67.49-.28,1.14-.63,1.96-1.04.32-.16.63-.35.92-.55.28-.2.59-.43.92-.67v-77.75h27.5v106.36h-27.5c0-.81.08-1.63.24-2.45.16-.81.41-1.79.74-2.93.16-.81.45-1.79.85-2.93.41-1.14.81-2.12,1.22-2.93.24-.41.49-.81.73-1.22.16-.41.37-.77.61-1.1l-.98-.73c-1.47,1.96-2.96,3.79-4.46,5.5s-3.08,3.14-4.71,4.28c-1.71,1.22-3.4,2.26-5.07,3.12-1.67.85-3.48,1.49-5.44,1.89-.9.24-1.82.43-2.75.55-.94.12-1.89.18-2.87.18-5.13,0-9.58-1.63-13.33-4.89-1.79-1.55-3.28-3.5-4.46-5.87-1.18-2.36-2.1-4.93-2.75-7.7-.65-2.93-.98-6.15-.98-9.66h0Z"/> <path d="M561.06,117.69h27.51c0,.33-.08,1-.24,2.02s-.37,1.81-.61,2.38c-.33.9-.65,1.79-.98,2.69-.33.9-.82,1.96-1.47,3.18-.24.49-.49.96-.73,1.41s-.53.92-.86,1.41l1.47,1.22c1.55-2.28,3.01-4.14,4.4-5.56,1.39-1.43,2.93-2.83,4.64-4.22,1.55-1.22,3.26-2.28,5.14-3.18,1.87-.9,3.71-1.55,5.5-1.96.9-.16,1.81-.31,2.75-.43s1.89-.18,2.87-.18c2.45,0,4.87.39,7.27,1.16s4.5,1.94,6.3,3.48c3.58,3.26,5.95,7.82,7.09,13.69.25,1.47.45,3.02.61,4.64.16,1.63.24,3.34.24,5.14v79.46h-27.5v-74.57c0-.98-.08-1.73-.25-2.26-.16-.53-.49-1.24-.98-2.14-.33-.49-.82-.94-1.47-1.34-.65-.41-1.22-.65-1.71-.73-.82-.16-1.55-.24-2.2-.24s-1.26.06-1.83.18-1.18.27-1.84.43c-.73.16-1.34.39-1.83.67-.49.29-1.14.63-1.96,1.04-.32.16-.63.35-.92.55s-.59.43-.92.67v77.75h-27.51v-106.36h.02Z"/> <path d="M671.69,77.35v40.34c0,.49-.06,1.12-.18,1.89-.12.78-.39,1.69-.8,2.75-.41,1.14-.73,2.08-.98,2.81-.24.73-.73,1.71-1.47,2.93-.24.49-.49.96-.73,1.41s-.49.88-.73,1.28l1.47,1.22c1.55-2.28,3.01-4.14,4.4-5.56s2.93-2.83,4.65-4.22c1.55-1.22,3.26-2.28,5.14-3.18,1.87-.9,3.71-1.55,5.5-1.96.9-.16,1.81-.31,2.75-.43s1.89-.18,2.87-.18c2.45,0,4.87.39,7.27,1.16s4.5,1.94,6.3,3.48c3.59,3.26,5.95,7.82,7.09,13.69.24,1.47.45,3.02.61,4.64.16,1.63.24,3.34.24,5.14v79.46h-27.51v-74.57c0-.98-.08-1.73-.24-2.26s-.49-1.24-.98-2.14c-.33-.49-.82-.94-1.47-1.34-.65-.41-1.22-.65-1.71-.73-.81-.16-1.55-.24-2.2-.24s-1.27.06-1.83.18c-.57.12-1.18.27-1.84.43-.73.16-1.35.39-1.84.67-.49.29-1.14.63-1.95,1.04-.33.16-.63.35-.92.55-.28.2-.59.43-.92.67v77.75h-27.5V77.35h27.51Z"/> <path d="M778.05,225.27c-6.2,0-11.98-.96-17.36-2.87s-10.19-4.5-14.43-7.76c-4.4-3.26-8.25-7.09-11.55-11.49-3.3-4.4-5.89-9.54-7.76-15.4-1.79-5.38-2.69-11.13-2.69-17.24s.9-11.53,2.69-16.99,4.32-10.43,7.58-14.91c3.42-4.65,7.39-8.6,11.92-11.86,4.52-3.26,9.35-5.75,14.49-7.46,2.69-.9,5.46-1.59,8.31-2.08s5.79-.73,8.8-.73c5.78,0,11.43.94,16.93,2.81s10.45,4.4,14.85,7.58c4.32,3.26,8.17,7.15,11.55,11.67s5.97,9.52,7.76,14.98c.81,2.69,1.47,5.46,1.96,8.31.49,2.85.73,5.75.73,8.68,0,4.89-.75,10.15-2.26,15.77-1.51,5.62-4.22,11.17-8.13,16.62-3.26,4.57-7.17,8.52-11.74,11.86s-9.45,5.91-14.67,7.7c-2.69.9-5.46,1.59-8.31,2.08s-5.74.73-8.68.73h.01ZM778.17,198.99c2.69,0,5.4-.45,8.13-1.35,2.73-.9,5.15-2.24,7.27-4.03,2.69-2.12,4.79-4.42,6.3-6.91,1.51-2.48,2.55-4.79,3.12-6.91.41-1.39.73-2.83.98-4.34.24-1.51.37-3.04.37-4.58,0-3.18-.45-6.17-1.34-8.98-.9-2.81-2.12-5.4-3.67-7.76-1.39-1.96-3.14-3.85-5.26-5.68-2.12-1.83-4.69-3.28-7.7-4.34-2.69-.9-5.42-1.34-8.19-1.34-5.87,0-11.05,1.75-15.53,5.26-2.12,1.63-4.04,3.65-5.75,6.05-1.71,2.41-2.98,4.99-3.79,7.76-.41,1.39-.73,2.85-.98,4.4s-.37,3.1-.37,4.64c0,2.53.37,5.22,1.1,8.07.74,2.85,2.08,5.71,4.04,8.56,1.55,2.28,3.38,4.28,5.5,5.99s4.6,3.06,7.46,4.03c2.69.98,5.46,1.47,8.31,1.47h0Z"/> <g> <path d="M226.24,351.73h27.75c-.16,5.79-1.18,11.12-3.06,16.01s-4.28,9.25-7.21,13.08c-3.02,3.91-6.66,7.32-10.94,10.21-4.28,2.9-8.74,5.03-13.39,6.42-2.45.73-4.93,1.3-7.46,1.71-2.53.41-5.13.61-7.82.61-11.25,0-21.39-3.46-30.44-10.39-4.16-3.18-7.82-7.15-11-11.92-3.18-4.77-5.54-9.8-7.09-15.1-1.63-5.46-2.45-11.33-2.45-17.6s.86-12.14,2.57-17.6,4.11-10.39,7.21-14.79c2.93-4.4,6.52-8.19,10.76-11.37,4.24-3.18,8.96-5.66,14.18-7.46,5.22-1.71,10.64-2.57,16.26-2.57,10.68,0,20.21,2.85,28.61,8.56,8.48,5.79,14.51,13.53,18.09,23.23.9,2.44,1.61,5.01,2.14,7.7s.84,5.5.92,8.44h-27.63c-.16-2.36-.57-4.69-1.22-6.97s-1.67-4.36-3.06-6.23c-2.69-3.67-6.23-6.15-10.64-7.46-2.28-.65-4.65-.98-7.09-.98-2.69,0-5.22.41-7.58,1.22-2.37.81-4.61,2.08-6.72,3.79-2.04,1.63-3.77,3.67-5.2,6.11-1.43,2.45-2.43,4.97-3,7.58-.33,1.47-.59,2.98-.79,4.53s-.31,3.18-.31,4.89c0,3.18.35,6.26,1.04,9.23.69,2.98,1.77,5.6,3.24,7.88,2.85,4.73,6.68,7.94,11.49,9.66,2.36.9,4.97,1.35,7.82,1.35s5.22-.32,7.34-.98c2.12-.65,4.03-1.63,5.75-2.93,3.59-2.61,6.15-6.15,7.7-10.64.32-1.06.59-2.2.79-3.42s.35-2.49.43-3.79h.01Z"/> <path d="M260.1,370.92c0-4.24.57-8.13,1.71-11.67,1.14-3.54,2.93-6.74,5.38-9.6,2.45-2.85,5.48-5.28,9.11-7.27,3.63-2,7.92-3.73,12.9-5.2,2.53-.73,5.22-1.36,8.07-1.89,2.85-.53,5.87-1,9.05-1.41v-8.07c0-.81-.14-1.73-.43-2.75-.29-1.02-.63-1.81-1.04-2.38-.49-.65-1.02-1.24-1.59-1.77s-1.34-.96-2.32-1.28c-.98-.24-1.88-.37-2.69-.37-.73,0-1.61.12-2.63.37-1.02.24-1.81.61-2.38,1.1-1.3.98-2.2,2.32-2.69,4.03-.33.98-.49,1.87-.49,2.69v2.81h-26.89v-7.21c0-3.59.51-7.01,1.53-10.27,1.02-3.26,2.51-6.11,4.46-8.56,3.99-4.81,9.74-8.15,17.24-10.02,1.79-.41,3.73-.71,5.81-.92,2.08-.2,4.22-.31,6.42-.31,11.16,0,19.84,2.65,26.04,7.95,6.11,5.3,9.17,12.68,9.17,22.13v77.51h-27.51c0-.73.08-1.61.24-2.63.16-1.02.37-1.89.61-2.63.32-.9.67-1.77,1.04-2.63.37-.85.79-1.77,1.28-2.75.41-.73.98-1.55,1.71-2.44l-1.47-1.22c-1.3,2.28-2.63,4.18-3.97,5.68-1.34,1.51-2.79,2.87-4.34,4.1-1.47,1.22-3.08,2.26-4.83,3.12-1.75.85-3.73,1.49-5.93,1.89-.98.24-1.98.43-3,.55s-2.06.18-3.12.18c-2.69,0-5.32-.39-7.88-1.16-2.57-.77-4.99-2.1-7.27-3.97-2.04-1.55-3.75-3.56-5.13-6.05-1.39-2.49-2.41-5.15-3.06-8.01-.41-1.47-.69-3.01-.86-4.65-.16-1.63-.24-3.3-.24-5.01h0ZM288.22,366.76c0,1.22.14,2.34.43,3.36.28,1.02.63,1.77,1.04,2.26,1.06,1.63,2.49,2.65,4.28,3.06.98.32,1.91.49,2.81.49,2.77,0,5.95-1.02,9.54-3.06v-22.61c-2.44.82-4.65,1.63-6.6,2.45-1.96.81-3.67,1.79-5.14,2.93-1.3.98-2.47,2.04-3.48,3.18-1.02,1.14-1.73,2.4-2.14,3.79-.49,1.47-.73,2.85-.73,4.16h0Z"/> <path d="M373.55,398.55h-27.51v-146.7h27.51v146.7Z"/> <path d="M484.18,345v8.92h-74.33c.49,2.45,1.28,4.71,2.38,6.79s2.34,3.85,3.73,5.32c1.55,1.63,3.18,2.98,4.89,4.03,1.71,1.06,3.79,1.88,6.23,2.45,1.06.33,2.18.57,3.36.73s2.42.24,3.73.24c3.91,0,7.5-.65,10.76-1.96,3.26-1.3,5.91-3.14,7.95-5.5.49-.57.94-1.18,1.34-1.83.41-.65.77-1.3,1.1-1.96h27.99c-1.14,5.05-2.81,9.45-5.01,13.2s-4.65,6.89-7.34,9.41c-3.1,3.1-6.58,5.75-10.45,7.95-3.87,2.2-8.09,3.91-12.65,5.14-2.2.57-4.48,1.02-6.85,1.34-2.36.32-4.77.49-7.21.49-6.28,0-11.96-.92-17.05-2.75s-9.64-4.3-13.63-7.4c-8.72-6.68-14.71-15.61-17.97-26.77-1.63-5.54-2.45-11.49-2.45-17.85s.86-11.98,2.57-17.6c1.71-5.62,4.11-10.63,7.21-15.04,3.18-4.48,6.91-8.31,11.19-11.49s8.99-5.62,14.12-7.33c5.21-1.71,10.64-2.57,16.26-2.57s10.8.92,16.02,2.75c5.21,1.83,9.82,4.38,13.81,7.64,4.16,3.42,7.76,7.33,10.82,11.74,3.06,4.4,5.4,9.37,7.03,14.91,1.63,5.38,2.45,11.04,2.45,16.99h0ZM410.35,335.59h46.82c-1.3-4.32-3.5-8.03-6.6-11.12-3.02-3.01-6.56-5.14-10.64-6.36-1.06-.24-2.12-.45-3.18-.61-1.06-.16-2.16-.24-3.3-.24-4.16,0-8.15,1.1-11.98,3.3-1.39.82-2.83,1.96-4.34,3.42-1.51,1.47-2.87,3.3-4.1,5.5-1.14,2.04-2.04,4.07-2.69,6.11h.01Z"/> <path d="M493.35,292.19h27.5c0,.33-.08,1-.24,2.02s-.37,1.81-.61,2.38c-.33.9-.65,1.79-.98,2.69-.32.9-.81,1.96-1.47,3.18-.24.49-.49.96-.73,1.41-.25.45-.53.92-.86,1.41l1.47,1.22c1.55-2.28,3.01-4.14,4.4-5.56s2.93-2.83,4.65-4.22c1.55-1.22,3.26-2.28,5.14-3.18,1.87-.9,3.71-1.55,5.5-1.96.9-.16,1.81-.31,2.75-.43s1.89-.18,2.87-.18c2.45,0,4.87.39,7.27,1.16s4.5,1.94,6.3,3.48c3.59,3.26,5.95,7.82,7.09,13.69.24,1.47.45,3.02.61,4.64.16,1.63.24,3.34.24,5.14v79.46h-27.51v-74.57c0-.98-.08-1.73-.24-2.26s-.49-1.24-.98-2.14c-.33-.49-.82-.94-1.47-1.34-.65-.41-1.22-.65-1.71-.73-.81-.16-1.55-.24-2.2-.24s-1.27.06-1.83.18c-.57.12-1.18.27-1.84.43-.73.16-1.35.39-1.84.67-.49.29-1.14.63-1.95,1.04-.33.16-.63.35-.92.55-.28.2-.59.43-.92.67v77.75h-27.5v-106.36h0Z"/> <path d="M596.37,369.32c0-2.95.93-6.5,2.78-10.65,1.86-4.15,4.29-8.38,7.3-12.69s6.41-8.44,10.21-12.39c3.79-3.95,7.59-7.16,11.38-9.63l-67.19,39.78c-.32.16-.62.26-.9.3s-.54.06-.78.06c-.88,0-1.56-.32-2.04-.96-.48-.64-.72-1.44-.72-2.39,0-1.12.36-2.35,1.08-3.67s1.84-2.43,3.36-3.31l40.42-24.56c4.48-2.72,9.56-5.63,15.25-8.72s11.58-5.91,17.69-8.48,12.28-4.71,18.52-6.44c6.23-1.72,12.14-2.59,17.73-2.59,5.2,0,9.8.8,13.81,2.41l31.33-63.28c.8-1.68,1.66-3.5,2.58-5.46.92-1.96,2.12-3.78,3.6-5.46,1.48-1.68,3.36-3.1,5.64-4.26,2.28-1.16,5.22-1.74,8.82-1.74,1.12,0,1.82.38,2.1,1.14.28.76.42,1.74.42,2.94-.16,1.12-.44,2.38-.84,3.78s-.82,2.78-1.26,4.14-.86,2.6-1.26,3.72-.72,1.96-.96,2.52l-35.78,77.86c-1.76,5.22-3.94,10.62-6.54,16.2-2.6,5.58-5.12,10.99-7.56,16.21-2.44,5.23-4.53,10.11-6.25,14.66-1.72,4.55-2.58,8.42-2.58,11.61,0,1.12.14,2.19.42,3.23.28,1.04.82,1.56,1.62,1.56,1.04,0,2.62-.4,4.74-1.2,2.12-.8,4.54-1.92,7.26-3.35,2.72-1.44,5.66-3.13,8.83-5.09,3.16-1.95,6.3-4.05,9.42-6.28l31.21-19.51c7.39-4.56,17.7-8.2,16.29-6.42-.4.5-4.86,3.27-4.5,3.91.36.64.54,1.4.54,2.27,0,1.36-.3,2.7-.9,4.01-.6,1.32-10.31,5.35-11.43,6.15-4.56,3.04-9.26,6.17-14.11,9.4-4.85,3.23-9.71,6.43-14.59,9.58s-9.66,6.17-14.35,9.04c-4.68,2.87-9.19,5.51-13.51,7.9-6.16,3.43-11.69,5.15-16.57,5.15-3.2,0-5.36-.88-6.48-2.64s-1.68-4.04-1.68-6.84c0-1.68.14-3.41.42-5.21.28-1.79.7-3.73,1.26-5.81-2.16,3.12-4.63,5.91-7.42,8.39s-5.77,4.59-8.92,6.35c-3.15,1.76-6.43,3.1-9.82,4.02-3.39.92-6.68,1.38-9.88,1.38-3.65,0-7.13-.58-10.45-1.74s-6.22-2.99-8.71-5.51c-2.49-2.52-4.46-5.69-5.91-9.52s-2.18-8.47-2.18-13.9l.04.02ZM675.49,327.66c.32-.88.74-1.95,1.26-3.23.52-1.27,1.04-2.51,1.56-3.71.52-1.2.96-2.29,1.32-3.29s.54-1.7.54-2.09c0-.48-.92-.84-2.76-1.08s-4.28-.36-7.32-.36c-3.99,0-8.05,1.06-12.16,3.17-4.11,2.11-8.1,4.89-11.98,8.32s-7.51,7.36-10.9,11.79-6.35,8.98-8.86,13.64c-2.52,4.67-4.51,9.28-5.99,13.82-1.48,4.55-2.22,8.66-2.22,12.33,0,4.95.84,8.48,2.52,10.59,1.67,2.11,3.87,3.17,6.58,3.17,3.67,0,7.65-1.56,11.92-4.67,4.27-3.11,8.57-7.44,12.88-12.99s8.5-12.19,12.58-19.93c4.07-7.74,7.75-16.24,11.03-25.5v.02Z"/> </g> <g> <path d="M735.64,372.15c0-4.24.57-8.13,1.71-11.67s2.93-6.74,5.38-9.6c2.45-2.85,5.48-5.28,9.11-7.27,3.63-2,7.93-3.73,12.9-5.2,2.53-.73,5.22-1.36,8.07-1.89,2.85-.53,5.87-1,9.05-1.41v-8.07c0-.81-.14-1.73-.43-2.75s-.63-1.81-1.04-2.38c-.49-.65-1.02-1.24-1.59-1.77s-1.34-.96-2.32-1.28c-.98-.24-1.88-.37-2.69-.37-.73,0-1.61.12-2.63.37s-1.81.61-2.38,1.1c-1.3.98-2.2,2.32-2.69,4.03-.33.98-.49,1.87-.49,2.69v2.81h-26.89v-7.21c0-3.59.51-7.01,1.53-10.27,1.02-3.26,2.51-6.11,4.46-8.56,3.99-4.81,9.74-8.15,17.24-10.02,1.79-.41,3.73-.71,5.81-.92,2.08-.2,4.22-.31,6.42-.31,11.16,0,19.84,2.65,26.04,7.95,6.11,5.3,9.17,12.68,9.17,22.13v77.51h-27.51c0-.73.08-1.61.24-2.63.16-1.02.37-1.89.61-2.63.32-.9.67-1.77,1.04-2.63.37-.85.79-1.77,1.28-2.75.41-.73.98-1.55,1.71-2.44l-1.47-1.22c-1.3,2.28-2.63,4.18-3.97,5.68-1.35,1.51-2.79,2.87-4.34,4.1-1.47,1.22-3.08,2.26-4.83,3.12-1.75.85-3.73,1.49-5.93,1.89-.98.24-1.98.43-2.99.55-1.02.12-2.06.18-3.12.18-2.69,0-5.32-.39-7.88-1.16-2.57-.77-4.99-2.1-7.27-3.97-2.04-1.55-3.75-3.56-5.14-6.05s-2.41-5.15-3.06-8.01c-.41-1.47-.69-3.01-.86-4.65-.16-1.63-.24-3.3-.24-5.01h-.01ZM763.76,368c0,1.22.14,2.34.43,3.36s.63,1.77,1.04,2.26c1.06,1.63,2.49,2.65,4.28,3.06.98.32,1.91.49,2.81.49,2.77,0,5.95-1.02,9.54-3.06v-22.61c-2.44.82-4.65,1.63-6.6,2.45-1.96.81-3.67,1.79-5.14,2.93-1.3.98-2.47,2.04-3.48,3.18-1.02,1.14-1.73,2.4-2.14,3.79-.49,1.47-.73,2.85-.73,4.16h-.01Z"/> <path d="M821.59,293.42h27.51c0,.9-.08,1.69-.24,2.38s-.45,1.61-.86,2.75c-.41,1.22-.65,1.96-.73,2.2-.08.24-.23.51-.43.79-.21.29-.59,1.12-1.16,2.51-.41.9-.9,1.71-1.47,2.45l1.47,1.22c1.3-1.96,2.59-3.67,3.85-5.14,1.26-1.47,2.87-2.89,4.83-4.28,3.26-2.28,7.17-3.75,11.74-4.4,2.12-.32,4.56-.49,7.33-.49h4.77l-1.22,26.29h-7.7c-6.44,0-11.37,1.02-14.79,3.06-3.59,2.2-5.38,5.22-5.38,9.05v67.97h-27.51v-106.36h-.01Z"/> </g></svg></h1>
+    <h1 class="hdr-title-stack"><span class="hdr-wm"><svg class="hdr-wordmark" viewBox="0 0 878.2 401.01" role="img" aria-label="Leejunho Calendar"><!-- Generator: Adobe Illustrator 30.5.1, SVG Export Plug-In . SVG Version: 2.1.4 Build 3) --> <path d="M159.69,83.23c1.84,1.02,3.79,1.84,5.92,2.38,2.2.56,4.4,1.02,6.6,1.38,2.2.36,4.36.68,6.48.96s4.02.46,5.7.54c3.04-9.28,6.84-17.93,11.41-25.94,4.56-8,9.55-15.29,14.95-21.85,5.4-6.56,11.09-12.37,17.05-17.41s11.89-9.3,17.77-12.79c5.88-3.48,11.57-6.1,17.05-7.86,5.48-1.76,10.5-2.64,15.07-2.64,5.84,0,10.55,1.52,14.11,4.56,3.56,3.04,5.34,7.77,5.34,14.17,0,3.76-1.06,7.97-3.18,12.61-2.12,4.64-5.14,9.42-9.06,14.35-3.92,4.92-8.69,9.87-14.29,14.83-5.6,4.96-11.91,9.67-18.91,14.11-7.01,4.44-14.65,8.48-22.93,12.13-8.28,3.64-17.03,6.59-26.23,8.83-3.6,9.77-7.32,19.71-11.17,29.84-3.84,10.13-7.92,20.21-12.25,30.26-4.32,10.05-8.99,19.87-13.99,29.48-5,9.6-10.55,18.77-16.63,27.49,7.12,6.33,14.19,12.55,21.19,18.67s14.15,11.59,21.43,16.39c7.28,4.8,14.81,8.66,22.57,11.59,7.76,2.92,15.97,4.38,24.61,4.38,9.44,0,19.95-1.29,31.03-4.42,28.16-7.96,50.87-21.13,71.61-44.22,1.75-1.95,4.72-6.98,7.57-6.98,2,0,3,.76,3,2.28,0,2.16-13.92,17.93-18.52,23.02-4.6,5.08-11.87,11.51-21.79,19.27-6.72,5.44-13.15,10.09-19.27,13.93s-12.05,6.96-17.77,9.36-11.23,4.16-16.51,5.28-10.37,1.68-15.25,1.68c-9.69,0-18.85-1.86-27.49-5.58-8.65-3.72-17.01-8.54-25.09-14.47-8.09-5.92-16.07-12.57-23.95-19.93-7.88-7.36-15.91-14.73-24.07-22.09-5.28,6.25-10.93,11.95-16.93,17.11-6,5.16-12.43,9.6-19.27,13.33-6.84,3.72-14.13,6.6-21.85,8.64-7.73,2.04-15.95,3.06-24.67,3.06-10.09,0-18.85-1.44-26.29-4.32-7.44-2.88-13.59-6.68-18.43-11.41-4.84-4.72-8.45-10.11-10.81-16.15-2.36-6.04-3.54-12.19-3.54-18.43s1.12-12.2,3.36-18.13c2.24-5.92,5.52-11.19,9.85-15.79,4.32-4.6,9.68-8.3,16.09-11.11,6.4-2.8,13.77-4.2,22.09-4.2s15.89.96,23.17,2.88,14.29,4.5,21.01,7.74,13.17,7.02,19.33,11.35c6.16,4.32,12.17,8.88,18.01,13.69,4.64-7.92,9.1-16.19,13.39-24.79,4.28-8.6,8.44-17.35,12.49-26.23,4.04-8.89,8-17.81,11.89-26.77,3.88-8.96,7.74-17.77,11.59-26.41-1.68,0-3.56-.06-5.64-.18s-4.24-.26-6.48-.42c-2.24-.16-4.46-.38-6.66-.66-2.2-.28-4.26-.62-6.18-1.02-3.6-.64-7.3-1.1-11.11-1.38-3.8-.28-7.38-.84-10.75-1.68s-6.38-2.16-9.06-3.96c-2.68-1.8-4.74-4.5-6.18-8.1-.64-1.52-.96-3-.96-4.44,0-1.12.24-2.24.72-3.36s1.18-2.14,2.1-3.06,2-1.66,3.24-2.22c1.24-.56,2.62-.84,4.14-.84,2.48,0,5.12.76,7.92,2.28,8.35,4.54,14.16,12.87,22.32,17.38ZM57.73,253.83c7.68,0,14.81-1.12,21.37-3.36,6.56-2.24,12.69-5.36,18.37-9.36,5.68-4.01,10.97-8.79,15.85-14.35,4.88-5.56,9.49-11.67,13.81-18.31-5.6-4.4-11.39-8.53-17.35-12.37s-12.19-7.2-18.67-10.09-13.27-5.14-20.35-6.78c-7.08-1.64-14.59-2.46-22.51-2.46-4.72,0-8.87,1-12.43,3s-6.54,4.64-8.95,7.92-4.22,7.04-5.46,11.29c-1.24,4.24-1.86,8.65-1.86,13.21,0,5.04.78,10.07,2.34,15.07s3.9,9.47,7.02,13.39c3.12,3.92,7.08,7.1,11.89,9.55,4.8,2.44,10.45,3.66,16.93,3.66h0ZM205.05,86.46c7.76-2.64,15.15-5.94,22.15-9.9s13.49-8.22,19.45-12.79c5.96-4.56,11.35-9.28,16.15-14.17,4.8-4.88,8.9-9.6,12.31-14.17,3.4-4.56,6-8.78,7.8-12.67,1.8-3.88,2.7-7.1,2.7-9.66,0-3.6-1.84-5.4-5.52-5.4-2.64,0-6.04.96-10.21,2.88-4.16,1.92-8.66,4.64-13.51,8.16-21.91,15.9-43.33,41.55-51.32,67.72Z"/> <path d="M321.46,170.51v8.92h-74.33c.49,2.45,1.28,4.71,2.38,6.79s2.34,3.85,3.73,5.32c1.55,1.63,3.18,2.98,4.89,4.03,1.71,1.06,3.79,1.88,6.23,2.45,1.06.33,2.18.57,3.36.73,1.18.16,2.42.24,3.73.24,3.91,0,7.5-.65,10.76-1.96,3.26-1.3,5.91-3.14,7.95-5.5.49-.57.94-1.18,1.34-1.83.41-.65.77-1.3,1.1-1.96h27.99c-1.14,5.05-2.81,9.45-5.01,13.2s-4.65,6.89-7.34,9.41c-3.1,3.1-6.58,5.75-10.45,7.95-3.87,2.2-8.09,3.91-12.65,5.14-2.2.57-4.48,1.02-6.85,1.34-2.36.32-4.77.49-7.21.49-6.28,0-11.96-.92-17.05-2.75-5.09-1.83-9.64-4.3-13.63-7.4-8.72-6.68-14.71-15.61-17.97-26.77-1.63-5.54-2.45-11.49-2.45-17.85s.86-11.98,2.57-17.6c1.71-5.62,4.11-10.63,7.21-15.04,3.18-4.48,6.91-8.31,11.19-11.49s8.99-5.62,14.12-7.33c5.21-1.71,10.64-2.57,16.26-2.57s10.8.92,16.02,2.75c5.21,1.83,9.82,4.38,13.81,7.64,4.16,3.42,7.76,7.33,10.82,11.74,3.06,4.4,5.4,9.37,7.03,14.91,1.63,5.38,2.45,11.04,2.45,16.99h0ZM247.62,161.09h46.82c-1.3-4.32-3.5-8.03-6.6-11.12-3.02-3.01-6.56-5.14-10.64-6.36-1.06-.24-2.12-.45-3.18-.61s-2.16-.24-3.3-.24c-4.16,0-8.15,1.1-11.98,3.3-1.39.82-2.83,1.96-4.34,3.42-1.51,1.47-2.87,3.3-4.1,5.5-1.14,2.04-2.04,4.07-2.69,6.11h.01Z"/> <path d="M429.04,170.51v8.92h-74.33c.49,2.45,1.28,4.71,2.38,6.79s2.34,3.85,3.73,5.32c1.55,1.63,3.18,2.98,4.89,4.03,1.71,1.06,3.79,1.88,6.23,2.45,1.06.33,2.18.57,3.36.73,1.18.16,2.42.24,3.73.24,3.91,0,7.5-.65,10.76-1.96,3.26-1.3,5.91-3.14,7.95-5.5.49-.57.94-1.18,1.34-1.83.41-.65.77-1.3,1.1-1.96h27.99c-1.14,5.05-2.81,9.45-5.01,13.2s-4.65,6.89-7.34,9.41c-3.1,3.1-6.58,5.75-10.45,7.95-3.87,2.2-8.09,3.91-12.65,5.14-2.2.57-4.48,1.02-6.85,1.34-2.36.32-4.77.49-7.21.49-6.28,0-11.96-.92-17.05-2.75s-9.64-4.3-13.63-7.4c-8.72-6.68-14.71-15.61-17.97-26.77-1.63-5.54-2.45-11.49-2.45-17.85s.86-11.98,2.57-17.6c1.71-5.62,4.11-10.63,7.21-15.04,3.18-4.48,6.91-8.31,11.19-11.49s8.99-5.62,14.12-7.33c5.21-1.71,10.64-2.57,16.26-2.57s10.8.92,16.02,2.75c5.21,1.83,9.82,4.38,13.81,7.64,4.16,3.42,7.76,7.33,10.82,11.74,3.06,4.4,5.4,9.37,7.03,14.91,1.63,5.38,2.45,11.04,2.45,16.99h0ZM355.2,161.09h46.82c-1.3-4.32-3.5-8.03-6.6-11.12-3.02-3.01-6.56-5.14-10.64-6.36-1.06-.24-2.12-.45-3.18-.61s-2.16-.24-3.3-.24c-4.16,0-8.15,1.1-11.98,3.3-1.39.82-2.83,1.96-4.34,3.42-1.51,1.47-2.87,3.3-4.1,5.5-1.14,2.04-2.04,4.07-2.69,6.11h.01Z"/> <path d="M438.2,117.69h27.51v118.58c0,6.52-1.3,11.74-3.91,15.65-2.61,3.91-6.52,6.52-11.74,7.82-2.61.65-5.54.98-8.8.98h-20.17l1.22-26.28h12.22c2.44,0,3.67-1.22,3.67-3.67v-113.08h0ZM436.74,94.35c0-3.5.98-6.64,2.93-9.41.81-1.3,1.89-2.45,3.24-3.42,1.34-.98,2.75-1.67,4.22-2.08,1.55-.49,3.18-.73,4.89-.73s3.22.23,4.77.67c1.55.45,3.01,1.16,4.4,2.14,2.61,1.95,4.4,4.52,5.38,7.7.49,1.63.73,3.34.73,5.14,0,4.48-1.43,8.27-4.28,11.37-2.85,3.1-6.52,4.65-11,4.65-3.51,0-6.52-1.02-9.05-3.06-1.3-.98-2.4-2.1-3.3-3.36s-1.63-2.79-2.2-4.58c-.49-1.55-.73-3.22-.73-5.01v-.02Z"/> <path d="M477.93,197.15v-79.46h27.51v74.57c0,1.71.41,3.18,1.22,4.4.24.41.67.82,1.28,1.22.61.41,1.28.69,2.02.86.73.16,1.42.24,2.08.24s1.26-.06,1.84-.18c.57-.12,1.18-.26,1.83-.43.73-.16,1.35-.39,1.84-.67.49-.28,1.14-.63,1.96-1.04.32-.16.63-.35.92-.55.28-.2.59-.43.92-.67v-77.75h27.5v106.36h-27.5c0-.81.08-1.63.24-2.45.16-.81.41-1.79.74-2.93.16-.81.45-1.79.85-2.93.41-1.14.81-2.12,1.22-2.93.24-.41.49-.81.73-1.22.16-.41.37-.77.61-1.1l-.98-.73c-1.47,1.96-2.96,3.79-4.46,5.5s-3.08,3.14-4.71,4.28c-1.71,1.22-3.4,2.26-5.07,3.12-1.67.85-3.48,1.49-5.44,1.89-.9.24-1.82.43-2.75.55-.94.12-1.89.18-2.87.18-5.13,0-9.58-1.63-13.33-4.89-1.79-1.55-3.28-3.5-4.46-5.87-1.18-2.36-2.1-4.93-2.75-7.7-.65-2.93-.98-6.15-.98-9.66h0Z"/> <path d="M561.06,117.69h27.51c0,.33-.08,1-.24,2.02s-.37,1.81-.61,2.38c-.33.9-.65,1.79-.98,2.69-.33.9-.82,1.96-1.47,3.18-.24.49-.49.96-.73,1.41s-.53.92-.86,1.41l1.47,1.22c1.55-2.28,3.01-4.14,4.4-5.56,1.39-1.43,2.93-2.83,4.64-4.22,1.55-1.22,3.26-2.28,5.14-3.18,1.87-.9,3.71-1.55,5.5-1.96.9-.16,1.81-.31,2.75-.43s1.89-.18,2.87-.18c2.45,0,4.87.39,7.27,1.16s4.5,1.94,6.3,3.48c3.58,3.26,5.95,7.82,7.09,13.69.25,1.47.45,3.02.61,4.64.16,1.63.24,3.34.24,5.14v79.46h-27.5v-74.57c0-.98-.08-1.73-.25-2.26-.16-.53-.49-1.24-.98-2.14-.33-.49-.82-.94-1.47-1.34-.65-.41-1.22-.65-1.71-.73-.82-.16-1.55-.24-2.2-.24s-1.26.06-1.83.18-1.18.27-1.84.43c-.73.16-1.34.39-1.83.67-.49.29-1.14.63-1.96,1.04-.32.16-.63.35-.92.55s-.59.43-.92.67v77.75h-27.51v-106.36h.02Z"/> <path d="M671.69,77.35v40.34c0,.49-.06,1.12-.18,1.89-.12.78-.39,1.69-.8,2.75-.41,1.14-.73,2.08-.98,2.81-.24.73-.73,1.71-1.47,2.93-.24.49-.49.96-.73,1.41s-.49.88-.73,1.28l1.47,1.22c1.55-2.28,3.01-4.14,4.4-5.56s2.93-2.83,4.65-4.22c1.55-1.22,3.26-2.28,5.14-3.18,1.87-.9,3.71-1.55,5.5-1.96.9-.16,1.81-.31,2.75-.43s1.89-.18,2.87-.18c2.45,0,4.87.39,7.27,1.16s4.5,1.94,6.3,3.48c3.59,3.26,5.95,7.82,7.09,13.69.24,1.47.45,3.02.61,4.64.16,1.63.24,3.34.24,5.14v79.46h-27.51v-74.57c0-.98-.08-1.73-.24-2.26s-.49-1.24-.98-2.14c-.33-.49-.82-.94-1.47-1.34-.65-.41-1.22-.65-1.71-.73-.81-.16-1.55-.24-2.2-.24s-1.27.06-1.83.18c-.57.12-1.18.27-1.84.43-.73.16-1.35.39-1.84.67-.49.29-1.14.63-1.95,1.04-.33.16-.63.35-.92.55-.28.2-.59.43-.92.67v77.75h-27.5V77.35h27.51Z"/> <path d="M778.05,225.27c-6.2,0-11.98-.96-17.36-2.87s-10.19-4.5-14.43-7.76c-4.4-3.26-8.25-7.09-11.55-11.49-3.3-4.4-5.89-9.54-7.76-15.4-1.79-5.38-2.69-11.13-2.69-17.24s.9-11.53,2.69-16.99,4.32-10.43,7.58-14.91c3.42-4.65,7.39-8.6,11.92-11.86,4.52-3.26,9.35-5.75,14.49-7.46,2.69-.9,5.46-1.59,8.31-2.08s5.79-.73,8.8-.73c5.78,0,11.43.94,16.93,2.81s10.45,4.4,14.85,7.58c4.32,3.26,8.17,7.15,11.55,11.67s5.97,9.52,7.76,14.98c.81,2.69,1.47,5.46,1.96,8.31.49,2.85.73,5.75.73,8.68,0,4.89-.75,10.15-2.26,15.77-1.51,5.62-4.22,11.17-8.13,16.62-3.26,4.57-7.17,8.52-11.74,11.86s-9.45,5.91-14.67,7.7c-2.69.9-5.46,1.59-8.31,2.08s-5.74.73-8.68.73h.01ZM778.17,198.99c2.69,0,5.4-.45,8.13-1.35,2.73-.9,5.15-2.24,7.27-4.03,2.69-2.12,4.79-4.42,6.3-6.91,1.51-2.48,2.55-4.79,3.12-6.91.41-1.39.73-2.83.98-4.34.24-1.51.37-3.04.37-4.58,0-3.18-.45-6.17-1.34-8.98-.9-2.81-2.12-5.4-3.67-7.76-1.39-1.96-3.14-3.85-5.26-5.68-2.12-1.83-4.69-3.28-7.7-4.34-2.69-.9-5.42-1.34-8.19-1.34-5.87,0-11.05,1.75-15.53,5.26-2.12,1.63-4.04,3.65-5.75,6.05-1.71,2.41-2.98,4.99-3.79,7.76-.41,1.39-.73,2.85-.98,4.4s-.37,3.1-.37,4.64c0,2.53.37,5.22,1.1,8.07.74,2.85,2.08,5.71,4.04,8.56,1.55,2.28,3.38,4.28,5.5,5.99s4.6,3.06,7.46,4.03c2.69.98,5.46,1.47,8.31,1.47h0Z"/> <g> <path d="M226.24,351.73h27.75c-.16,5.79-1.18,11.12-3.06,16.01s-4.28,9.25-7.21,13.08c-3.02,3.91-6.66,7.32-10.94,10.21-4.28,2.9-8.74,5.03-13.39,6.42-2.45.73-4.93,1.3-7.46,1.71-2.53.41-5.13.61-7.82.61-11.25,0-21.39-3.46-30.44-10.39-4.16-3.18-7.82-7.15-11-11.92-3.18-4.77-5.54-9.8-7.09-15.1-1.63-5.46-2.45-11.33-2.45-17.6s.86-12.14,2.57-17.6,4.11-10.39,7.21-14.79c2.93-4.4,6.52-8.19,10.76-11.37,4.24-3.18,8.96-5.66,14.18-7.46,5.22-1.71,10.64-2.57,16.26-2.57,10.68,0,20.21,2.85,28.61,8.56,8.48,5.79,14.51,13.53,18.09,23.23.9,2.44,1.61,5.01,2.14,7.7s.84,5.5.92,8.44h-27.63c-.16-2.36-.57-4.69-1.22-6.97s-1.67-4.36-3.06-6.23c-2.69-3.67-6.23-6.15-10.64-7.46-2.28-.65-4.65-.98-7.09-.98-2.69,0-5.22.41-7.58,1.22-2.37.81-4.61,2.08-6.72,3.79-2.04,1.63-3.77,3.67-5.2,6.11-1.43,2.45-2.43,4.97-3,7.58-.33,1.47-.59,2.98-.79,4.53s-.31,3.18-.31,4.89c0,3.18.35,6.26,1.04,9.23.69,2.98,1.77,5.6,3.24,7.88,2.85,4.73,6.68,7.94,11.49,9.66,2.36.9,4.97,1.35,7.82,1.35s5.22-.32,7.34-.98c2.12-.65,4.03-1.63,5.75-2.93,3.59-2.61,6.15-6.15,7.7-10.64.32-1.06.59-2.2.79-3.42s.35-2.49.43-3.79h.01Z"/> <path d="M260.1,370.92c0-4.24.57-8.13,1.71-11.67,1.14-3.54,2.93-6.74,5.38-9.6,2.45-2.85,5.48-5.28,9.11-7.27,3.63-2,7.92-3.73,12.9-5.2,2.53-.73,5.22-1.36,8.07-1.89,2.85-.53,5.87-1,9.05-1.41v-8.07c0-.81-.14-1.73-.43-2.75-.29-1.02-.63-1.81-1.04-2.38-.49-.65-1.02-1.24-1.59-1.77s-1.34-.96-2.32-1.28c-.98-.24-1.88-.37-2.69-.37-.73,0-1.61.12-2.63.37-1.02.24-1.81.61-2.38,1.1-1.3.98-2.2,2.32-2.69,4.03-.33.98-.49,1.87-.49,2.69v2.81h-26.89v-7.21c0-3.59.51-7.01,1.53-10.27,1.02-3.26,2.51-6.11,4.46-8.56,3.99-4.81,9.74-8.15,17.24-10.02,1.79-.41,3.73-.71,5.81-.92,2.08-.2,4.22-.31,6.42-.31,11.16,0,19.84,2.65,26.04,7.95,6.11,5.3,9.17,12.68,9.17,22.13v77.51h-27.51c0-.73.08-1.61.24-2.63.16-1.02.37-1.89.61-2.63.32-.9.67-1.77,1.04-2.63.37-.85.79-1.77,1.28-2.75.41-.73.98-1.55,1.71-2.44l-1.47-1.22c-1.3,2.28-2.63,4.18-3.97,5.68-1.34,1.51-2.79,2.87-4.34,4.1-1.47,1.22-3.08,2.26-4.83,3.12-1.75.85-3.73,1.49-5.93,1.89-.98.24-1.98.43-3,.55s-2.06.18-3.12.18c-2.69,0-5.32-.39-7.88-1.16-2.57-.77-4.99-2.1-7.27-3.97-2.04-1.55-3.75-3.56-5.13-6.05-1.39-2.49-2.41-5.15-3.06-8.01-.41-1.47-.69-3.01-.86-4.65-.16-1.63-.24-3.3-.24-5.01h0ZM288.22,366.76c0,1.22.14,2.34.43,3.36.28,1.02.63,1.77,1.04,2.26,1.06,1.63,2.49,2.65,4.28,3.06.98.32,1.91.49,2.81.49,2.77,0,5.95-1.02,9.54-3.06v-22.61c-2.44.82-4.65,1.63-6.6,2.45-1.96.81-3.67,1.79-5.14,2.93-1.3.98-2.47,2.04-3.48,3.18-1.02,1.14-1.73,2.4-2.14,3.79-.49,1.47-.73,2.85-.73,4.16h0Z"/> <path d="M373.55,398.55h-27.51v-146.7h27.51v146.7Z"/> <path d="M484.18,345v8.92h-74.33c.49,2.45,1.28,4.71,2.38,6.79s2.34,3.85,3.73,5.32c1.55,1.63,3.18,2.98,4.89,4.03,1.71,1.06,3.79,1.88,6.23,2.45,1.06.33,2.18.57,3.36.73s2.42.24,3.73.24c3.91,0,7.5-.65,10.76-1.96,3.26-1.3,5.91-3.14,7.95-5.5.49-.57.94-1.18,1.34-1.83.41-.65.77-1.3,1.1-1.96h27.99c-1.14,5.05-2.81,9.45-5.01,13.2s-4.65,6.89-7.34,9.41c-3.1,3.1-6.58,5.75-10.45,7.95-3.87,2.2-8.09,3.91-12.65,5.14-2.2.57-4.48,1.02-6.85,1.34-2.36.32-4.77.49-7.21.49-6.28,0-11.96-.92-17.05-2.75s-9.64-4.3-13.63-7.4c-8.72-6.68-14.71-15.61-17.97-26.77-1.63-5.54-2.45-11.49-2.45-17.85s.86-11.98,2.57-17.6c1.71-5.62,4.11-10.63,7.21-15.04,3.18-4.48,6.91-8.31,11.19-11.49s8.99-5.62,14.12-7.33c5.21-1.71,10.64-2.57,16.26-2.57s10.8.92,16.02,2.75c5.21,1.83,9.82,4.38,13.81,7.64,4.16,3.42,7.76,7.33,10.82,11.74,3.06,4.4,5.4,9.37,7.03,14.91,1.63,5.38,2.45,11.04,2.45,16.99h0ZM410.35,335.59h46.82c-1.3-4.32-3.5-8.03-6.6-11.12-3.02-3.01-6.56-5.14-10.64-6.36-1.06-.24-2.12-.45-3.18-.61-1.06-.16-2.16-.24-3.3-.24-4.16,0-8.15,1.1-11.98,3.3-1.39.82-2.83,1.96-4.34,3.42-1.51,1.47-2.87,3.3-4.1,5.5-1.14,2.04-2.04,4.07-2.69,6.11h.01Z"/> <path d="M493.35,292.19h27.5c0,.33-.08,1-.24,2.02s-.37,1.81-.61,2.38c-.33.9-.65,1.79-.98,2.69-.32.9-.81,1.96-1.47,3.18-.24.49-.49.96-.73,1.41-.25.45-.53.92-.86,1.41l1.47,1.22c1.55-2.28,3.01-4.14,4.4-5.56s2.93-2.83,4.65-4.22c1.55-1.22,3.26-2.28,5.14-3.18,1.87-.9,3.71-1.55,5.5-1.96.9-.16,1.81-.31,2.75-.43s1.89-.18,2.87-.18c2.45,0,4.87.39,7.27,1.16s4.5,1.94,6.3,3.48c3.59,3.26,5.95,7.82,7.09,13.69.24,1.47.45,3.02.61,4.64.16,1.63.24,3.34.24,5.14v79.46h-27.51v-74.57c0-.98-.08-1.73-.24-2.26s-.49-1.24-.98-2.14c-.33-.49-.82-.94-1.47-1.34-.65-.41-1.22-.65-1.71-.73-.81-.16-1.55-.24-2.2-.24s-1.27.06-1.83.18c-.57.12-1.18.27-1.84.43-.73.16-1.35.39-1.84.67-.49.29-1.14.63-1.95,1.04-.33.16-.63.35-.92.55-.28.2-.59.43-.92.67v77.75h-27.5v-106.36h0Z"/> <path d="M596.37,369.32c0-2.95.93-6.5,2.78-10.65,1.86-4.15,4.29-8.38,7.3-12.69s6.41-8.44,10.21-12.39c3.79-3.95,7.59-7.16,11.38-9.63l-67.19,39.78c-.32.16-.62.26-.9.3s-.54.06-.78.06c-.88,0-1.56-.32-2.04-.96-.48-.64-.72-1.44-.72-2.39,0-1.12.36-2.35,1.08-3.67s1.84-2.43,3.36-3.31l40.42-24.56c4.48-2.72,9.56-5.63,15.25-8.72s11.58-5.91,17.69-8.48,12.28-4.71,18.52-6.44c6.23-1.72,12.14-2.59,17.73-2.59,5.2,0,9.8.8,13.81,2.41l31.33-63.28c.8-1.68,1.66-3.5,2.58-5.46.92-1.96,2.12-3.78,3.6-5.46,1.48-1.68,3.36-3.1,5.64-4.26,2.28-1.16,5.22-1.74,8.82-1.74,1.12,0,1.82.38,2.1,1.14.28.76.42,1.74.42,2.94-.16,1.12-.44,2.38-.84,3.78s-.82,2.78-1.26,4.14-.86,2.6-1.26,3.72-.72,1.96-.96,2.52l-35.78,77.86c-1.76,5.22-3.94,10.62-6.54,16.2-2.6,5.58-5.12,10.99-7.56,16.21-2.44,5.23-4.53,10.11-6.25,14.66-1.72,4.55-2.58,8.42-2.58,11.61,0,1.12.14,2.19.42,3.23.28,1.04.82,1.56,1.62,1.56,1.04,0,2.62-.4,4.74-1.2,2.12-.8,4.54-1.92,7.26-3.35,2.72-1.44,5.66-3.13,8.83-5.09,3.16-1.95,6.3-4.05,9.42-6.28l31.21-19.51c7.39-4.56,17.7-8.2,16.29-6.42-.4.5-4.86,3.27-4.5,3.91.36.64.54,1.4.54,2.27,0,1.36-.3,2.7-.9,4.01-.6,1.32-10.31,5.35-11.43,6.15-4.56,3.04-9.26,6.17-14.11,9.4-4.85,3.23-9.71,6.43-14.59,9.58s-9.66,6.17-14.35,9.04c-4.68,2.87-9.19,5.51-13.51,7.9-6.16,3.43-11.69,5.15-16.57,5.15-3.2,0-5.36-.88-6.48-2.64s-1.68-4.04-1.68-6.84c0-1.68.14-3.41.42-5.21.28-1.79.7-3.73,1.26-5.81-2.16,3.12-4.63,5.91-7.42,8.39s-5.77,4.59-8.92,6.35c-3.15,1.76-6.43,3.1-9.82,4.02-3.39.92-6.68,1.38-9.88,1.38-3.65,0-7.13-.58-10.45-1.74s-6.22-2.99-8.71-5.51c-2.49-2.52-4.46-5.69-5.91-9.52s-2.18-8.47-2.18-13.9l.04.02ZM675.49,327.66c.32-.88.74-1.95,1.26-3.23.52-1.27,1.04-2.51,1.56-3.71.52-1.2.96-2.29,1.32-3.29s.54-1.7.54-2.09c0-.48-.92-.84-2.76-1.08s-4.28-.36-7.32-.36c-3.99,0-8.05,1.06-12.16,3.17-4.11,2.11-8.1,4.89-11.98,8.32s-7.51,7.36-10.9,11.79-6.35,8.98-8.86,13.64c-2.52,4.67-4.51,9.28-5.99,13.82-1.48,4.55-2.22,8.66-2.22,12.33,0,4.95.84,8.48,2.52,10.59,1.67,2.11,3.87,3.17,6.58,3.17,3.67,0,7.65-1.56,11.92-4.67,4.27-3.11,8.57-7.44,12.88-12.99s8.5-12.19,12.58-19.93c4.07-7.74,7.75-16.24,11.03-25.5v.02Z"/> </g> <g> <path d="M735.64,372.15c0-4.24.57-8.13,1.71-11.67s2.93-6.74,5.38-9.6c2.45-2.85,5.48-5.28,9.11-7.27,3.63-2,7.93-3.73,12.9-5.2,2.53-.73,5.22-1.36,8.07-1.89,2.85-.53,5.87-1,9.05-1.41v-8.07c0-.81-.14-1.73-.43-2.75s-.63-1.81-1.04-2.38c-.49-.65-1.02-1.24-1.59-1.77s-1.34-.96-2.32-1.28c-.98-.24-1.88-.37-2.69-.37-.73,0-1.61.12-2.63.37s-1.81.61-2.38,1.1c-1.3.98-2.2,2.32-2.69,4.03-.33.98-.49,1.87-.49,2.69v2.81h-26.89v-7.21c0-3.59.51-7.01,1.53-10.27,1.02-3.26,2.51-6.11,4.46-8.56,3.99-4.81,9.74-8.15,17.24-10.02,1.79-.41,3.73-.71,5.81-.92,2.08-.2,4.22-.31,6.42-.31,11.16,0,19.84,2.65,26.04,7.95,6.11,5.3,9.17,12.68,9.17,22.13v77.51h-27.51c0-.73.08-1.61.24-2.63.16-1.02.37-1.89.61-2.63.32-.9.67-1.77,1.04-2.63.37-.85.79-1.77,1.28-2.75.41-.73.98-1.55,1.71-2.44l-1.47-1.22c-1.3,2.28-2.63,4.18-3.97,5.68-1.35,1.51-2.79,2.87-4.34,4.1-1.47,1.22-3.08,2.26-4.83,3.12-1.75.85-3.73,1.49-5.93,1.89-.98.24-1.98.43-2.99.55-1.02.12-2.06.18-3.12.18-2.69,0-5.32-.39-7.88-1.16-2.57-.77-4.99-2.1-7.27-3.97-2.04-1.55-3.75-3.56-5.14-6.05s-2.41-5.15-3.06-8.01c-.41-1.47-.69-3.01-.86-4.65-.16-1.63-.24-3.3-.24-5.01h-.01ZM763.76,368c0,1.22.14,2.34.43,3.36s.63,1.77,1.04,2.26c1.06,1.63,2.49,2.65,4.28,3.06.98.32,1.91.49,2.81.49,2.77,0,5.95-1.02,9.54-3.06v-22.61c-2.44.82-4.65,1.63-6.6,2.45-1.96.81-3.67,1.79-5.14,2.93-1.3.98-2.47,2.04-3.48,3.18-1.02,1.14-1.73,2.4-2.14,3.79-.49,1.47-.73,2.85-.73,4.16h-.01Z"/> <path d="M821.59,293.42h27.51c0,.9-.08,1.69-.24,2.38s-.45,1.61-.86,2.75c-.41,1.22-.65,1.96-.73,2.2-.08.24-.23.51-.43.79-.21.29-.59,1.12-1.16,2.51-.41.9-.9,1.71-1.47,2.45l1.47,1.22c1.3-1.96,2.59-3.67,3.85-5.14,1.26-1.47,2.87-2.89,4.83-4.28,3.26-2.28,7.17-3.75,11.74-4.4,2.12-.32,4.56-.49,7.33-.49h4.77l-1.22,26.29h-7.7c-6.44,0-11.37,1.02-14.79,3.06-3.59,2.2-5.38,5.22-5.38,9.05v67.97h-27.51v-106.36h-.01Z"/> </g></svg><div class="hdr-orb" aria-hidden="true">
+        <div class="hdr-rotor">
+          <div class="rotor-css"><span style="transform:rotate(0.0deg)"><b>A</b></span><span style="transform:rotate(8.6deg)"><b>L</b></span><span style="transform:rotate(17.1deg)"><b>W</b></span><span style="transform:rotate(25.7deg)"><b>A</b></span><span style="transform:rotate(34.3deg)"><b>Y</b></span><span style="transform:rotate(42.9deg)"><b>S</b></span><span style="transform:rotate(51.4deg)"><b>&nbsp;</b></span><span style="transform:rotate(60.0deg)"><b>N</b></span><span style="transform:rotate(68.6deg)"><b>E</b></span><span style="transform:rotate(77.1deg)"><b>X</b></span><span style="transform:rotate(85.7deg)"><b>T</b></span><span style="transform:rotate(94.3deg)"><b>&nbsp;</b></span><span style="transform:rotate(102.9deg)"><b>T</b></span><span style="transform:rotate(111.4deg)"><b>O</b></span><span style="transform:rotate(120.0deg)"><b>&nbsp;</b></span><span style="transform:rotate(128.6deg)"><b>Y</b></span><span style="transform:rotate(137.1deg)"><b>O</b></span><span style="transform:rotate(145.7deg)"><b>U</b></span><span style="transform:rotate(154.3deg)"><b>&nbsp;</b></span><span style="transform:rotate(162.9deg)"><b>✦</b></span><span style="transform:rotate(171.4deg)"><b>&nbsp;</b></span><span style="transform:rotate(180.0deg)"><b>A</b></span><span style="transform:rotate(188.6deg)"><b>L</b></span><span style="transform:rotate(197.1deg)"><b>W</b></span><span style="transform:rotate(205.7deg)"><b>A</b></span><span style="transform:rotate(214.3deg)"><b>Y</b></span><span style="transform:rotate(222.9deg)"><b>S</b></span><span style="transform:rotate(231.4deg)"><b>&nbsp;</b></span><span style="transform:rotate(240.0deg)"><b>N</b></span><span style="transform:rotate(248.6deg)"><b>E</b></span><span style="transform:rotate(257.1deg)"><b>X</b></span><span style="transform:rotate(265.7deg)"><b>T</b></span><span style="transform:rotate(274.3deg)"><b>&nbsp;</b></span><span style="transform:rotate(282.9deg)"><b>T</b></span><span style="transform:rotate(291.4deg)"><b>O</b></span><span style="transform:rotate(300.0deg)"><b>&nbsp;</b></span><span style="transform:rotate(308.6deg)"><b>Y</b></span><span style="transform:rotate(317.1deg)"><b>O</b></span><span style="transform:rotate(325.7deg)"><b>U</b></span><span style="transform:rotate(334.3deg)"><b>&nbsp;</b></span><span style="transform:rotate(342.9deg)"><b>✦</b></span><span style="transform:rotate(351.4deg)"><b>&nbsp;</b></span></div>
+          <span class="rotor-star">✦</span>
+        </div>
+        <svg class="orb-ring" viewBox="0 0 260 200">
+          <ellipse cx="105" cy="100" rx="178" ry="40" transform="rotate(28 105 100)"
+                   stroke="var(--orb-c)" stroke-width="1.8" fill="none"
+                   stroke-dasharray="496.9 187 71.5 0" stroke-linecap="butt"/>
+        </svg>
+      </div></span></h1>
 
     <div class="hdr-corner hc-bc" id="hc-bc">
       <div class="coord-prog" id="coord-prog" aria-hidden="true">
@@ -1460,18 +1484,7 @@ body[data-theme="light"] .hdr-orb .rotor-css span{color:rgba(26,23,20,.85)}
     <span class="hdr-spark s2" aria-hidden="true">✦</span>
     <span class="hdr-spark s3" aria-hidden="true">✦</span>
     <span class="hdr-spark s4" aria-hidden="true">✦</span>
-    <div class="hdr-orb" aria-hidden="true">
-      <div class="hdr-rotor">
-        <div class="rotor-css"><span style="transform:rotate(0.0deg)"><b>A</b></span><span style="transform:rotate(8.6deg)"><b>L</b></span><span style="transform:rotate(17.1deg)"><b>W</b></span><span style="transform:rotate(25.7deg)"><b>A</b></span><span style="transform:rotate(34.3deg)"><b>Y</b></span><span style="transform:rotate(42.9deg)"><b>S</b></span><span style="transform:rotate(51.4deg)"><b>&nbsp;</b></span><span style="transform:rotate(60.0deg)"><b>N</b></span><span style="transform:rotate(68.6deg)"><b>E</b></span><span style="transform:rotate(77.1deg)"><b>X</b></span><span style="transform:rotate(85.7deg)"><b>T</b></span><span style="transform:rotate(94.3deg)"><b>&nbsp;</b></span><span style="transform:rotate(102.9deg)"><b>T</b></span><span style="transform:rotate(111.4deg)"><b>O</b></span><span style="transform:rotate(120.0deg)"><b>&nbsp;</b></span><span style="transform:rotate(128.6deg)"><b>Y</b></span><span style="transform:rotate(137.1deg)"><b>O</b></span><span style="transform:rotate(145.7deg)"><b>U</b></span><span style="transform:rotate(154.3deg)"><b>&nbsp;</b></span><span style="transform:rotate(162.9deg)"><b>✦</b></span><span style="transform:rotate(171.4deg)"><b>&nbsp;</b></span><span style="transform:rotate(180.0deg)"><b>A</b></span><span style="transform:rotate(188.6deg)"><b>L</b></span><span style="transform:rotate(197.1deg)"><b>W</b></span><span style="transform:rotate(205.7deg)"><b>A</b></span><span style="transform:rotate(214.3deg)"><b>Y</b></span><span style="transform:rotate(222.9deg)"><b>S</b></span><span style="transform:rotate(231.4deg)"><b>&nbsp;</b></span><span style="transform:rotate(240.0deg)"><b>N</b></span><span style="transform:rotate(248.6deg)"><b>E</b></span><span style="transform:rotate(257.1deg)"><b>X</b></span><span style="transform:rotate(265.7deg)"><b>T</b></span><span style="transform:rotate(274.3deg)"><b>&nbsp;</b></span><span style="transform:rotate(282.9deg)"><b>T</b></span><span style="transform:rotate(291.4deg)"><b>O</b></span><span style="transform:rotate(300.0deg)"><b>&nbsp;</b></span><span style="transform:rotate(308.6deg)"><b>Y</b></span><span style="transform:rotate(317.1deg)"><b>O</b></span><span style="transform:rotate(325.7deg)"><b>U</b></span><span style="transform:rotate(334.3deg)"><b>&nbsp;</b></span><span style="transform:rotate(342.9deg)"><b>✦</b></span><span style="transform:rotate(351.4deg)"><b>&nbsp;</b></span></div>
-        <span class="rotor-star">✦</span>
       </div>
-      <svg class="orb-ring" viewBox="0 0 260 200">
-        <ellipse cx="105" cy="100" rx="178" ry="40" transform="rotate(28 105 100)"
-                 stroke="var(--orb-c)" stroke-width="1.8" fill="none"
-                 stroke-dasharray="496.9 187 71.5 0" stroke-linecap="butt"/>
-      </svg>
-    </div>
-  </div>
 </header>
 
 <div class="batch-bar" id="batch-bar">
@@ -1661,7 +1674,7 @@ body[data-theme="light"] .hdr-orb .rotor-css span{color:rgba(26,23,20,.85)}
     <div class="settings-item">
       <div>
         <div class="settings-item-label">版本</div>
-        <div class="settings-item-val">v2026.07.24</div>
+        <div class="settings-item-val">v2026.07.27</div>
       </div>
       <span style="font-size:14px;opacity:.5">🌻</span>
     </div>
@@ -1741,8 +1754,8 @@ body[data-theme="light"] .hdr-orb .rotor-css span{color:rgba(26,23,20,.85)}
   <div class="otd-bg otd-bg-off" id="otd-bg2"></div>
   <div class="otd-player">
     <div class="otd-player-top">
-      <div>
-        <div class="otd-title">✦ 一緒に過ごした時間</div>
+      <div class="otd-head-txt">
+        <div class="otd-title" id="otd-title">✦ 一緒に過ごした時間</div>
         <div class="otd-sub" id="otd-sub"></div>
       </div>
       <button class="so-close" onclick="closeOnThisDay()"><span>✕</span></button>
@@ -1750,9 +1763,9 @@ body[data-theme="light"] .hdr-orb .rotor-css span{color:rgba(26,23,20,.85)}
     <div class="otd-art-wrap">
       <svg class="otd-art-orbit" viewBox="0 0 400 400" aria-hidden="true">
         <ellipse cx="200" cy="200" rx="196" ry="70" fill="none" stroke="rgba(255,217,64,.25)" stroke-width="1" transform="rotate(-16 200 200)"/>
-        <g class="otd-orbit-dot"><circle cx="396" cy="200" r="3" fill="#FFD940"/></g>
       </svg>
-      <div class="otd-art" id="otd-art"><img id="otd-art-img" alt=""><img id="otd-art-img2" alt="" aria-hidden="true"></div>
+      <div class="otd-orbit-plane" aria-hidden="true"><div class="otd-orbit-spin"><i class="otd-orbit-dot"></i></div></div>
+      <div class="otd-art" id="otd-art"><div class="otd-art-float"><img id="otd-art-img" alt=""><img id="otd-art-img2" alt="" aria-hidden="true"></div></div>
       <div class="otd-year-big" id="otd-year-big"></div>
     </div>
     <div class="otd-track" id="otd-track"></div>
@@ -2112,6 +2125,55 @@ function searchSeries(s){
   window.scrollTo({top:0,behavior:'smooth'});
 }
 window.searchSeries=searchSeries;
+
+// ── 地點 → 地圖 ───────────────────────────────────────────
+// 含韓文(諺文音節/字母)開 Naver,其餘開 Google。
+// Naver 對韓國場館精準但查不到中文地名,Google 反之。
+function placeMapBtn(place){
+  if(!place) return '';
+  return '<button class="feed-place-map" data-s="'+escHtml(place)+'"'
+    +' onclick="openPlaceMap(this.dataset.s)" title="'+(isKoreanPlace(place)?'Naver':'Google')+' 地圖(長按改用另一個)" aria-label="在地圖上查看">'
+    +'<svg viewBox="0 0 12 12" aria-hidden="true">'
+    +'<path d="M6 1.15c-1.79 0-3.24 1.45-3.24 3.24 0 2.43 3.24 6.46 3.24 6.46s3.24-4.03 3.24-6.46c0-1.79-1.45-3.24-3.24-3.24z"/>'
+    +'<circle cx="6" cy="4.39" r="1.15"/></svg></button>';
+}
+function isKoreanPlace(q){
+  return /[\uAC00-\uD7A3\u1100-\u11FF\u3130-\u318F]/.test(String(q||''));
+}
+// flip=true 時改用另一個服務(長按觸發),給只有英文名的韓國場館用
+function openPlaceMap(q,flip){
+  q=String(q||'').trim(); if(!q) return;
+  var naver=isKoreanPlace(q); if(flip) naver=!naver;
+  var u=naver ? 'https://map.naver.com/p/search/'+encodeURIComponent(q)
+              : 'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(q);
+  if(flip&&typeof showToast==='function') showToast('改用 '+(naver?'Naver':'Google')+' 地圖',1800);
+  window.open(u,'_blank','noopener');
+}
+// 長按 0.5 秒 → 切換地圖服務。用委派,feed 重繪也不會失效。
+(function(){
+  var t=null,fired=false,btn=null;
+  function hit(e){ return e.target&&e.target.closest?e.target.closest('.feed-place-map'):null; }
+  document.addEventListener('pointerdown',function(e){
+    btn=hit(e); if(!btn) return;
+    fired=false; clearTimeout(t);
+    t=setTimeout(function(){
+      fired=true; if(btn){ btn.classList.remove('lp'); openPlaceMap(btn.dataset.s,true); }
+    },500);
+    btn.classList.add('lp');
+  },true);
+  function stop(){ clearTimeout(t); if(btn) btn.classList.remove('lp'); }
+  ['pointerup','pointercancel','pointermove','scroll'].forEach(function(ev){
+    document.addEventListener(ev,stop,true);
+  });
+  document.addEventListener('click',function(e){
+    if(!hit(e)) return;
+    if(fired){ e.preventDefault(); e.stopPropagation(); fired=false; }
+  },true);
+  document.addEventListener('contextmenu',function(e){ if(hit(e)) e.preventDefault(); });
+})();
+window.isKoreanPlace=isKoreanPlace;
+window.placeMapBtn=placeMapBtn;
+window.openPlaceMap=openPlaceMap;
 var batchMode=false, batchSel={};
 function toggleBatchMode(){
   if(!isUnlocked&&!batchMode){ toggleLock(); return; }
@@ -2320,7 +2382,7 @@ function dayItemHTML(r, idx){
         +actions
       +'</div>'
       +'<div class="feed-title">'+escHtml(r.title)+'</div>'
-      +desc+src+(r.place?'<div class="feed-place-row"><button class="feed-place-chip" data-s="'+escHtml(r.place)+'" onclick="searchSeries(this.dataset.s)" title="查看此地點的所有事件">⌖ '+escHtml(r.place)+'</button></div>':'')
+      +desc+src+(r.place?'<div class="feed-place-row"><button class="feed-place-chip" data-s="'+escHtml(r.place)+'" onclick="searchSeries(this.dataset.s)" title="查看此地點的所有事件">⌖ '+escHtml(r.place)+'</button>'+placeMapBtn(r.place)+'</div>':'')
     +'</div>'
     +(thumb||'')
     +'</div>';
@@ -2580,7 +2642,7 @@ function feedItemHTML(r, idx, hideDate){
         +actions
       +'</div>'
       +'<div class="feed-title">'+escHtml(r.title)+'</div>'
-      +desc+src+(r.place?'<div class="feed-place-row"><button class="feed-place-chip" data-s="'+escHtml(r.place)+'" onclick="searchSeries(this.dataset.s)" title="查看此地點的所有事件">⌖ '+escHtml(r.place)+'</button></div>':'')
+      +desc+src+(r.place?'<div class="feed-place-row"><button class="feed-place-chip" data-s="'+escHtml(r.place)+'" onclick="searchSeries(this.dataset.s)" title="查看此地點的所有事件">⌖ '+escHtml(r.place)+'</button>'+placeMapBtn(r.place)+'</div>':'')
     +'</div>'
     +(thumb||'')
     +'</div>';
@@ -2880,6 +2942,20 @@ function otdStep(d){
 }
 function otdGoto(i){ var d=i>otdIdx?1:-1; otdIdx=i; renderOtdTrack(d); }
 
+function buildOtdTitle(){
+  var t=document.getElementById('otd-title');
+  if(!t||t.getAttribute('data-built')) return;
+  var s=t.textContent, h='', i, c;
+  for(i=0;i<s.length;i++){
+    c=s.charAt(i);
+    if(c==='&') c='&amp;'; else if(c==='<') c='&lt;'; else if(c==='>') c='&gt;';
+    h+='<span class="tc" style="--i:'+i+'">'+c+'</span>';
+  }
+  t.innerHTML=h;
+  t.setAttribute('data-built','1');
+}
+buildOtdTitle();
+
 var otdTimer=null;
 function otdTogglePlay(){
   if(otdTimer){ otdStopPlay(); }
@@ -3098,15 +3174,6 @@ function toggleFeedYear(btn){
 }
 window.toggleFeedYear=toggleFeedYear;
 
-function clearAllFilters(){
-  currentFilter='all';
-  document.querySelectorAll('.filter-btn').forEach(function(b){b.classList.remove('active');});
-  var allBtn=document.querySelector('.filter-btn.f-all'); if(allBtn) allBtn.classList.add('active');
-  var si=document.getElementById('search-input'); if(si) si.value='';
-  var df=document.getElementById('date-from'); if(df) df.value='';
-  var dt=document.getElementById('date-to'); if(dt) dt.value='';
-  renderFeed();
-}
 window.clearAllFilters=clearAllFilters;
 
 function clearAllFilters(){
@@ -3120,17 +3187,6 @@ function clearAllFilters(){
 }
 window.clearAllFilters=clearAllFilters;
 
-function toggleSearchClear(){
-  var si=document.getElementById('search-input');
-  var b=document.getElementById('search-clear');
-  if(b&&si) b.style.display=si.value?'block':'none';
-}
-function clearSearch(){
-  var si=document.getElementById('search-input');
-  if(si){ si.value=''; }
-  toggleSearchClear();
-  renderFeed();
-}
 window.toggleSearchClear=toggleSearchClear;
 window.clearSearch=clearSearch;
 
@@ -3322,13 +3378,14 @@ window.updateCoordUI=updateCoordUI;
 (function(){
   var el=document.querySelector('.hc-tc .hdr-coord');
   if(!el) return;
-  var COORD='19°90´ N 01°25´ E', EGG='1990 · 01 · 25 ✦ BIRTH', on=false, busy=false;
+  var COORD='<span class="cd-l">19°90´</span><span class="cd-n">N</span><span class="cd-r">01°25´ E</span>';
+  var EGG='<span class="cd-n">1990 · 01 · 25 ✦ BIRTH</span>', on=false, busy=false;
   function swap(to){
     if(busy||on===to) return;
     busy=true; on=to;
     el.classList.add('coord-fade');
     setTimeout(function(){
-      el.textContent=to?EGG:COORD;
+      el.innerHTML=to?EGG:COORD;
       el.classList.toggle('coord-egg',to);
       el.classList.remove('coord-fade');
       busy=false;
@@ -3346,45 +3403,60 @@ window.updateCoordUI=updateCoordUI;
   var NAMES=['정진','鄭真','서율','徐律','이강두','李康斗','서풍','徐風','최도현','崔道賢',
              '이산','李祘','구원','具元','강태풍','強太風','강상웅','姜常雄','다람쥐','松鼠',
              '강동우','姜東宇','율','律','ネロ','대원','尹泰源','허색','許穡','李俊昊'];
-  // 盡量重用既有節點:整批重建會讓 mousedown 的目標消失,瀏覽器就不會送出 click
   function paint(s){
     var bs=el.getElementsByTagName('b');
     if(bs.length===s.length){
       for(var i=0;i<s.length;i++){ if(bs[i].textContent!==s.charAt(i)) bs[i].textContent=s.charAt(i); }
       return;
     }
-    var html='';
-    for(var k=0;k<s.length;k++) html+='<b>'+s.charAt(k)+'</b>';
-    el.innerHTML=html;
+    var h='';
+    for(var k=0;k<s.length;k++) h+='<b>'+s.charAt(k)+'</b>';
+    el.innerHTML=h;
   }
   function pick(prev){
     var s=prev;
     while(s===prev) s=NAMES[Math.floor(Math.random()*NAMES.length)];
     return s;
   }
-  var timer=null, hold=null, landed=false, cur=HOME;
-  function stopSpin(){ if(timer){ clearInterval(timer); timer=null; } el.classList.remove('spin'); }
-  function clearHold(){ if(hold){ clearTimeout(hold); hold=null; } }
-  function home(){ stopSpin(); clearHold(); landed=false; el.classList.remove('lit'); cur=HOME; paint(HOME); }
-  function spin(){
-    stopSpin(); clearHold(); landed=false;
+  var STATE='home';          // home / cycling / frozen
+  var timer=null, resume=null, cur=HOME, hovering=false;
+  function clearTimers(){
+    if(timer){ clearInterval(timer); timer=null; }
+    if(resume){ clearTimeout(resume); resume=null; }
+  }
+  function toHome(){
+    clearTimers(); STATE='home'; cur=HOME;
+    el.classList.remove('lit','spin'); paint(HOME);
+  }
+  function toCycling(){
+    clearTimers(); STATE='cycling';
     el.classList.add('lit','spin');
     timer=setInterval(function(){ cur=pick(cur); paint(cur); },80);
   }
-  function land(){
-    spin();
-    hold=setTimeout(function(){
-      stopSpin();
-      landed=true; cur=pick(cur); paint(cur);
-      el.classList.add('lit');
-      hold=setTimeout(function(){ if(el.matches(':hover')) spin(); else home(); },3600);
-    },700);
+  function toFrozen(){
+    clearTimers(); STATE='frozen';
+    el.classList.remove('spin'); el.classList.add('lit');   // 停在當下這個名字
   }
-  el.addEventListener('pointerenter',function(){ if(!landed && !hold) spin(); });
-  el.addEventListener('pointerleave',function(){ home(); });
-  el.addEventListener('pointerdown',function(e){ e.stopPropagation(); land(); });
-  el.addEventListener('keydown',function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); land(); } });
-  document.addEventListener('pointerdown',function(){ if(landed||hold) home(); });
+  el.addEventListener('pointerenter',function(){
+    hovering=true;
+    if(STATE==='home') toCycling();      // 定格中則維持不動
+  });
+  el.addEventListener('pointerleave',function(){
+    hovering=false;
+    if(STATE==='cycling') toHome();      // 定格的名字滑鼠移開後仍保留
+  });
+  function tap(){
+    if(STATE==='cycling'){ toFrozen(); return; }
+    if(STATE==='frozen'){
+      toHome();
+      // 幾秒後若滑鼠仍在名字上,自動重新開始跳轉
+      resume=setTimeout(function(){ if(hovering && STATE==='home') toCycling(); },2600);
+      return;
+    }
+    toCycling();               // 從靜止狀態點擊(觸控裝置沒有 hover)
+  }
+  el.addEventListener('pointerdown',function(e){ e.stopPropagation(); tap(); });
+  el.addEventListener('keydown',function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); tap(); } });
 })();
 
 // ── Service worker(離線快取)──
