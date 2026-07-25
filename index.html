@@ -834,6 +834,63 @@ body[data-theme="light"] .of-item:not(.active):hover .of-label{color:rgba(26,23,
   background:rgba(18,16,14,.88);border-color:rgba(255,217,64,.55);color:#FFD940;
   box-shadow:0 1px 4px rgba(0,0,0,.45);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
 body[data-theme="light"] .cell-photo .cell-plus{background:rgba(244,241,236,.94);border-color:rgba(168,58,16,.45);color:#A83A10;box-shadow:0 1px 4px rgba(0,0,0,.28)}
+/* ── 批次貼網址 ── */
+.bulk-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:850;align-items:center;justify-content:center;padding:20px}
+.bulk-modal.open{display:flex}
+.bulk-box{background:#1A1814;border:1px solid rgba(255,255,255,.1);border-radius:14px;width:100%;max-width:600px;max-height:min(86vh,720px);display:flex;flex-direction:column;box-shadow:0 12px 40px rgba(0,0,0,.5);overflow:hidden}
+.bulk-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 18px;border-bottom:1px solid rgba(255,255,255,.08);flex-shrink:0}
+.bulk-head h3{font-family:'Boldonse',sans-serif;font-size:14px;font-weight:400;letter-spacing:.04em;color:#E8E4E0;text-transform:uppercase}
+.bulk-step{display:flex;flex-direction:column;min-height:0;flex:1;padding:16px 18px 18px;gap:12px}
+.bulk-hint{font-size:11.5px;line-height:1.6;color:rgba(255,255,255,.45);letter-spacing:.02em}
+.bulk-ta{flex:1;min-height:180px;resize:vertical;padding:11px 13px;border:1px solid rgba(255,255,255,.15);border-radius:var(--radius);background:rgba(255,255,255,.06);color:#E8E4E0;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;line-height:1.7;outline:none;transition:border-color .15s}
+.bulk-ta:focus{border-color:#FFD940}
+.bulk-ta::placeholder{color:rgba(255,255,255,.2)}
+.bulk-rows{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding-right:4px}
+.bulk-row{border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:9px 10px;display:flex;flex-direction:column;gap:6px;background:rgba(255,255,255,.03)}
+.bulk-row.dup{opacity:.5}
+.bulk-row-top{display:flex;align-items:center;gap:7px}
+.bulk-date,.bulk-type,.bulk-title{border:1px solid rgba(255,255,255,.15);border-radius:var(--radius);background:rgba(255,255,255,.06);color:#E8E4E0;font-family:inherit;font-size:12px;padding:6px 8px;outline:none;transition:border-color .15s}
+.bulk-date:focus,.bulk-type:focus,.bulk-title:focus{border-color:#FFD940}
+.bulk-date{flex-shrink:0}
+.bulk-type{flex-shrink:0}
+.bulk-title{width:100%}
+.bulk-title::placeholder{color:rgba(255,255,255,.25)}
+.bulk-dup{font-size:9.5px;letter-spacing:.06em;color:#FFD940;background:rgba(255,217,64,.14);border:1px solid rgba(255,217,64,.3);border-radius:8px;padding:2px 7px;white-space:nowrap}
+.bulk-del{margin-left:auto;width:24px;height:24px;flex-shrink:0;border-radius:6px;border:1px solid rgba(255,255,255,.15);background:transparent;color:rgba(255,255,255,.5);display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;transition:background .2s,border-color .2s,color .2s}
+.bulk-del:hover{background:#FFD940;border-color:#FFD940;color:#201F1F}
+.bulk-url{font-size:10.5px;color:rgba(255,255,255,.35);text-decoration:none;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+.bulk-url:hover{color:#FFD940;text-decoration:underline}
+.bulk-actions{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.bulk-count{flex:1;font-size:11px;color:rgba(255,255,255,.45);letter-spacing:.02em}
+.bulk-go{padding:9px 18px;border-radius:4px;border:1px solid #FFD940;background:#FFD940;color:#201F1F;font-size:11px;font-weight:600;letter-spacing:.18em;text-indent:.18em;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap}
+.bulk-go:disabled{opacity:.35;cursor:not-allowed}
+.bulk-back{padding:9px 14px;border-radius:4px;border:1px solid rgba(255,255,255,.2);background:transparent;color:rgba(255,255,255,.6);font-size:11px;letter-spacing:.1em;cursor:pointer;font-family:inherit;white-space:nowrap}
+.bulk-back:hover{color:#E8E4E0;border-color:rgba(255,255,255,.4)}
+body[data-theme="light"] .bulk-box{background:#F2EEE7;border-color:rgba(0,0,0,.1)}
+body[data-theme="light"] .bulk-head{border-bottom-color:rgba(0,0,0,.1)}
+body[data-theme="light"] .bulk-head h3{color:#1E1B18}
+body[data-theme="light"] .bulk-hint{color:rgba(26,23,20,.5)}
+body[data-theme="light"] .bulk-ta,body[data-theme="light"] .bulk-date,body[data-theme="light"] .bulk-type,body[data-theme="light"] .bulk-title{background:#fff;border-color:#D8D2C8;color:#1E1B18}
+body[data-theme="light"] .bulk-ta:focus,body[data-theme="light"] .bulk-date:focus,body[data-theme="light"] .bulk-type:focus,body[data-theme="light"] .bulk-title:focus{border-color:#FF6B3D}
+body[data-theme="light"] .bulk-ta::placeholder,body[data-theme="light"] .bulk-title::placeholder{color:rgba(0,0,0,.3)}
+body[data-theme="light"] .bulk-row{background:#fff;border-color:rgba(0,0,0,.08)}
+body[data-theme="light"] .bulk-dup{color:#A83A10;background:rgba(255,107,61,.14);border-color:rgba(255,107,61,.4)}
+body[data-theme="light"] .bulk-del{border-color:rgba(0,0,0,.2);color:rgba(0,0,0,.5)}
+body[data-theme="light"] .bulk-del:hover{background:#FF6B3D;border-color:#FF6B3D;color:#201F1F}
+body[data-theme="light"] .bulk-url{color:rgba(26,23,20,.4)}
+body[data-theme="light"] .bulk-url:hover{color:#A83A10}
+body[data-theme="light"] .bulk-count{color:rgba(26,23,20,.5)}
+body[data-theme="light"] .bulk-go{background:#FF6B3D;border-color:#FF6B3D}
+body[data-theme="light"] .bulk-back{border-color:rgba(0,0,0,.2);color:rgba(26,23,20,.6)}
+@media(max-width:700px){
+  .bulk-modal{padding:10px}
+  .bulk-box{max-height:92vh}
+  .bulk-row-top{flex-wrap:wrap}
+  .bulk-date,.bulk-type{font-size:11px;padding:5px 6px}
+  .bulk-go,.bulk-back{padding:10px 14px}
+  .bulk-count{font-size:10px}
+}
+
 @media(max-width:700px){
   .cell-photo .cell-plus{right:3px;bottom:3px;font-size:8px;line-height:13px;padding:0 4px;border-radius:7px}
   /* 紀念日格多一條 8px 文字(+13.4px)會把兩行推到 114.4px 超過格高,退回一行 */
@@ -1641,8 +1698,15 @@ body[data-theme="light"] .hdr-orb .rotor-css span{color:rgba(26,23,20,.85)}
     </div>
     <div class="settings-item">
       <div>
+        <div class="settings-item-label">批次新增</div>
+        <div class="settings-item-val">貼一批網址快速建檔</div>
+      </div>
+      <button class="settings-item-btn" onclick="openBulkImport()">批次貼網址</button>
+    </div>
+    <div class="settings-item">
+      <div>
         <div class="settings-item-label">版本</div>
-        <div class="settings-item-val">v2026.07.25-J</div>
+        <div class="settings-item-val">v2026.07.25-K</div>
       </div>
       <span style="font-size:14px;opacity:.5">🌻</span>
     </div>
@@ -1754,6 +1818,34 @@ body[data-theme="light"] .hdr-orb .rotor-css span{color:rgba(26,23,20,.85)}
 </div>
 
 <!-- Confirm dialog -->
+<!-- 批次貼網址 -->
+<div class="bulk-modal" id="bulk-modal">
+  <div class="bulk-box">
+    <div class="bulk-head">
+      <h3>批次貼網址</h3>
+      <button class="so-close" onclick="closeBulkImport()" aria-label="關閉"><span>✕</span></button>
+    </div>
+
+    <div class="bulk-step" id="bulk-step-paste">
+      <p class="bulk-hint">整段貼上就好，會自動抓出裡面所有連結並去除重複。<br>照片沒辦法自動帶入，IG 擋未登入存取。</p>
+      <textarea class="bulk-ta" id="bulk-ta" placeholder="https://www.instagram.com/p/xxxxx/&#10;https://www.instagram.com/p/yyyyy/&#10;…"></textarea>
+      <div class="bulk-actions">
+        <span class="bulk-count"></span>
+        <button class="bulk-go" onclick="bulkParse()">解析網址</button>
+      </div>
+    </div>
+
+    <div class="bulk-step" id="bulk-step-rows" style="display:none">
+      <div class="bulk-rows" id="bulk-rows"></div>
+      <div class="bulk-actions">
+        <button class="bulk-back" onclick="bulkBack()">← 重貼</button>
+        <span class="bulk-count" id="bulk-row-count"></span>
+        <button class="bulk-go" id="bulk-commit" onclick="bulkCommit()">建立紀錄</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="confirm-modal" id="confirm-modal">
   <div class="confirm-box">
     <p>確定刪除？</p>
@@ -3475,7 +3567,7 @@ document.addEventListener('keydown', function(e){
   var tag=(document.activeElement&&document.activeElement.tagName)||'';
   if(tag==='INPUT'||tag==='TEXTAREA') return;
   if(e.key==='Escape'){
-    closeAddForm(); closeDaySo(); closeSettings(); closeLightbox(); closeYearMonthPicker(); closeConfirm(); closeOnThisDay();
+    closeAddForm(); closeDaySo(); closeSettings(); closeLightbox(); closeYearMonthPicker(); closeConfirm(); closeOnThisDay(); closeBulkImport();
     return;
   }
   // OTD player open: arrows switch records
@@ -3671,6 +3763,118 @@ document.addEventListener('keydown', function(e){
   tick(); setInterval(tick,1000);
 })();
 
+
+// ── 批次貼網址:一次貼多個連結 → 建立多筆紀錄 ──
+(function(){
+  var rows=[];
+  var LB={schedule:'行程',sns:'社群',bubble:'泡泡',media:'媒體',message:'消息'};
+  function step(which){
+    document.getElementById('bulk-step-paste').style.display = which==='paste'?'':'none';
+    document.getElementById('bulk-step-rows').style.display  = which==='rows' ?'':'none';
+  }
+  function extract(txt){
+    var found=(txt||'').match(/https?:\/\/[^\s<>"']+/g)||[];
+    var seen={}, out=[];
+    found.forEach(function(u){
+      u=u.replace(/[)\]},.;、。]+$/,'');            // 貼上時常黏到的尾標點
+      if(seen[u]) return;
+      seen[u]=1; out.push(u);
+    });
+    return out;
+  }
+  function shortLabel(u){
+    try{
+      var a=document.createElement('a'); a.href=u;
+      var host=a.hostname.replace(/^www\./,'');
+      var path=a.pathname.replace(/\/+$/,'');
+      if(path.length>30) path=path.slice(0,30)+'…';
+      return host+path;
+    }catch(e){ return u.slice(0,44); }
+  }
+  function recount(){
+    var ready=0, dup=0;
+    rows.forEach(function(r){
+      if(r.dup) dup++;
+      else if(r.title.trim()) ready++;
+    });
+    var el=document.getElementById('bulk-row-count');
+    if(el) el.textContent=rows.length+' 個網址・'+ready+' 筆可建立'+(dup?('・'+dup+' 筆已存在會略過'):'');
+    var btn=document.getElementById('bulk-commit');
+    if(btn) btn.disabled=!ready;
+  }
+  function render(){
+    var box=document.getElementById('bulk-rows');
+    if(!box) return;
+    box.innerHTML=rows.map(function(r,i){
+      var opts=Object.keys(LB).map(function(k){
+        return '<option value="'+k+'"'+(k===r.type?' selected':'')+'>'+LB[k]+'</option>';
+      }).join('');
+      return '<div class="bulk-row'+(r.dup?' dup':'')+'">'
+        +'<div class="bulk-row-top">'
+          +'<input type="date" class="bulk-date" value="'+r.date+'" onchange="bulkSet('+i+',\'date\',this.value)">'
+          +'<select class="bulk-type" onchange="bulkSet('+i+',\'type\',this.value)">'+opts+'</select>'
+          +(r.dup?'<span class="bulk-dup">已存在</span>':'')
+          +'<button class="bulk-del" onclick="bulkDel('+i+')" aria-label="移除這一筆"><svg viewBox="0 0 13 13" width="11" height="11" fill="none" aria-hidden="true"><path d="M3 3l7 7M10 3l-7 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>'
+        +'</div>'
+        +'<input type="text" class="bulk-title" value="'+escHtml(r.title)+'" placeholder="標題（留空的不會建立）" oninput="bulkSet('+i+',\'title\',this.value)">'
+        +'<a class="bulk-url" href="'+escHtml(r.url)+'" target="_blank" rel="noopener">'+escHtml(shortLabel(r.url))+'</a>'
+      +'</div>';
+    }).join('');
+    recount();
+  }
+  window.openBulkImport=function(){
+    if(!isUnlocked){ showToast('請先解鎖編輯模式'); return; }
+    if(typeof soloPanel==='function') soloPanel();
+    rows=[];
+    var ta=document.getElementById('bulk-ta');
+    if(ta) ta.value='';
+    step('paste');
+    document.getElementById('bulk-modal').classList.add('open');
+    setTimeout(function(){ if(ta) ta.focus(); },60);
+  };
+  window.closeBulkImport=function(){
+    var m=document.getElementById('bulk-modal');
+    if(m) m.classList.remove('open');
+  };
+  window.bulkBack=function(){ step('paste'); };
+  window.bulkSet=function(i,k,v){
+    if(!rows[i]) return;
+    rows[i][k]=v;
+    if(k==='title') recount();     // 只重算不重繪,否則輸入中會失焦
+  };
+  window.bulkDel=function(i){ rows.splice(i,1); render(); };
+  window.bulkParse=function(){
+    var urls=extract(document.getElementById('bulk-ta').value);
+    if(!urls.length){ showToast('沒有偵測到網址',3000); return; }
+    var existing={};
+    (window.records||[]).forEach(function(r){ if(r && r.source) existing[String(r.source).trim()]=1; });
+    var today=toISO(nowKST());
+    rows=urls.map(function(u){
+      return { url:u, date:today, type:guessShareType(u), title:'', dup:!!existing[u] };
+    });
+    render();
+    step('rows');
+  };
+  window.bulkCommit=function(){
+    var list=rows.filter(function(r){ return r.title.trim() && !r.dup; });
+    if(!list.length){ showToast('沒有可建立的紀錄，請至少填一個標題',3500); return; }
+    var btn=document.getElementById('bulk-commit');
+    if(btn) btn.disabled=true;
+    showToast('建立中…',60000);
+    var done=0, fail=0, pending=list.length;
+    list.forEach(function(r){
+      var rec={type:r.type,date:r.date,time:'',title:r.title.trim(),
+               series:'',place:'',desc:'',source:r.url,photos:[],thumbs:[]};
+      Promise.resolve(saveData(rec,null)).then(function(){done++;},function(){fail++;})
+        .then(function(){
+          if(--pending>0) return;
+          window.closeBulkImport();
+          showToast(fail?('完成：'+done+' 筆成功、'+fail+' 筆失敗（請確認已解鎖）')
+                        :('✓ 已建立 '+done+' 筆紀錄'), fail?6000:3000);
+        });
+    });
+  };
+})();
 
 // ── 分享匯入:社群 App 分享 → 自動開新增表單並帶入連結 ──
 function parseSharedInput(){
