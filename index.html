@@ -152,6 +152,22 @@ body[data-theme="light"] .cal-cell.today .cell-date-row .cell-date{background:#F
 .cell-plus-photo{display:none}
 .cell-plus-row{display:inline-flex}
 .dr-label,.drc-text{display:none}
+.fmt-box{background:#201F1F;border:1px solid rgba(255,217,64,.3);border-radius:10px;padding:26px 24px;width:100%;max-width:470px;max-height:82vh;overflow-y:auto;position:relative;text-align:left}
+.fmt-box h3{font-family:'Archivo','Noto Sans TC',sans-serif;font-size:13px;letter-spacing:.16em;color:#E8E4E0;margin:0 0 6px;font-weight:600}
+.fmt-sub{font-size:11px;color:#8F8983;line-height:1.7;margin-bottom:4px}
+.fmt-rule{font-size:15px;color:#FFD940;letter-spacing:.06em;margin:14px 0 2px;font-weight:500}
+.fmt-sec{font-family:'Archivo','Noto Sans TC',sans-serif;font-size:10px;letter-spacing:.18em;color:#8F8983;margin:20px 0 8px}
+.fmt-tb{width:100%;border-collapse:collapse;font-size:12px}
+.fmt-tb th{font-family:'Archivo','Noto Sans TC',sans-serif;font-size:10px;letter-spacing:.12em;color:#8F8983;font-weight:500;text-align:left;padding:5px 10px 5px 0;border-bottom:1px solid rgba(255,255,255,.14)}
+.fmt-tb td{padding:6px 10px 6px 0;border-bottom:1px solid rgba(255,255,255,.07);color:#E0DDD8;vertical-align:top;line-height:1.55}
+.fmt-tb td.fmt-key{font-family:'Archivo','Noto Sans TC',sans-serif;color:#FFD940;white-space:nowrap}
+.fmt-tb td.fmt-note{color:#8F8983;font-size:11px}
+body[data-theme="light"] .fmt-box{background:#fff;border-color:rgba(0,0,0,.15)}
+body[data-theme="light"] .fmt-box h3{color:#1E1B18}
+body[data-theme="light"] .fmt-tb td{color:#1E1B18;border-bottom-color:rgba(0,0,0,.08)}
+body[data-theme="light"] .fmt-tb th{border-bottom-color:rgba(0,0,0,.15)}
+body[data-theme="light"] .fmt-rule,body[data-theme="light"] .fmt-tb td.fmt-key{color:#A83A10}
+body[data-theme="light"] .fmt-sec,body[data-theme="light"] .fmt-sub,body[data-theme="light"] .fmt-tb td.fmt-note{color:rgba(0,0,0,.5)}
 .date-range-clear svg{width:9px;height:9px;display:block}
 .cell-sub{font-size:10px;color:#7A7672;line-height:1.35;overflow:hidden;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical}
 .cell-time{font-size:10px;color:#7A7672;margin-top:1px}
@@ -1611,11 +1627,11 @@ body[data-theme="light"] .hdr-orb .rotor-css span{color:rgba(26,23,20,.85)}
         <input type="time" id="f-time" placeholder="時間（選填）">
       </div>
     </div>
-    <div class="form-group"><label>標題</label><input type="text" id="f-title" placeholder="例：音樂節表演、IG 發文"></div>
-    <div class="form-group"><label>主題（選填）</label><input type="text" id="f-series" list="series-list" placeholder="系列名稱"><datalist id="series-list"></datalist></div>
+    <div class="form-group"><label>標題</label><input type="text" id="f-title" placeholder="IG本人｜內容重點"></div>
+    <div class="form-group"><label>主題（選填）</label><input type="text" id="f-series" list="series-list" placeholder="作品或系列名，例：Paris Diaries"><datalist id="series-list"></datalist></div>
     <div class="form-group"><label>地點（選填）</label><input type="text" id="f-place" list="place-list" placeholder="例：台大體育館"><datalist id="place-list"></datalist></div>
     <div class="form-group"><label>說明（選填）</label><textarea id="f-desc" placeholder="內容、備註…"></textarea></div>
-    <div class="form-group"><label>來源／平台連結（選填）</label><input type="text" id="f-source" placeholder="例：IG、Weverse、https://..."></div>
+    <div class="form-group"><label>連結（選填）</label><input type="text" id="f-source" placeholder="貼上原始貼文連結"></div>
     <div class="form-group">
       <label>照片（無張數限制）</label>
       <div class="photo-upload-area" onclick="document.getElementById('f-photos').click()" ondragover="event.preventDefault()" ondrop="handleDrop(event)">
@@ -1649,6 +1665,49 @@ body[data-theme="light"] .hdr-orb .rotor-css span{color:rgba(26,23,20,.85)}
     <input class="pw-input" type="password" id="pw-input" placeholder="輸入密碼" onkeydown="if(event.key==='Enter')checkPassword()">
     <button class="pw-btn" onclick="checkPassword()">解鎖</button>
     <div class="pw-err" id="pw-err"></div>
+  </div>
+</div>
+
+<!-- 紀錄格式速查 -->
+<div class="pw-modal" id="fmt-modal" onclick="if(event.target===this)closeFmtGuide()">
+  <div class="fmt-box">
+    <button class="pw-x" onclick="closeFmtGuide()">✕</button>
+    <h3>紀錄格式速查</h3>
+    <div class="fmt-sub">一項資訊只寫在一個地方。標題只負責「哪個帳號 + 這則在講什麼」。</div>
+    <div class="fmt-rule">帳號｜內容</div>
+    <div class="fmt-sub">分隔符是全形直線。社群類才需要帳號前綴；行程、消息、泡泡通常不用。</div>
+    <div class="fmt-sec">帳號前綴</div>
+    <table class="fmt-tb">
+      <tr><th>寫法</th><th>對應帳號</th></tr>
+        <tr><td class="fmt-key">IG本人</td><td class="fmt-note">le2jh</td></tr>
+        <tr><td class="fmt-key">IG官方</td><td class="fmt-note">POST_LEEJUNHO</td></tr>
+        <tr><td class="fmt-key">IG 2PM</td><td class="fmt-note">Real_2PM</td></tr>
+        <tr><td class="fmt-key">IG公司</td><td class="fmt-note">O3cltv</td></tr>
+        <tr><td class="fmt-key">X本人</td><td class="fmt-note">個人帳號</td></tr>
+        <tr><td class="fmt-key">X官方</td><td class="fmt-note">個人官方帳號</td></tr>
+        <tr><td class="fmt-key">X 2PM</td><td class="fmt-note">團體帳號</td></tr>
+        <tr><td class="fmt-key">YT官方</td><td class="fmt-note">個人官方頻道</td></tr>
+        <tr><td class="fmt-key">YT 2PM</td><td class="fmt-note">團體頻道</td></tr>
+        <tr><td class="fmt-key">Weverse</td><td class="fmt-note">單一帳號，不加第二段</td></tr>
+        <tr><td class="fmt-key">微博</td><td class="fmt-note">單一帳號</td></tr>
+        <tr><td class="fmt-key">小紅書</td><td class="fmt-note">單一帳號</td></tr>
+    </table>
+    <div class="fmt-sec">欄位分工</div>
+    <table class="fmt-tb">
+      <tr><th>欄位</th><th>放什麼</th></tr>
+        <tr><td class="fmt-key">標題</td><td>帳號｜內容重點。目標 12–16 字，重點前置</td></tr>
+        <tr><td class="fmt-key">主題</td><td>作品或系列名，會變成可點的 ✦ 標籤</td></tr>
+        <tr><td class="fmt-key">地點</td><td>場館、城市</td></tr>
+        <tr><td class="fmt-key">說明</td><td>補充內容、備註</td></tr>
+        <tr><td class="fmt-key">連結</td><td>只放網址，不要寫平台名</td></tr>
+        <tr><td class="fmt-key">類別</td><td>由色點表達，標題不要重複寫「貼文」「行程」</td></tr>
+    </table>
+    <div class="fmt-sec">範例</div>
+    <table class="fmt-tb">
+      <tr><td class="fmt-key">YT官方｜巴黎 vlog EP.1</td><td class="fmt-note">主題：Paris Diaries</td></tr>
+      <tr><td class="fmt-key">男女主角確認出演</td><td class="fmt-note">主題：駐韓外國使館</td></tr>
+      <tr><td class="fmt-key">IG 2PM｜合照 4 張</td><td class="fmt-note">—</td></tr>
+    </table>
   </div>
 </div>
 
@@ -1696,8 +1755,15 @@ body[data-theme="light"] .hdr-orb .rotor-css span{color:rgba(26,23,20,.85)}
     </div>
     <div class="settings-item">
       <div>
+        <div class="settings-item-label">紀錄格式</div>
+        <div class="settings-item-val">帳號前綴與欄位分工</div>
+      </div>
+      <button class="settings-item-btn" onclick="openFmtGuide()">速查表</button>
+    </div>
+    <div class="settings-item">
+      <div>
         <div class="settings-item-label">版本</div>
-        <div class="settings-item-val">v2026.07.27-C</div>
+        <div class="settings-item-val">v2026.07.27-D</div>
       </div>
       <span style="font-size:14px;opacity:.5">🌻</span>
     </div>
@@ -3325,6 +3391,10 @@ window.ymNav=ymNav;
 window.ymToggleMode=ymToggleMode;
 window.ymPickYear=ymPickYear;
 window.selectYM=selectYM;
+function openFmtGuide(){ var m=document.getElementById('fmt-modal'); if(m) m.classList.add('open'); }
+function closeFmtGuide(){ var m=document.getElementById('fmt-modal'); if(m) m.classList.remove('open'); }
+window.openFmtGuide=openFmtGuide;
+window.closeFmtGuide=closeFmtGuide;
 window.clearDateRange=clearDateRange;
 window.openConfirm=openConfirm;
 window.closeConfirm=closeConfirm;
