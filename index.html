@@ -241,7 +241,7 @@ body[data-theme="light"] .fmt-sec,body[data-theme="light"] .fmt-sub,body[data-th
 .so-body{padding:20px}
 .form-group{margin-bottom:14px}.form-group label{display:block;font-size:11px;font-weight:500;margin-bottom:5px;letter-spacing:.04em;text-transform:uppercase}
 .form-group input,.form-group textarea,.form-group select{width:100%;padding:9px 11px;border:1px solid rgba(255,255,255,.15);border-radius:var(--radius);font-family:inherit;font-size:13px;color:#E8E4E0;background:rgba(255,255,255,.06);outline:none;transition:border-color .15s}
-.form-group input:focus,.form-group textarea:focus{border-color:#FFD940}
+.form-group input:focus,.form-group textarea:focus,.form-group select:focus{border-color:#FFD940}
 .form-group input::-webkit-calendar-picker-indicator{filter:invert(1) opacity(.5)}
 .form-group input::placeholder,.form-group textarea::placeholder{color:rgba(255,255,255,.25)}
 .form-group textarea{resize:vertical;min-height:72px}
@@ -458,7 +458,7 @@ body[data-theme="light"] .date-range-clear:hover,body[data-theme="light"] .searc
   /* Slide-overs */
   .slideover{width:100%;border-radius:20px 20px 0 0;top:auto;bottom:0;height:92vh;transform:translateY(100%)}
   .slideover.open{transform:translateY(0)}
-  .day-so{width:100%;border-radius:20px 20px 0 0;top:auto;bottom:0;height:85vh;transform:translateY(100%)}
+  .day-so{width:100%;border-radius:20px 20px 0 0;top:auto;bottom:0;height:85vh;transform:translateY(100%);padding-bottom:92px}
   .day-so.open{transform:translateY(0)}
   .so-head{border-radius:20px 20px 0 0;padding:14px 16px}
   .so-body{padding:14px 16px}
@@ -468,7 +468,7 @@ body[data-theme="light"] .date-range-clear:hover,body[data-theme="light"] .searc
   /* FAB */
   
   /* Form */
-  .form-group input,.form-group textarea{font-size:16px}
+  .form-group input,.form-group textarea,.form-group select{font-size:16px}
   .date-time-row{grid-template-columns:1fr 1fr;gap:6px}
   .date-time-row input{-webkit-appearance:none;appearance:none;min-width:0;width:100%;box-sizing:border-box}
   .btn-save{padding:13px;font-size:14px}
@@ -651,7 +651,7 @@ body[data-theme="light"] .cell-plus{background:rgba(255,107,61,.18);color:#D14A1
 body[data-theme="light"] .cell-title{color:#1E1B18}
 body[data-theme="light"] .toast{background:rgba(255,255,255,.95);color:#1E1B18;border-color:rgba(0,0,0,.15)}
 body[data-theme="light"] .form-group label{color:rgba(0,0,0,.5)}
-body[data-theme="light"] .form-group input,body[data-theme="light"] .form-group textarea{background:#fff;border-color:#D8D2C8;color:#1E1B18}
+body[data-theme="light"] .form-group input,body[data-theme="light"] .form-group textarea,body[data-theme="light"] .form-group select{background:#fff;border-color:#D8D2C8;color:#1E1B18}
 body[data-theme="light"] .form-group input::placeholder,body[data-theme="light"] .form-group textarea::placeholder{color:rgba(0,0,0,.3)}
 body[data-theme="light"] .form-group input::-webkit-calendar-picker-indicator{filter:none}
 body[data-theme="light"] .type-btn{border-color:#C8C2B8;color:#5A544C}
@@ -1613,11 +1613,11 @@ body[data-theme="light"] .hdr-orb .rotor-css span{color:rgba(26,23,20,.85)}
     <div class="form-group">
       <label>類型</label>
       <div class="type-btns" id="add-type-btns">
-        <button class="type-btn active-schedule" onclick="setType('schedule',this,'add')">📅 行程</button>
-        <button class="type-btn" onclick="setType('sns',this,'add')">💬 社群</button>
-        <button class="type-btn" onclick="setType('bubble',this,'add')">🫧 泡泡</button>
-        <button class="type-btn" onclick="setType('media',this,'add')">📺 媒體</button>
-        <button class="type-btn" onclick="setType('message',this,'add')">📣 消息</button>
+        <button class="type-btn active-schedule" onclick="setType('schedule',this,'add')">行程</button>
+        <button class="type-btn" onclick="setType('sns',this,'add')">社群</button>
+        <button class="type-btn" onclick="setType('bubble',this,'add')">泡泡</button>
+        <button class="type-btn" onclick="setType('media',this,'add')">媒體</button>
+        <button class="type-btn" onclick="setType('message',this,'add')">消息</button>
       </div>
     </div>
     <div class="form-group">
@@ -1629,6 +1629,8 @@ body[data-theme="light"] .hdr-orb .rotor-css span{color:rgba(26,23,20,.85)}
     </div>
     <div class="form-group"><label>標題</label><input type="text" id="f-title" placeholder="IG本人｜內容重點"></div>
     <div class="form-group"><label>主題（選填）</label><input type="text" id="f-series" list="series-list" placeholder="作品或系列名，例：Paris Diaries"><datalist id="series-list"></datalist></div>
+    <div class="form-group"><label>來源（選填）</label><select id="f-platform" onchange="refreshAuthorDatalist()"><option value="">—</option><option value="IG 貼文">IG 貼文</option><option value="IG 限動">IG 限動</option><option value="IG Reels">IG Reels</option><option value="YT 影片">YT 影片</option><option value="YT Shorts">YT Shorts</option><option value="X">X</option><option value="Weverse">Weverse</option><option value="微博">微博</option><option value="小紅書">小紅書</option><option value="網路媒體">網路媒體</option><option value="電視">電視</option><option value="官網">官網</option><option value="其他">其他</option></select></div>
+    <div class="form-group"><label>發布者（選填）</label><input type="text" id="f-author" list="author-list" placeholder="例：le2jh、Naver"><datalist id="author-list"></datalist></div>
     <div class="form-group"><label>地點（選填）</label><input type="text" id="f-place" list="place-list" placeholder="例：台大體育館"><datalist id="place-list"></datalist></div>
     <div class="form-group"><label>說明（選填）</label><textarea id="f-desc" placeholder="內容、備註…"></textarea></div>
     <div class="form-group"><label>連結（選填）</label><input type="text" id="f-source" placeholder="貼上原始貼文連結"></div>
@@ -1763,7 +1765,7 @@ body[data-theme="light"] .hdr-orb .rotor-css span{color:rgba(26,23,20,.85)}
     <div class="settings-item">
       <div>
         <div class="settings-item-label">版本</div>
-        <div class="settings-item-val">v2026.07.27-D</div>
+        <div class="settings-item-val">v2026.07.28</div>
       </div>
       <span style="font-size:14px;opacity:.5">🌻</span>
     </div>
@@ -2266,6 +2268,22 @@ function refreshSeriesDatalist(){
   }
   fill('series-list','series');
   fill('place-list','place');
+  refreshAuthorDatalist();
+}
+// 固定帳號預設值。新增平台的帳號只要改這裡;沒列到的平台會退回「用過的值」。
+var AUTHOR_PRESETS={
+  'IG 貼文':['le2jh','POST_LEEJUNHO','Real_2PM','O3cltv'],
+  'IG 限動':['le2jh','POST_LEEJUNHO','Real_2PM','O3cltv'],
+  'IG Reels':['le2jh','POST_LEEJUNHO','Real_2PM','O3cltv']
+};
+function refreshAuthorDatalist(){
+  var dl=document.getElementById('author-list'); if(!dl) return;
+  var sel=document.getElementById('f-platform');
+  var plat=sel?sel.value:'';
+  var seen={};
+  (AUTHOR_PRESETS[plat]||[]).forEach(function(a){ seen[a]=1; });
+  records.forEach(function(r){ if(r.author) seen[r.author]=1; });
+  dl.innerHTML=Object.keys(seen).sort().map(function(a){ return '<option value="'+escHtml(a)+'">'; }).join('');
 }
 function searchSeries(s){
   switchPage('feed');
@@ -2570,6 +2588,8 @@ function openAddForm(date){
   document.getElementById('f-time').value='';
   document.getElementById('f-title').value='';
   document.getElementById('f-series').value='';
+  document.getElementById('f-platform').value='';
+  document.getElementById('f-author').value='';
   document.getElementById('f-place').value='';
   document.getElementById('f-desc').value='';
   refreshSeriesDatalist();
@@ -2597,6 +2617,8 @@ function openEditModal(fid){
   document.getElementById('f-time').value=rec.time||'';
   document.getElementById('f-title').value=rec.title;
   document.getElementById('f-series').value=rec.series||'';
+  document.getElementById('f-platform').value=rec.platform||'';
+  document.getElementById('f-author').value=rec.author||'';
   document.getElementById('f-place').value=rec.place||'';
   document.getElementById('f-desc').value=rec.desc||'';
   refreshSeriesDatalist();
@@ -2637,6 +2659,8 @@ function saveRecord(){
   var place=document.getElementById('f-place').value.trim();
   var desc=document.getElementById('f-desc').value.trim();
   var source=document.getElementById('f-source').value.trim();
+  var platform=document.getElementById('f-platform').value;
+  var author=document.getElementById('f-author').value.trim();
   if(!date||!title){ alert('請填寫日期和標題'); return; }
   var photoItems=pendingPhotos.slice();
   var eid=editId;
@@ -2647,7 +2671,7 @@ function saveRecord(){
     return p.data.indexOf('data:')===0 ? uploadPhotoToStorage(p.data) : Promise.resolve(p.data);
   })).then(function(photos){
     var thumbs=photoItems.map(function(p){return p.thumb||'';});
-    var record={type:currentType,date:date,time:time,title:title,series:series,place:place,desc:desc,source:source,photos:photos,thumbs:thumbs};
+    var record={type:currentType,date:date,time:time,title:title,series:series,platform:platform,author:author,place:place,desc:desc,source:source,photos:photos,thumbs:thumbs};
     saveData(record, eid||null);
     showToast('✓  Saved');
   });
@@ -2830,7 +2854,7 @@ function renderFeed(){
   var filtered=records.filter(function(r){
     if(deletedIds[r._fid]) return false;
     if(currentFilter!=='all'&&r.type!==currentFilter) return false;
-    if(searchQ&&!(r.title.toLowerCase().includes(searchQ)||(r.desc||'').toLowerCase().includes(searchQ)||(r.series||'').toLowerCase().includes(searchQ)||(r.place||'').toLowerCase().includes(searchQ))) return false;
+    if(searchQ&&!(r.title.toLowerCase().includes(searchQ)||(r.desc||'').toLowerCase().includes(searchQ)||(r.series||'').toLowerCase().includes(searchQ)||(r.place||'').toLowerCase().includes(searchQ)||(r.author||'').toLowerCase().includes(searchQ)||(r.platform||'').toLowerCase().includes(searchQ))) return false;
     if(dateFrom&&r.date<dateFrom) return false;
     if(dateTo&&r.date>dateTo) return false;
     return true;
@@ -3423,6 +3447,7 @@ window.openAddForm=openAddForm;
 window.closeAddForm=closeAddForm;
 window.closeAll=closeAll;
 window.openEditModal=openEditModal;
+window.refreshAuthorDatalist=refreshAuthorDatalist;
 window.saveRecord=saveRecord;
 window.setType=setType;
 window.handleFileInput=handleFileInput;
