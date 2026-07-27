@@ -143,7 +143,7 @@ body[data-theme="light"] .cal-cell.today .cell-date-row .cell-date{background:#F
 .cell-text-inner{display:block;overflow:hidden}
 
 .cal-cell.has-records:hover .ct-txt{white-space:normal;overflow:visible;-webkit-line-clamp:unset;display:block}
-.cal-cell.has-records:hover .cell-plus-photo{display:none}
+.cal-cell.has-records:hover .cell-plus{display:none}
 .cell-plus{font-size:9px;font-weight:700;color:#FFD940;background:rgba(255,217,64,.15);border-radius:8px;padding:1px 5px;white-space:nowrap;flex-shrink:0;border:1px solid rgba(255,217,64,.3)}
 .cell-title{font-size:12px;font-weight:500;color:#E0DDD8;margin-bottom:0;display:flex;align-items:flex-start;gap:6px}
 .ct-dot{width:5px;height:5px;border-radius:50%;flex:0 0 5px;margin-top:6px}
@@ -1697,7 +1697,7 @@ body[data-theme="light"] .hdr-orb .rotor-css span{color:rgba(26,23,20,.85)}
     <div class="settings-item">
       <div>
         <div class="settings-item-label">版本</div>
-        <div class="settings-item-val">v2026.07.27</div>
+        <div class="settings-item-val">v2026.07.27-C</div>
       </div>
       <span style="font-size:14px;opacity:.5">🌻</span>
     </div>
@@ -3321,7 +3321,8 @@ window.settingsToggleLock=settingsToggleLock;
 window.goToday=goToday;
 window.openYearMonthPicker=openYearMonthPicker;
 window.closeYearMonthPicker=closeYearMonthPicker;
-window.ymYear=ymYear;
+window.ymNav=ymNav;
+window.ymToggleMode=ymToggleMode;
 window.ymPickYear=ymPickYear;
 window.selectYM=selectYM;
 window.clearDateRange=clearDateRange;
