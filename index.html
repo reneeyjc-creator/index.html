@@ -51,7 +51,7 @@
 body{overflow-x:hidden;font-family:'Noto Sans TC',system-ui,sans-serif;background:linear-gradient(160deg,#201F1F 0%,#1A1210 60%,#1C1A22 100%);color:var(--c-text);min-height:100vh;line-height:1.5}
 
 /* ── Site header ── */
-.site-header{background:transparent;padding:54px 24px 0;margin-bottom:48px;border-bottom:none;position:relative;z-index:2;transition:opacity .3s ease}
+.site-header{background:transparent;padding:54px 24px 0;margin-bottom:48px;border-bottom:none;position:relative;transition:opacity .3s ease}
 .header-row1{display:flex;align-items:center;justify-content:space-between;padding:0 0 12px;gap:12px}
 .site-footer{display:flex;align-items:center;justify-content:center;gap:10px;padding:24px 16px 90px;border-top:1px solid var(--c-border)}
 .header-actions{display:flex;gap:8px;align-items:center}
@@ -66,7 +66,6 @@ body{overflow-x:hidden;font-family:'Noto Sans TC',system-ui,sans-serif;backgroun
 .page.active{display:block;animation:fadeInUp .3s var(--ease-out)}
 
 /* ── Calendar page ── */
-.cal-header{display:flex;align-items:baseline;gap:20px;margin-bottom:24px}
 .cal-month-title{font-family:'Boldonse',sans-serif;letter-spacing:.02em;color:#E8E4E0;text-transform:uppercase}
 .cal-nav-btns{display:flex;gap:6px}
 .nav-btn{height:30px;padding:0 6px;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.55);transition:color .2s,transform .2s;-webkit-tap-highlight-color:transparent}
@@ -85,7 +84,9 @@ body{overflow-x:hidden;font-family:'Noto Sans TC',system-ui,sans-serif;backgroun
 .ym-picker{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:500}
 .ym-picker-box{background:#1A1814;border:1px solid #3A3634;border-radius:16px;padding:20px;box-shadow:0 8px 32px rgba(0,0,0,.5);min-width:280px}
 .ym-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
-.ym-year-label{font-size:18px;font-weight:500;color:#E8E4E0}
+.ym-year-label{font-size:18px;font-weight:500;color:#E8E4E0;background:none;border:none;font-family:inherit;padding:4px 12px;border-radius:8px;cursor:pointer;transition:background .15s}
+.ym-year-label:hover{background:rgba(255,255,255,.08)}
+body[data-theme="light"] .ym-year-label:hover{background:rgba(0,0,0,.06)}
 .ym-nav{width:28px;height:28px;border-radius:50%;border:1px solid rgba(255,255,255,.2);background:transparent;color:rgba(255,255,255,.6);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center}
 .ym-nav:hover{background:rgba(255,255,255,.1)}
 .ym-months{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px}
@@ -120,7 +121,7 @@ body[data-theme="light"] .cal-cell.today .cell-date-row .cell-date{background:#F
 
 /* Date row (top of cell) */
 .cell-date-row{display:flex;align-items:center;gap:5px;padding:8px 8px 6px;flex-shrink:0}.cell-date{font-size:14px;font-weight:700;font-family:'Trebuchet MS','Impact',system-ui,sans-serif;min-width:22px;line-height:22px;text-align:center;font-style:italic;letter-spacing:.02em}
-.cell-dots{display:flex;gap:3px;align-items:center}
+.cell-dots{display:none;gap:3px;align-items:center}
 .cdot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 .cdot-schedule{background:var(--c-sched);box-shadow:0 0 6px 1px var(--c-sched-glow)}
 .cdot-sns{background:var(--c-sns);box-shadow:0 0 6px 1px var(--c-sns-glow)}
@@ -141,10 +142,17 @@ body[data-theme="light"] .cal-cell.today .cell-date-row .cell-date{background:#F
 .cal-cell.has-records:hover .cell-photo{background:#1E1C1A}
 .cell-text-inner{display:block;overflow:hidden}
 
-.cal-cell.has-records:hover .cell-title{white-space:normal;overflow:visible;-webkit-line-clamp:unset;display:block}
-.cal-cell.has-records:hover .cell-plus{display:none}
+.cal-cell.has-records:hover .ct-txt{white-space:normal;overflow:visible;-webkit-line-clamp:unset;display:block}
+.cal-cell.has-records:hover .cell-plus-photo{display:none}
 .cell-plus{font-size:9px;font-weight:700;color:#FFD940;background:rgba(255,217,64,.15);border-radius:8px;padding:1px 5px;white-space:nowrap;flex-shrink:0;border:1px solid rgba(255,217,64,.3)}
-.cell-title{font-size:12px;font-weight:500;color:#E0DDD8;line-height:1.3;margin-bottom:2px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical}
+.cell-title{font-size:12px;font-weight:500;color:#E0DDD8;margin-bottom:0;display:flex;align-items:flex-start;gap:6px}
+.ct-dot{width:5px;height:5px;border-radius:50%;flex:0 0 5px;margin-top:6px}
+.ct-txt{flex:1;min-width:0;line-height:1.5;overflow:hidden;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical}
+.cell-more-inner .cell-title{margin-top:7px}
+.cell-plus-photo{display:none}
+.cell-plus-row{display:inline-flex}
+.dr-label,.drc-text{display:none}
+.date-range-clear svg{width:9px;height:9px;display:block}
 .cell-sub{font-size:10px;color:#7A7672;line-height:1.35;overflow:hidden;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical}
 .cell-time{font-size:10px;color:#7A7672;margin-top:1px}
 
@@ -189,7 +197,7 @@ body[data-theme="light"] .cal-cell.today .cell-date-row .cell-date{background:#F
 .feed-btn{background:none;border:none;cursor:pointer;font-size:13px;padding:3px 6px;border-radius:4px;color:rgba(255,255,255,.25);transition:all .15s}
 .feed-btn:hover{color:rgba(255,255,255,.7);background:rgba(255,255,255,.06)}
 .feed-title{font-size:20px;font-weight:700;color:#E8E4E0;margin-bottom:7px;line-height:1.3;letter-spacing:.03em;text-transform:uppercase}
-.feed-desc{font-size:15px;color:rgba(255,255,255,.5);line-height:1.65;white-space:pre-wrap;overflow:hidden;max-height:5em}.feed-source{font-size:11px;margin-top:5px;display:flex;align-items:center;gap:4px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.feed-desc{font-size:15px;line-height:1.65;white-space:pre-wrap;overflow:hidden;max-height:5em}.feed-source{font-size:11px;margin-top:5px;display:flex;align-items:center;gap:4px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 .feed-thumb{width:176px;height:176px;object-fit:cover;border-radius:0;cursor:pointer;transition:transform .2s;display:block;flex-shrink:0;align-self:start}
 .feed-thumb:hover{transform:scale(1.05)}
 .feed-photos{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
@@ -309,9 +317,8 @@ body.locked .dock-add{display:none}
 
 /* ── Search & date range ── */
 /* feed controls */
-.feed-controls{margin-bottom:24px}
 .feed-row1{display:flex;flex-direction:column;align-items:stretch;margin-bottom:12px;gap:30px;scroll-margin-top:70px}
-@media(max-width:700px){.feed-row1{flex-direction:column;gap:56px}.orbit-filter{width:100%;max-width:100%;margin-bottom:8px}}
+@media(max-width:700px){.feed-row1{flex-direction:column;gap:10px}.orbit-filter{width:100%;max-width:100%;margin-bottom:8px}}
 .toolbar-right{display:flex;gap:8px;align-items:center;width:100%;max-width:612px;align-self:center;margin-top:0;flex-shrink:0}
 
 /* ── Segmented control with sliding indicator ── */
@@ -374,7 +381,6 @@ body[data-theme="light"] .date-range-clear:hover,body[data-theme="light"] .searc
   .page{padding:12px}
 
   /* Header */
-  .site-header{padding:10px 14px 0}
   .header-row1{flex-direction:row;justify-content:space-between;padding:0 0 10px;gap:8px}
   .header-actions{order:1;flex-shrink:0}
 
@@ -394,12 +400,14 @@ body[data-theme="light"] .date-range-clear:hover,body[data-theme="light"] .searc
   .cal-cell{height:112px;overflow:hidden!important}  /* 2. Mobile: no hover expand, use longpress instead */
   .cal-cell.has-records:hover{transform:none;box-shadow:none;background:transparent;height:112px;min-height:112px;overflow:hidden}
   .cal-cell.has-records:hover .cell-photo img{opacity:.55;filter:blur(3px) saturate(1.05);transform:none}
-  .cal-cell.has-records:hover .cell-plus{display:inline-flex}
+  .cal-cell.has-records:hover .cell-plus-photo{display:inline-flex}
+  .cell-plus-photo{display:inline-flex}
+  .cell-plus-row{display:none}
   .cal-cell.has-records:hover .cell-more{grid-template-rows:0fr}
   .cell-photo{height:46px;flex-shrink:0;overflow:hidden}
   .cell-date-row{padding:3px 4px 1px;flex-shrink:0}
   .cell-date{font-size:10px;min-width:18px;line-height:18px}
-  .cdot{width:7px;height:7px}.cell-text{overflow:hidden!important;padding:2px 4px 3px;flex-shrink:0;min-height:31px}.cell-title{-webkit-line-clamp:2;font-size:10px;line-height:1.3}
+  .cdot{width:7px;height:7px}.cell-dots{display:flex}.ct-dot{display:none}.cell-text{overflow:hidden!important;padding:2px 4px 3px;flex-shrink:0;min-height:31px}.cell-title{font-size:10px}.ct-txt{-webkit-line-clamp:2;line-height:1.3}
   .cell-sub{display:block;font-size:8px;color:var(--c-hint)}
   .cell-time{font-size:9px}
 
@@ -409,15 +417,19 @@ body[data-theme="light"] .date-range-clear:hover,body[data-theme="light"] .searc
       
   /* Feed */
   .feed-controls{gap:6px;margin-bottom:20px}      /* Toolbar mobile */
-  .feed-row1{flex-wrap:wrap;gap:8px}
     .filter-btn{height:36px;padding:0 13px;font-size:12px;border-radius:18px}  .seg-indicator{width:34px;height:32px;top:2px;left:2px;border-radius:16px}
   .seg-btn{width:34px;height:32px}.toolbar-right{margin-top:0;width:100%;display:flex;flex-wrap:wrap;gap:6px;align-items:center}  .search-wrap{flex:1;min-width:0;height:38px;border-radius:19px;padding:0 6px 0 12px;gap:6px}
     .search-input{font-size:16px;min-width:0}
-  .date-range-wrap{flex:1;min-width:0;max-width:none;height:38px;border-radius:19px;padding:0 4px;gap:0;box-sizing:border-box;overflow:hidden}
-  .date-range-toggle{flex:0 0 26px;width:26px}
-  .date-range-fields{flex:1;min-width:0;gap:3px;padding-right:4px}
-  .date-range-input{-webkit-appearance:none;appearance:none;min-width:0;width:0;flex:1 1 0;font-size:10px;padding:0;text-align:center}
-  .date-range-sep{font-size:10px}
+  .date-range-wrap{position:relative;flex:0 0 38px;width:38px;max-width:none;height:38px;border-radius:19px;padding:0;gap:0;box-sizing:border-box;overflow:visible}
+  .date-range-toggle{flex:0 0 38px;width:38px}
+  .date-range-fields{position:absolute;top:calc(100% + 8px);right:0;z-index:60;display:none;flex-direction:column;align-items:stretch;gap:0;width:min(320px,calc(100vw - 24px));padding:14px;background:var(--c-surface);border:1px solid var(--c-border);border-radius:14px;box-shadow:0 10px 34px rgba(0,0,0,.45)}
+  .date-range-wrap.open .date-range-fields{display:flex}
+  .dr-label{display:block;font-family:'Archivo',sans-serif;font-size:10px;letter-spacing:.16em;color:var(--c-hint);margin-bottom:6px}
+  .dr-label ~ .dr-label{margin-top:14px}
+  .date-range-input{-webkit-appearance:none;appearance:none;width:100%;min-width:0;height:44px;font-size:16px;padding:0 12px;text-align:left;border:1px solid var(--c-border2);border-radius:var(--radius)}
+  .date-range-sep{display:none}
+  .date-range-clear{width:auto;height:32px;border-radius:16px;padding:0 12px;gap:6px;margin-top:16px;align-self:flex-end}
+  .drc-text{display:inline;font-size:11px;letter-spacing:.1em}
   .seg-control{height:38px;padding:2px;flex-shrink:0}  .feed-title{font-size:14px}
   .feed-num-date{font-size:26px}
   .feed-num-month{font-size:10px}.feed-item{padding:12px 13px;grid-template-columns:52px 1fr 90px;gap:0 10px;padding-left:12px}
@@ -626,7 +638,6 @@ body[data-theme="light"] .form-group label{color:rgba(0,0,0,.5)}
 body[data-theme="light"] .form-group input,body[data-theme="light"] .form-group textarea{background:#fff;border-color:#D8D2C8;color:#1E1B18}
 body[data-theme="light"] .form-group input::placeholder,body[data-theme="light"] .form-group textarea::placeholder{color:rgba(0,0,0,.3)}
 body[data-theme="light"] .form-group input::-webkit-calendar-picker-indicator{filter:none}
-body[data-theme="light"]{--c-message:#C9A67E;--c-message-glow:rgba(176,141,95,.3)}
 body[data-theme="light"] .type-btn{border-color:#C8C2B8;color:#5A544C}
 body[data-theme="light"] .photo-upload-area{background:#fff;border-color:#C8C2B8}
 body[data-theme="light"] .photo-upload-area p{color:rgba(0,0,0,.4)}
@@ -877,7 +888,7 @@ body[data-theme="light"] .bulk-back{border-color:rgba(0,0,0,.2);color:rgba(26,23
 @media(max-width:700px){
   .cell-photo .cell-plus{right:3px;bottom:3px;font-size:8px;line-height:13px;padding:0 4px;border-radius:7px}
   /* 紀念日格多一條 8px 文字(+13.4px)會把兩行推到 114.4px 超過格高,退回一行 */
-  .cal-cell.has-anniv .cell-title{-webkit-line-clamp:1}
+  .cal-cell.has-anniv .ct-txt{-webkit-line-clamp:1}
 }
 
 /* ── 動態頁跳轉:回到最上方 + 跳年份 ── */
@@ -1004,7 +1015,7 @@ body[data-theme="light"] .mini-title{color:#FF6B3D}
 
 
 /* ── Orbit filter ── */
-.orbit-filter{display:flex;align-items:center;gap:2px;color:rgba(255,255,255,.5);width:100%}body[data-theme="light"] .of-deco ellipse{stroke:#CFC9C0}
+.orbit-filter{width:100%}body[data-theme="light"] .of-deco ellipse{stroke:#CFC9C0}
 body[data-theme="light"] .of-deco path{fill:#CFC9C0}
 .of-track{position:relative;display:flex;flex:1;justify-content:space-between;align-items:flex-start;padding-top:2px}.f-all.active .of-dot{background:radial-gradient(circle at 32% 30%,#FFE79A,#E8A33D);box-shadow:0 0 20px rgba(232,163,61,.65)}
 .f-schedule.active .of-dot{background:radial-gradient(circle at 32% 30%,#FCBAC5,#FF8FA0);box-shadow:0 0 20px rgba(255,143,160,.65)}
@@ -1561,10 +1572,12 @@ body[data-theme="light"] .hdr-orb .rotor-css span{color:rgba(26,23,20,.85)}
         <div class="date-range-wrap" id="date-range-wrap">
           <button class="date-range-toggle" onclick="toggleDateRange()" title="日期範圍" aria-label="日期範圍篩選" aria-expanded="false"><svg class="date-icon-svg" width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1.5" y="3" width="13" height="11.5" rx="2" stroke="#FFD940" stroke-width="1.5"/><path d="M1.5 6.5h13" stroke="#FFD940" stroke-width="1.5"/><path d="M5 1.5v3M11 1.5v3" stroke="#FFD940" stroke-width="1.5" stroke-linecap="round"/></svg></button>
           <div class="date-range-fields">
+            <span class="dr-label">開始</span>
             <input type="date" id="date-from" class="date-range-input" onchange="renderFeed()" title="開始日期">
             <span class="date-range-sep">—</span>
+            <span class="dr-label">結束</span>
             <input type="date" id="date-to" class="date-range-input" onchange="renderFeed()" title="結束日期">
-            <button class="date-range-clear" id="date-clear-btn" onclick="clearDateRange()" title="清除" style="display:none">✕</button>
+            <button class="date-range-clear" id="date-clear-btn" onclick="clearDateRange()" title="清除" aria-label="清除日期範圍" style="display:none"><svg viewBox="0 0 13 13" fill="none" aria-hidden="true"><path d="M3 3l7 7M10 3l-7 7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><span class="drc-text">清除</span></button>
           </div>
         </div>
       </div>
@@ -1684,7 +1697,7 @@ body[data-theme="light"] .hdr-orb .rotor-css span{color:rgba(26,23,20,.85)}
     <div class="settings-item">
       <div>
         <div class="settings-item-label">版本</div>
-        <div class="settings-item-val">v2026.07.26</div>
+        <div class="settings-item-val">v2026.07.27</div>
       </div>
       <span style="font-size:14px;opacity:.5">🌻</span>
     </div>
@@ -1745,9 +1758,9 @@ body[data-theme="light"] .hdr-orb .rotor-css span{color:rgba(26,23,20,.85)}
   <div class="ym-picker" id="ym-picker" style="display:none" onclick="event.stopPropagation()">
     <div class="ym-picker-box">
       <div class="ym-row">
-        <button class="ym-nav" onclick="ymYear(-1)">&#8249;</button>
-        <span class="ym-year-label" id="ym-year-label"></span>
-        <button class="ym-nav" onclick="ymYear(1)">&#8250;</button>
+        <button class="ym-nav" onclick="ymNav(-1)" aria-label="上一頁">&#8249;</button>
+        <button class="ym-year-label" id="ym-year-label" onclick="ymToggleMode()" title="切換年份"></button>
+        <button class="ym-nav" onclick="ymNav(1)" aria-label="下一頁">&#8250;</button>
       </div>
       <div class="ym-months" id="ym-months"></div>
       <button class="ym-close" onclick="closeYearMonthPicker()">關閉</button>
@@ -1899,18 +1912,19 @@ function toggleDateRange(){
   var open=w.classList.toggle('open');
   var t=w.querySelector('.date-range-toggle');
   if(t) t.setAttribute('aria-expanded',open?'true':'false');
-  if(open){
+  if(open&&!drNarrow()){
     var f=document.getElementById('date-from');
     if(f&&!f.value) setTimeout(function(){ try{ f.focus(); }catch(e){} },360);
   }
 }
+function drNarrow(){ try{ return window.matchMedia('(max-width:700px)').matches; }catch(e){ return false; } }
 window.toggleDateRange=toggleDateRange;
 // 點面板外面時,沒設日期就收回去;有設就留著,免得看不出正在篩選
 document.addEventListener('click',function(e){
   var w=document.getElementById('date-range-wrap');
   if(!w||!w.classList.contains('open')) return;
   if(w.contains(e.target)) return;
-  if(w.classList.contains('has-value')) return;
+  if(w.classList.contains('has-value')&&!drNarrow()) return;
   w.classList.remove('open');
   var t=w.querySelector('.date-range-toggle');
   if(t) t.setAttribute('aria-expanded','false');
@@ -2086,6 +2100,7 @@ function openYearMonthPicker(){
   var p=document.getElementById('ym-picker');
   var ov=document.getElementById('ym-overlay');
   ymPickerYear=viewYear;
+  ymMode='month';
   p.style.display='block';
   if(ov) ov.classList.add('open');
   renderYMPicker();
@@ -2095,17 +2110,28 @@ function closeYearMonthPicker(){
   var ov=document.getElementById('ym-overlay');
   if(ov) ov.classList.remove('open');
 }
-function ymYear(d){ ymPickerYear+=d; renderYMPicker(); }
+var ymMode='month';
+function ymNav(d){ ymPickerYear+=(ymMode==='year'?d*12:d); renderYMPicker(); }
+function ymToggleMode(){ ymMode=(ymMode==='year')?'month':'year'; renderYMPicker(); }
 function renderYMPicker(){
-  document.getElementById('ym-year-label').textContent=ymPickerYear;
-
+  var lab=document.getElementById('ym-year-label');
   var grid=document.getElementById('ym-months');
+  if(ymMode==='year'){
+    var s=Math.floor(ymPickerYear/12)*12, out='';
+    lab.textContent=s+' — '+(s+11);
+    for(var y=s;y<s+12;y++){
+      out+='<button class="ym-month-btn'+(y===viewYear?' current':'')+'" onclick="ymPickYear('+y+')">'+y+'</button>';
+    }
+    grid.innerHTML=out;
+    return;
+  }
+  lab.textContent=ymPickerYear;
   grid.innerHTML=MONTHS_SHORT.map(function(m,i){
     var isCur=(ymPickerYear===viewYear&&i===viewMonth);
     return '<button class="ym-month-btn'+(isCur?' current':'')+'" onclick="selectYM('+ymPickerYear+','+i+')">'+m+'</button>';
   }).join('');
 }
-function ymPickYear(y){ ymPickerYear=y; renderYMPicker(); }
+function ymPickYear(y){ ymPickerYear=y; ymMode='month'; renderYMPicker(); }
 function selectYM(y,m){
   var dir=(y>viewYear||(y===viewYear&&m>viewMonth))?'left':'right';
   viewYear=y; viewMonth=m;
@@ -2360,14 +2386,17 @@ function renderCalendar(){
     var typesSeen={}, dots='';
     dayRecs.forEach(function(r){if(!typesSeen[r.type]){typesSeen[r.type]=1;dots+='<span class="cdot cdot-'+r.type+'"></span>';}});
     var dateNum=String(d.getDate()).padStart(2,'0');
-    var plusBadge=dayRecs.length>1?'<span class="cell-plus">+'+(dayRecs.length-1)+'</span>':'';
+    var plusN=dayRecs.length>1?(dayRecs.length-1):0;
+    var plusPhoto=plusN?'<span class="cell-plus cell-plus-photo">+'+plusN+'</span>':'';
+    var plusRow=plusN?'<span class="cell-plus cell-plus-row">+'+plusN+'</span>':'';
     var photoHTML='<div class="cell-photo">'
       +(firstPhoto?'<img src="'+firstPhoto+'" alt="" loading="lazy">':'<div class="cell-photo-empty"></div>')
-      +plusBadge+'</div>';
+      +plusPhoto+'</div>';
     var cellTextHTML='';
     if(dayRecs.length){
-      var firstTitle='<div class="cell-title">'+escHtml(dayRecs[0].title)+'</div>';
-      var moreTitles=dayRecs.slice(1).map(function(rec){ return '<div class="cell-title">'+escHtml(rec.title)+'</div>'; }).join('');
+      var ttl=function(rec){ return '<div class="cell-title"><span class="ct-dot cdot-'+(rec.type||'')+'"></span><span class="ct-txt">'+escHtml(rec.title)+'</span></div>'; };
+      var firstTitle=ttl(dayRecs[0]);
+      var moreTitles=dayRecs.slice(1).map(ttl).join('');
       var moreBlock=moreTitles?'<div class="cell-more"><div class="cell-more-inner">'+moreTitles+'</div></div>':'';
       cellTextHTML='<div class="cell-text-inner"><div class="cell-first-row">'+firstTitle+'</div>'+moreBlock+'</div>';
     }
@@ -2375,7 +2404,7 @@ function renderCalendar(){
     var annivStar=annivs.length?'<span class="cell-anniv-star"><svg viewBox="0 0 60 60" width="58" height="58" fill="none"><defs><linearGradient id="mt'+iso.replace(/-/g,'')+'" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="'+annivColor+'" stop-opacity="0"/><stop offset="100%" stop-color="'+annivColor+'" stop-opacity=".85"/></linearGradient></defs><path d="M6 40C16 33 28 24 42 15" stroke="url(#mt'+iso.replace(/-/g,'')+')" stroke-width="2" stroke-linecap="round"/><path d="M9 37c2-1.4 4-2.8 6-4.2" stroke="url(#mt'+iso.replace(/-/g,'')+')" stroke-width="1.4" stroke-linecap="round" opacity=".5"/><path d="M45 12c.7 4.6 2.4 6.3 7 7-4.6.7-6.3 2.4-7 7-.7-4.6-2.4-6.3-7-7 4.6-.7 6.3-2.4 7-7z" fill="'+annivColor+'"/></svg></span>':'';
     var annivBadge=annivs.length?'<span class="cell-anniv">'+annivs.map(function(a){return '<span class="anniv-chip" title="'+a.label+'" style="--ac:'+a.color+'">'+a.icon+'</span>';}).join('')+'</span>':'';
     var annivText=annivs.length?'<div class="cell-anniv-text" style="color:'+annivs[0].displayColor+'">'+annivs.map(function(a){return escHtml(a.label)+(a.countLabel?' '+a.countLabel:'');}).join('・')+'</div>':'';
-    el.innerHTML=annivStar+'<div class="cell-date-row"><span class="cell-date">'+dateNum+'</span>'+annivBadge+'<span class="cell-dots">'+dots+'</span></div>'+photoHTML+'<div class="cell-text">'+annivText+cellTextHTML+'</div>';
+    el.innerHTML=annivStar+'<div class="cell-date-row"><span class="cell-date">'+dateNum+'</span>'+plusRow+annivBadge+'<span class="cell-dots">'+dots+'</span></div>'+photoHTML+'<div class="cell-text">'+annivText+cellTextHTML+'</div>';
     if(dayRecs.length||annivs.length){
       (function(iso,d,cell){
         cell.onclick=function(){ openDaySo(iso,d); };
@@ -2725,7 +2754,7 @@ function renderFeed(){
   var dateFrom=document.getElementById('date-from')?document.getElementById('date-from').value:'';
   var dateTo=document.getElementById('date-to')?document.getElementById('date-to').value:'';
   var clearBtn=document.getElementById('date-clear-btn');
-  if(clearBtn) clearBtn.style.display=(dateFrom||dateTo)?'block':'none';
+  if(clearBtn) clearBtn.style.display=(dateFrom||dateTo)?'flex':'none';
   var drw=document.getElementById('date-range-wrap');
   if(drw){
     var hasDate=!!(dateFrom||dateTo);
