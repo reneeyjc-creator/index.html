@@ -168,6 +168,7 @@ body[data-theme="light"] .rec-meta .rec-out{color:rgba(26,23,20,.3)}
 .rec-meta .feed-place-map{line-height:0;border-left:none;padding:0}
 .rec-meta .feed-place-map svg{width:10px;height:10px}
 body[data-theme="light"] .rec-meta .rec-mi{color:rgba(26,23,20,.45)}
+body[data-theme="light"] .rec-meta button.rec-mi:hover{color:var(--c-accent)}
 body[data-theme="light"] .rec-meta .rec-link a{color:#D14A18}
 body[data-theme="light"] .rec-meta .rec-plain{color:rgba(26,23,20,.32)}
 .mig-row{border-bottom:1px solid rgba(255,255,255,.07);padding:12px 0}
@@ -1659,7 +1660,7 @@ body[data-theme="light"] .hdr-orb .rotor-css span{color:rgba(26,23,20,.85)}
     </div>
     <div class="form-group"><label>標題</label><input type="text" id="f-title" placeholder="例：花絮照片、男女主角確認出演"></div>
     <div class="form-group"><label>主題（選填）</label><input type="text" id="f-series" list="series-list" placeholder="作品或系列名，例：Paris Diaries"><datalist id="series-list"></datalist></div>
-    <div class="form-group"><label>平台（選填）</label><input type="text" id="f-platform" list="platform-list" placeholder="例：IG 貼文、Threads、網路媒體" oninput="refreshAuthorDatalist()"><datalist id="platform-list"></datalist></div>
+    <div class="form-group"><label>平台（選填）</label><input type="text" id="f-platform" list="platform-list" placeholder="例：IG 貼文、Threads、新聞媒體" oninput="refreshAuthorDatalist()"><datalist id="platform-list"></datalist></div>
     <div class="form-group"><label>發布者（選填）</label><input type="text" id="f-author" list="author-list" placeholder="例：le2jh、Naver"><datalist id="author-list"></datalist></div>
     <div class="form-group"><label>地點（選填）</label><input type="text" id="f-place" list="place-list" placeholder="例：台大體育館"><datalist id="place-list"></datalist></div>
     <div class="form-group"><label>說明（選填）</label><textarea id="f-desc" placeholder="內容、備註…"></textarea></div>
@@ -1726,7 +1727,7 @@ body[data-theme="light"] .hdr-orb .rotor-css span{color:rgba(26,23,20,.85)}
       <tr><th>欄位</th><th>放什麼</th></tr>
         <tr><td class="fmt-key">標題</td><td>只寫內容重點。不要寫平台、帳號、類型</td></tr>
         <tr><td class="fmt-key">主題</td><td>作品或系列名，會變成可點的 ✦ 標籤</td></tr>
-        <tr><td class="fmt-key">平台</td><td>IG 貼文、IG 限動、網路媒體…可自由新增</td></tr>
+        <tr><td class="fmt-key">平台</td><td>IG 貼文、IG 限動、新聞媒體…可自由新增</td></tr>
         <tr><td class="fmt-key">發布者</td><td>帳號或機構，例 le2jh、Naver。點標籤可篩選</td></tr>
         <tr><td class="fmt-key">地點</td><td>場館、城市</td></tr>
         <tr><td class="fmt-key">說明</td><td>補充內容、備註</td></tr>
@@ -1746,7 +1747,7 @@ body[data-theme="light"] .hdr-orb .rotor-css span{color:rgba(26,23,20,.85)}
     <div class="fmt-sec">範例</div>
     <table class="fmt-tb">
       <tr><td class="fmt-key">花絮照片</td><td class="fmt-note">主題 2PM Concert／平台 IG 貼文／發布者 Real_2PM</td></tr>
-      <tr><td class="fmt-key">男女主角確認出演</td><td class="fmt-note">主題 駐韓外國使館／平台 網路媒體／發布者 Naver</td></tr>
+      <tr><td class="fmt-key">男女主角確認出演</td><td class="fmt-note">主題 駐韓外國使館／平台 新聞媒體／發布者 Naver</td></tr>
       <tr><td class="fmt-key">咖啡車應援感謝</td><td class="fmt-note">平台 IG 限動／發布者 le2jh／不填連結</td></tr>
     </table>
   
@@ -1812,7 +1813,7 @@ body[data-theme="light"] .hdr-orb .rotor-css span{color:rgba(26,23,20,.85)}
     <div class="settings-item">
       <div>
         <div class="settings-item-label">版本</div>
-        <div class="settings-item-val">v2026.07.30-B</div>
+        <div class="settings-item-val">v2026.07.30-C</div>
       </div>
       <span style="font-size:14px;opacity:.5">🌻</span>
     </div>
@@ -2319,7 +2320,7 @@ function refreshSeriesDatalist(){
   refreshAuthorDatalist();
 }
 // 來源的建議值。可以自由輸入,打過的新值會自動累積進清單。
-var PLATFORM_PRESETS=['IG 貼文','IG 限動','IG Reels','YT 影片','YT Shorts','X','Threads','Weverse','微博','小紅書','網路媒體','電視','官網'];
+var PLATFORM_PRESETS=['IG 貼文','IG 限動','IG Reels','YT 影片','YT Shorts','X','Threads','Weverse','微博','小紅書','新聞媒體','電視','官網'];
 // 正規化:去頭尾空白、連續空白收成一個;若只差大小寫或空白就對齊到既有寫法。
 function normVocab(v,presets){
   var t=(v||'').trim().replace(/\s+/g,' ');
@@ -2380,7 +2381,7 @@ window.searchSeries=searchSeries;
 function placeMapBtn(place){
   if(!place) return '';
   return '<button class="feed-place-map rec-mi" data-s="'+escHtml(place)+'"'
-    +' onclick="openPlaceMap(this.dataset.s)" title="'+(isKoreanPlace(place)?'Naver':'Google')+' 地圖(長按改用另一個)" aria-label="在地圖上查看">'
+    +' onclick="openPlaceMap(this.dataset.s)" title="'+(isKoreanPlace(place)?'NAVER':'Google')+' Map（長按改到'+(isKoreanPlace(place)?'Google':'NAVER')+' Map）" aria-label="在地圖上查看">'
     +'<svg viewBox="0 0 12 12" aria-hidden="true">'
     +'<path d="M6 1.15c-1.79 0-3.24 1.45-3.24 3.24 0 2.43 3.24 6.46 3.24 6.46s3.24-4.03 3.24-6.46c0-1.79-1.45-3.24-3.24-3.24z"/>'
     +'<circle cx="6" cy="4.39" r="1.15"/></svg></button>';
@@ -3040,7 +3041,7 @@ function renderFeed(){
   var filtered=records.filter(function(r){
     if(deletedIds[r._fid]) return false;
     if(currentFilter!=='all'&&r.type!==currentFilter) return false;
-    if(searchQ&&!(r.title.toLowerCase().includes(searchQ)||(r.desc||'').toLowerCase().includes(searchQ)||(r.series||'').toLowerCase().includes(searchQ)||(r.place||'').toLowerCase().includes(searchQ)||(r.author||'').toLowerCase().includes(searchQ)||(r.platform||'').toLowerCase().includes(searchQ))) return false;
+    if(searchQ){var _terms=searchQ.split(/\s+/).filter(Boolean);var _hay=((r.title||'')+' '+(r.desc||'')+' '+(r.series||'')+' '+(r.place||'')+' '+(r.author||'')+' '+(r.platform||'')).toLowerCase();for(var _ti=0;_ti<_terms.length;_ti++){if(_hay.indexOf(_terms[_ti])===-1) return false;}}
     if(dateFrom&&r.date<dateFrom) return false;
     if(dateTo&&r.date>dateTo) return false;
     return true;
