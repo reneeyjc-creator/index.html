@@ -152,14 +152,39 @@ body[data-theme="light"] .cal-cell.today .cell-date-row .cell-date{background:#F
 .cell-plus-photo{display:none}
 .cell-plus-row{display:inline-flex}
 .dr-label,.drc-text{display:none}
-.rec-srcrow{gap:11px;flex-wrap:wrap;white-space:normal;overflow:visible}
-.rec-author{border:none;background:none;border-left:1px solid var(--c-accent);border-radius:0;padding:0 0 0 8px;color:rgba(255,255,255,.62);font-family:'Archivo','Noto Sans TC',sans-serif;font-size:11px;letter-spacing:.08em;line-height:14px;cursor:pointer;transition:color .15s var(--ease-out),border-color .15s var(--ease-out)}
-.rec-author:hover{border-left-width:2px;padding-left:7px;color:#fff}
-.rec-link a{color:rgba(255,217,64,.7);text-decoration:underline}
-.rec-plain{color:rgba(255,255,255,.38)}
-body[data-theme="light"] .rec-author{color:rgba(0,0,0,.6);border-left-color:#D14A18}
-body[data-theme="light"] .rec-author:hover{color:#1E1B18}
-body[data-theme="light"] .rec-plain{color:rgba(0,0,0,.42)}
+.rec-meta{display:flex;align-items:center;flex-wrap:wrap;row-gap:4px;margin-top:6px}
+.rec-meta .rec-mi{display:inline-flex;align-items:center;padding:0;font-family:'Archivo','Noto Sans TC',sans-serif;font-size:11px;letter-spacing:.08em;line-height:15px;color:rgba(255,255,255,.45);min-width:0}
+.rec-meta .rec-mi:not(:last-child)::after{content:'';flex:0 0 1px;width:1px;height:11px;margin:0 9px;background:currentColor;opacity:.3}
+.rec-meta button.rec-mi{background:none;border-top:none;border-right:none;border-bottom:none;border-radius:0;cursor:pointer;text-align:left;transition:color .15s var(--ease-out)}
+.rec-meta button.rec-mi:hover{color:var(--c-accent)}
+.rec-meta .rec-link a{color:rgba(255,217,64,.7);text-decoration:underline}
+.rec-meta .rec-plain{color:rgba(255,255,255,.3)}
+.rec-meta .rec-plat{background:none;border:none;padding:0;color:inherit;font:inherit;letter-spacing:inherit;cursor:pointer;transition:color .15s var(--ease-out)}
+.rec-meta .rec-plat:hover{color:var(--c-accent)}
+.rec-meta .rec-out{display:inline-flex;align-items:center;margin-left:1px;padding:5px 6px;line-height:0;text-decoration:none;color:rgba(255,255,255,.3);transition:color .15s var(--ease-out)}
+.rec-meta .rec-out svg{width:10px;height:10px;display:block;fill:none;stroke:currentColor;stroke-width:1.1;stroke-linejoin:round;stroke-linecap:round}
+.rec-meta .rec-out:hover{color:var(--c-accent)}
+body[data-theme="light"] .rec-meta .rec-out{color:rgba(26,23,20,.3)}
+.rec-meta .feed-place-map{line-height:0;border-left:none;padding:0}
+.rec-meta .feed-place-map svg{width:10px;height:10px}
+body[data-theme="light"] .rec-meta .rec-mi{color:rgba(26,23,20,.45);border-left-color:rgba(26,23,20,.15)}
+body[data-theme="light"] .rec-meta .rec-link a{color:#D14A18}
+body[data-theme="light"] .rec-meta .rec-plain{color:rgba(26,23,20,.32)}
+.mig-row{border-bottom:1px solid rgba(255,255,255,.07);padding:12px 0}
+.mig-pre{font-family:'Archivo','Noto Sans TC',sans-serif;font-size:13px;color:#FFD940;margin-bottom:2px}
+.mig-cnt{font-size:11px;color:#8F8983;margin-bottom:8px}
+.mig-ins{display:flex;gap:8px;flex-wrap:wrap}
+.mig-in{flex:1 1 120px;min-width:0;padding:7px 9px;border:1px solid rgba(255,255,255,.15);border-radius:var(--radius);background:rgba(255,255,255,.06);color:#E8E4E0;font-family:inherit;font-size:13px;outline:none}
+.mig-in:focus{border-color:#FFD940}
+.mig-ex{font-size:11px;color:#8F8983;margin-top:7px;line-height:1.5}
+.mig-act{display:flex;gap:8px;justify-content:flex-end;margin-top:18px}
+body[data-theme="light"] .mig-row{border-bottom-color:rgba(0,0,0,.08)}
+body[data-theme="light"] .mig-pre{color:#A83A10}
+body[data-theme="light"] .mig-in{background:#fff;border-color:#D8D2C8;color:#1E1B18}
+body[data-theme="light"] .mig-cnt,body[data-theme="light"] .mig-ex{color:rgba(0,0,0,.5)}
+@media(max-width:700px){.mig-in{font-size:16px}}
+.ct-pre{color:rgba(255,255,255,.42)}
+body[data-theme="light"] .ct-pre{color:rgba(0,0,0,.4)}
 .fmt-box{background:#201F1F;border:1px solid rgba(255,217,64,.3);border-radius:10px;padding:26px 24px;width:100%;max-width:470px;max-height:82vh;overflow-y:auto;position:relative;text-align:left}
 .fmt-box h3{font-family:'Archivo','Noto Sans TC',sans-serif;font-size:13px;letter-spacing:.16em;color:#E8E4E0;margin:0 0 6px;font-weight:600}
 .fmt-sub{font-size:11px;color:#8F8983;line-height:1.7;margin-bottom:4px}
@@ -221,7 +246,7 @@ body[data-theme="light"] .fmt-sec,body[data-theme="light"] .fmt-sub,body[data-th
 .feed-btn{background:none;border:none;cursor:pointer;font-size:13px;padding:3px 6px;border-radius:4px;color:rgba(255,255,255,.25);transition:all .15s}
 .feed-btn:hover{color:rgba(255,255,255,.7);background:rgba(255,255,255,.06)}
 .feed-title{font-size:20px;font-weight:700;color:#E8E4E0;margin-bottom:7px;line-height:1.3;letter-spacing:.03em;text-transform:uppercase}
-.feed-desc{font-size:15px;line-height:1.65;white-space:pre-wrap;overflow:hidden;max-height:5em}.feed-source{font-size:11px;margin-top:5px;display:flex;align-items:center;gap:4px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.feed-desc{font-size:15px;line-height:1.65;white-space:pre-wrap;overflow:hidden;max-height:5em}
 .feed-thumb{width:176px;height:176px;object-fit:cover;border-radius:0;cursor:pointer;transition:transform .2s;display:block;flex-shrink:0;align-self:start}
 .feed-thumb:hover{transform:scale(1.05)}
 .feed-photos{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
@@ -431,7 +456,7 @@ body[data-theme="light"] .date-range-clear:hover,body[data-theme="light"] .searc
   .cell-photo{height:46px;flex-shrink:0;overflow:hidden}
   .cell-date-row{padding:3px 4px 1px;flex-shrink:0}
   .cell-date{font-size:10px;min-width:18px;line-height:18px}
-  .cdot{width:7px;height:7px}.cell-dots{display:flex}.ct-dot{display:none}.cell-text{overflow:hidden!important;padding:2px 4px 3px;flex-shrink:0;min-height:31px}.cell-title{font-size:10px}.ct-txt{-webkit-line-clamp:2;line-height:1.3}
+  .cdot{width:7px;height:7px}.cell-dots{display:flex}.ct-dot{display:none}.ct-pre{display:none}.cell-text{overflow:hidden!important;padding:2px 4px 3px;flex-shrink:0;min-height:31px}.cell-title{font-size:10px}.ct-txt{-webkit-line-clamp:2;line-height:1.3}
   .cell-sub{display:block;font-size:8px;color:var(--c-hint)}
   .cell-time{font-size:9px}
 
@@ -651,8 +676,6 @@ body[data-theme="light"] .badge-sns{background:rgba(109,192,222,.2);color:#1B5E7
 body[data-theme="light"] .badge-bubble{background:rgba(155,114,225,.15);color:#5E35B1;border-color:rgba(155,114,225,.4)}
 body[data-theme="light"] .badge-media{background:rgba(46,204,113,.15);color:#1B5E3A;border-color:rgba(46,204,113,.45)}
 body[data-theme="light"] .badge-message{background:rgba(201,166,126,.18);color:#7A5230;border-color:rgba(201,166,126,.5)}
-body[data-theme="light"] .feed-source{color:rgba(0,0,0,.45)}
-body[data-theme="light"] .feed-source a{color:#D14A18 !important}
 body[data-theme="light"] .feed-num-time{color:rgba(0,0,0,.4)}
 body[data-theme="light"] .cell-sub{color:rgba(0,0,0,.45)}
 body[data-theme="light"] .cell-plus{background:rgba(255,107,61,.18);color:#D14A18;border-color:rgba(255,107,61,.4)}
@@ -982,7 +1005,6 @@ body[data-theme="light"] input[type="date"],body[data-theme="light"] input[type=
 
 /* dark contrast boost */
 .feed-desc{color:rgba(255,255,255,.62)}
-.feed-source{color:rgba(255,255,255,.42)}
 .feed-num-month{color:rgba(255,255,255,.55)}
 .feed-num-time{color:rgba(255,255,255,.45)}
 .cal-dow{color:rgba(255,255,255,.5)}
@@ -993,7 +1015,7 @@ body[data-theme="light"] input[type="date"],body[data-theme="light"] input[type=
 
 .feed-series-chip{background:none;border:1px solid rgba(255,255,255,.18);border-radius:3px;padding:1px 7px;font-family:'Archivo',sans-serif;font-size:10px;letter-spacing:.1em;color:rgba(255,255,255,.55);cursor:pointer;transition:color .15s,border-color .15s;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .feed-series-chip:hover{color:#FFD940;border-color:#FFD940}
-.feed-place-row{margin-top:5px;display:flex;align-items:center;gap:7px}
+@media(min-width:701px){#page-feed .feed-series-chip{max-width:420px}}
 .feed-place-chip{background:none;border:none;padding:0;font-family:'Archivo',sans-serif;font-size:11px;letter-spacing:.08em;color:rgba(255,255,255,.45);cursor:pointer;transition:color .15s;text-align:left;min-width:0}
 .feed-place-chip:hover{color:#FFD940}
 body[data-theme="light"] .feed-place-chip{color:rgba(26,23,20,.45)}
@@ -1678,6 +1700,21 @@ body[data-theme="light"] .hdr-orb .rotor-css span{color:rgba(26,23,20,.85)}
   </div>
 </div>
 
+<!-- 標題前綴遷移 -->
+<div class="pw-modal" id="mig-modal" onclick="if(event.target===this)closeMigrate()">
+  <div class="fmt-box">
+    <button class="pw-x" onclick="closeMigrate()">✕</button>
+    <h3>標題前綴遷移</h3>
+    <div class="fmt-sub" id="mig-warn"></div>
+    <div class="fmt-sub">下面是掃描出來、標題裡帶分隔符的前綴。替每個前綴指定平台和發布者，套用後前綴會從標題移除、值寫進欄位。留空的前綴不處理。</div>
+    <div id="mig-body"></div>
+    <div class="mig-act">
+      <button class="settings-item-btn" onclick="closeMigrate()">取消</button>
+      <button class="settings-item-btn" onclick="applyMigrate()">套用</button>
+    </div>
+  </div>
+</div>
+
 <!-- 紀錄格式速查 -->
 <div class="pw-modal" id="fmt-modal" onclick="if(event.target===this)closeFmtGuide()">
   <div class="fmt-box">
@@ -1760,6 +1797,13 @@ body[data-theme="light"] .hdr-orb .rotor-css span{color:rgba(26,23,20,.85)}
     </div>
     <div class="settings-item">
       <div>
+        <div class="settings-item-label">標題前綴遷移</div>
+        <div class="settings-item-val">把舊標題的前綴拆進欄位</div>
+      </div>
+      <button class="settings-item-btn" onclick="openMigrate()">整理</button>
+    </div>
+    <div class="settings-item">
+      <div>
         <div class="settings-item-label">紀錄格式</div>
         <div class="settings-item-val">帳號前綴與欄位分工</div>
       </div>
@@ -1768,7 +1812,7 @@ body[data-theme="light"] .hdr-orb .rotor-css span{color:rgba(26,23,20,.85)}
     <div class="settings-item">
       <div>
         <div class="settings-item-label">版本</div>
-        <div class="settings-item-val">v2026.07.29</div>
+        <div class="settings-item-val">v2026.07.30</div>
       </div>
       <span style="font-size:14px;opacity:.5">🌻</span>
     </div>
@@ -2335,7 +2379,7 @@ window.searchSeries=searchSeries;
 // Naver 對韓國場館精準但查不到中文地名,Google 反之。
 function placeMapBtn(place){
   if(!place) return '';
-  return '<button class="feed-place-map" data-s="'+escHtml(place)+'"'
+  return '<button class="feed-place-map rec-mi" data-s="'+escHtml(place)+'"'
     +' onclick="openPlaceMap(this.dataset.s)" title="'+(isKoreanPlace(place)?'Naver':'Google')+' 地圖(長按改用另一個)" aria-label="在地圖上查看">'
     +'<svg viewBox="0 0 12 12" aria-hidden="true">'
     +'<path d="M6 1.15c-1.79 0-3.24 1.45-3.24 3.24 0 2.43 3.24 6.46 3.24 6.46s3.24-4.03 3.24-6.46c0-1.79-1.45-3.24-3.24-3.24z"/>'
@@ -2513,7 +2557,11 @@ function renderCalendar(){
       +plusPhoto+'</div>';
     var cellTextHTML='';
     if(dayRecs.length){
-      var ttl=function(rec){ return '<div class="cell-title"><span class="ct-dot cdot-'+(rec.type||'')+'"></span><span class="ct-txt">'+escHtml(rec.title)+'</span></div>'; };
+      var ttl=function(rec){
+        var p=(rec.author||'').trim();
+        var pre=p?'<span class="ct-pre">'+escHtml(p)+'｜</span>':'';
+        return '<div class="cell-title"><span class="ct-dot cdot-'+(rec.type||'')+'"></span><span class="ct-txt">'+pre+escHtml(rec.title)+'</span></div>';
+      };
       var firstTitle=ttl(dayRecs[0]);
       var moreTitles=dayRecs.slice(1).map(ttl).join('');
       var moreBlock=moreTitles?'<div class="cell-more"><div class="cell-more-inner">'+moreTitles+'</div></div>':'';
@@ -2550,27 +2598,117 @@ function domainOf(u){
   try{ return u.replace(/^https?:\/\//i,'').split('/')[0].split('?')[0].replace(/^www\./i,''); }
   catch(e){ return u; }
 }
-function sourceRowHTML(r){
+function metaRowHTML(r){
   var srcRaw=(r.source||'').trim(), srcUrl=null;
   if(srcRaw){
     if(/^https?:\/\//i.test(srcRaw)) srcUrl=srcRaw;
     else if(/^www\./i.test(srcRaw)) srcUrl='https://'+srcRaw;
     else if(/^[a-z0-9-]+\.[a-z]{2,}(\/.*)?$/i.test(srcRaw)) srcUrl='https://'+srcRaw;
   }
-  var author=(r.author||'').trim(), plat=(r.platform||'').trim(), out='';
-  if(author){
-    out+='<button class="rec-author" data-a="'+escHtml(author)+'" onclick="event.stopPropagation();searchAuthor(this.dataset.a)" title="只看這個發布者的紀錄">'+escHtml(author)+'</button>';
-  }
+  var author=(r.author||'').replace(/[\s\u200b-\u200f\u3000\ufeff]+/g,' ').trim();
+  var plat=(r.platform||'').replace(/[\s\u200b-\u200f\u3000\ufeff]+/g,' ').trim();
+  var items=[];
   var label=plat||(srcUrl?domainOf(srcUrl):srcRaw);
-  if(label){
-    out+= srcUrl
-      ? '<span class="rec-link">🔗 <a href="'+escHtml(srcUrl)+'" target="_blank" rel="noopener" onclick="event.stopPropagation()">'+escHtml(label)+'</a></span>'
-      : '<span class="rec-plain">'+escHtml(label)+'</span>';
+  if(plat){
+    items.push('<span class="rec-mi rec-plat-wrap">'
+      +'<button class="rec-plat" data-p="'+escHtml(plat)+'" onclick="event.stopPropagation();searchPlatform(this.dataset.p)" title="只看這個平台的紀錄">'+escHtml(plat)+'</button>'
+      +(srcUrl?'<a class="rec-out" href="'+escHtml(srcUrl)+'" target="_blank" rel="noopener" onclick="event.stopPropagation()" title="開啟原始貼文" aria-label="開啟原始貼文">'
+      +'<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3.4 8.6L8.6 3.4M5.8 3.4h2.8v2.8"/></svg></a>':'')
+      +'</span>');
+  } else if(label){
+    items.push(srcUrl
+      ? '<span class="rec-mi rec-link"><a href="'+escHtml(srcUrl)+'" target="_blank" rel="noopener" onclick="event.stopPropagation()">'+escHtml(label)+'</a></span>'
+      : '<span class="rec-mi rec-plain">'+escHtml(label)+'</span>');
   }
-  return out?'<div class="feed-source rec-srcrow">'+out+'</div>':'';
+  if(author){
+    items.push('<button class="rec-mi rec-author" data-a="'+escHtml(author)+'" onclick="event.stopPropagation();searchAuthor(this.dataset.a)" title="只看這個發布者的紀錄">'+escHtml(author)+'</button>');
+  }
+  if(r.place){
+    items.push('<button class="rec-mi feed-place-chip" data-s="'+escHtml(r.place)+'" onclick="searchSeries(this.dataset.s)" title="查看此地點的所有事件">⌖ '+escHtml(r.place)+'</button>');
+    items.push(placeMapBtn(r.place));
+  }
+  items=items.filter(function(x){ return x; });
+  return items.length?'<div class="rec-meta">'+items.join('')+'</div>':'';
 }
+// ── 標題前綴遷移(一次性工具) ──
+var MIG_RE=/^\s*([^｜|丨]{1,16})\s*[｜|丨]\s*(.+)$/;
+function migScan(){
+  var map={};
+  records.forEach(function(r){
+    var m=MIG_RE.exec(r.title||'');
+    if(!m) return;
+    var pre=m[1].trim(), rest=m[2].trim();
+    if(!pre||!rest||!r._fid) return;
+    if(!map[pre]) map[pre]={n:0,sample:rest,fids:[]};
+    map[pre].n++; map[pre].fids.push(r._fid);
+  });
+  return map;
+}
+function openMigrate(){
+  var map=migScan(), keys=Object.keys(map).sort(function(a,b){return map[b].n-map[a].n;});
+  var t=0; try{ t=parseInt(localStorage.getItem('lastBackupAt')||'0',10); }catch(e){}
+  var days=t?Math.floor((Date.now()-t)/86400000):-1;
+  var warn = days<0 ? '⚠ 還沒備份過。這個動作會直接改寫紀錄且無法復原,請先到設定匯出 JSON。'
+           : days>0 ? ('⚠ 上次備份是 '+days+' 天前,建議先重新匯出 JSON。')
+                    : '上次備份:今天。';
+  document.getElementById('mig-warn').textContent=warn;
+  var body=document.getElementById('mig-body');
+  if(!keys.length){ body.innerHTML='<div class="fmt-sub">沒有掃到帶前綴的標題,不需要遷移。</div>'; }
+  else{
+    body.innerHTML=keys.map(function(k,i){
+      return '<div class="mig-row">'
+        +'<div class="mig-pre">'+escHtml(k)+'</div>'
+        +'<div class="mig-cnt">'+map[k].n+' 筆</div>'
+        +'<div class="mig-ins">'
+        +'<input class="mig-in" data-pre="'+escHtml(k)+'" data-f="platform" list="platform-list" placeholder="平台">'
+        +'<input class="mig-in" data-pre="'+escHtml(k)+'" data-f="author" list="author-list" placeholder="發布者">'
+        +'</div>'
+        +'<div class="mig-ex">標題會變成:'+escHtml(map[k].sample)+'</div>'
+        +'</div>';
+    }).join('');
+  }
+  document.getElementById('mig-modal').classList.add('open');
+}
+function closeMigrate(){ var m=document.getElementById('mig-modal'); if(m) m.classList.remove('open'); }
+function migPlan(){
+  var vals={};
+  document.querySelectorAll('#mig-body .mig-in').forEach(function(el){
+    var p=el.dataset.pre; if(!vals[p]) vals[p]={};
+    vals[p][el.dataset.f]=el.value.trim();
+  });
+  var ups=[];
+  records.forEach(function(r){
+    var m=MIG_RE.exec(r.title||''); if(!m||!r._fid) return;
+    var pre=m[1].trim(), rest=m[2].trim(), v=vals[pre];
+    if(!v||(!v.platform&&!v.author)) return;
+    var d={title:rest};
+    if(v.platform&&!(r.platform||'').trim()) d.platform=normUsed(v.platform,'platform',PLATFORM_PRESETS);
+    if(v.author&&!(r.author||'').trim()) d.author=normUsed(v.author,'author',[]);
+    ups.push({fid:r._fid,data:d});
+  });
+  return ups;
+}
+function applyMigrate(){
+  if(!isUnlocked){ showToast('請先解鎖才能修改紀錄',3000); return; }
+  var ups=migPlan();
+  if(!ups.length){ showToast('沒有要套用的項目,請先填寫平台或發布者'); return; }
+  if(!confirm('將改寫 '+ups.length+' 筆紀錄的標題與欄位。這個動作無法復原,確定要繼續嗎?')) return;
+  migCommit(ups,0);
+}
+function migCommit(ups,i){
+  if(i>=ups.length){ showToast('✓ 已遷移 '+ups.length+' 筆'); closeMigrate(); return; }
+  var end=Math.min(i+400,ups.length), batch=db.batch();
+  for(var k=i;k<end;k++) batch.update(colRef.doc(ups[k].fid), ups[k].data);
+  batch.commit().then(function(){ migCommit(ups,end); })
+    .catch(function(){ showToast('遷移失敗,請確認已解鎖',4000); });
+}
+window.openMigrate=openMigrate;
+window.closeMigrate=closeMigrate;
+window.applyMigrate=applyMigrate;
 function searchAuthor(a){ searchSeries(a); }
+function searchPlatform(p){ searchSeries(p); }
 window.searchAuthor=searchAuthor;
+window.searchPlatform=searchPlatform;
 
 // ── Day panel item (separate from feed) ──
 function dayItemHTML(r, idx){
@@ -2594,7 +2732,7 @@ function dayItemHTML(r, idx){
   }
   var dt=r.time?r.date+' '+r.time:r.date;
   var desc=r.desc?'<div class="feed-desc">'+escHtml(r.desc)+'</div>':'';
-  var src=sourceRowHTML(r);
+  var src=metaRowHTML(r);
   var actions=isUnlocked
     ?'<div class="feed-actions" style="margin-left:auto">'
       +'<button class="feed-btn" data-fid="'+fid+'" onclick="handleEdit(this.dataset.fid)" title="編輯"><svg width=\"15\" height=\"15\" viewBox=\"0 0 16 16\" fill=\"none\"><path d=\"M11.3 2.3a1.5 1.5 0 012.4 2.4L5.5 13 2 14l1-3.5 8.3-8.2z\" stroke=\"currentColor\" stroke-width=\"1.4\" stroke-linejoin=\"round\"/></svg></button>'
@@ -2611,7 +2749,7 @@ function dayItemHTML(r, idx){
         +actions
       +'</div>'
       +'<div class="feed-title">'+escHtml(r.title)+'</div>'
-      +desc+src+(r.place?'<div class="feed-place-row"><button class="feed-place-chip" data-s="'+escHtml(r.place)+'" onclick="searchSeries(this.dataset.s)" title="查看此地點的所有事件">⌖ '+escHtml(r.place)+'</button>'+placeMapBtn(r.place)+'</div>':'')
+      +desc+src
     +'</div>'
     +(thumb||'')
     +'</div>';
@@ -2854,7 +2992,7 @@ function feedItemHTML(r, idx, hideDate){
       +'<div class="carousel-dots">'+dots+'</div></div>';
   };
   var desc=r.desc?'<div class="feed-desc">'+escHtml(r.desc)+'</div>':'';
-  var src=sourceRowHTML(r);
+  var src=metaRowHTML(r);
   var actions=isUnlocked
     ?'<div class="feed-actions" style="margin-left:auto">'
       +'<button class="feed-btn edit-action" data-fid="'+fid+'" onclick="handleEdit(this.dataset.fid)" title="編輯"><svg width=\"15\" height=\"15\" viewBox=\"0 0 16 16\" fill=\"none\"><path d=\"M11.3 2.3a1.5 1.5 0 012.4 2.4L5.5 13 2 14l1-3.5 8.3-8.2z\" stroke=\"currentColor\" stroke-width=\"1.4\" stroke-linejoin=\"round\"/></svg></button>'
@@ -2871,7 +3009,7 @@ function feedItemHTML(r, idx, hideDate){
         +actions
       +'</div>'
       +'<div class="feed-title">'+escHtml(r.title)+'</div>'
-      +desc+src+(r.place?'<div class="feed-place-row"><button class="feed-place-chip" data-s="'+escHtml(r.place)+'" onclick="searchSeries(this.dataset.s)" title="查看此地點的所有事件">⌖ '+escHtml(r.place)+'</button>'+placeMapBtn(r.place)+'</div>':'')
+      +desc+src
     +'</div>'
     +(thumb||'')
     +'</div>';
