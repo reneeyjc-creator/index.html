@@ -276,18 +276,14 @@ body[data-theme="light"] .feed-desc-more:hover{color:var(--c-accent)}
 .pw-cell{min-width:0;min-height:0;position:relative;overflow:hidden;cursor:pointer;padding:0;border:none;background:var(--c-border);display:block;backface-visibility:hidden}
 .pw-cell img{width:100%;height:100%;object-fit:cover;display:block}
 .pw-cell.pw-hot{z-index:2}
-.pw-block{min-width:0;min-height:0;background:var(--c-accent)}
-.pw-b-mono{background:rgba(255,255,255,.055)}
-body[data-theme="light"] .pw-b-mono{background:rgba(0,0,0,.05)}
-.pw-b-ghost{background:transparent;box-shadow:inset 0 0 0 1px var(--c-border)}
 :root{--pw-tsz:18cqw;--pw-tsz-star:15.6cqw}
-.pw-b-type{background:transparent;display:flex;align-items:center;justify-content:center;overflow:hidden;container-type:inline-size}
-.pw-b-type span{font-family:'Archivo','Noto Sans TC',system-ui,sans-serif;font-weight:600;font-size:min(5.2vw,38px);font-size:var(--pw-tsz);line-height:1;letter-spacing:-.03em;color:var(--c-text);opacity:.13;padding:6px;text-align:center;word-break:break-word}
-.pw-b-type span.st{font-size:min(4vw,28px);font-size:var(--pw-tsz-star);letter-spacing:0}
-.pw-pad-2{opacity:.26}
+/* 照片牆的非照片格：字塊 */
+.pw-block{min-width:0;min-height:0;background:transparent;display:flex;align-items:center;justify-content:center;overflow:hidden;container-type:inline-size}
+.pw-block span{font-family:'Archivo','Noto Sans TC',system-ui,sans-serif;font-weight:600;font-size:min(5.2vw,38px);font-size:var(--pw-tsz);line-height:1;letter-spacing:-.03em;color:var(--c-text);opacity:.13;padding:6px;text-align:center;word-break:break-word}
+.pw-block span.st{font-size:min(4vw,28px);font-size:var(--pw-tsz-star);letter-spacing:0}
 /* ── 搜尋結果分割頁 ── */
-.sp-wrap{display:grid;grid-template-columns:39% 1fr;min-height:74vh;position:relative;--sp-shift:0px;--sp-pola-w:420px;--sp-bleed:min(-32px,calc(558px - 50vw))}
-.sp-left{display:flex;align-items:flex-start;justify-content:center;margin-left:var(--sp-bleed);padding:60px calc(40px + var(--sp-shift)) 60px calc(40px - var(--sp-shift))}
+.sp-wrap{display:grid;grid-template-columns:39% 1fr;min-height:74vh;position:relative;--sp-pola-w:360px;--sp-bleed:min(-32px,calc(558px - 50vw))}
+.sp-left{display:flex;align-items:flex-start;justify-content:center;margin-left:var(--sp-bleed);padding:60px 40px}
 .sp-left-in{position:sticky;top:88px;width:min(100%,var(--sp-pola-w))}
 .sp-pola{background:#F5F1E4;padding:5.3% 5.3% 7%;box-shadow:0 22px 60px rgba(0,0,0,.5);animation:spRise .55s var(--ease-out) both}
 .sp-pola-ph{position:relative;width:100%;aspect-ratio:4/5;overflow:hidden;background:#0E0D0C}
@@ -1022,14 +1018,14 @@ body[data-theme="light"] .bulk-back:hover{color:rgba(26,23,20,.9);border-color:r
 }
 
 /* ── 動態頁跳轉:回到最上方 + 跳年份 ── */
-.feed-jump{position:fixed;right:26px;bottom:106px;z-index:250;display:flex;flex-direction:column;align-items:flex-end;gap:8px;opacity:0;transform:translateY(10px);pointer-events:none;transition:opacity .28s var(--ease-out),transform .28s var(--ease-out)}
+.feed-jump{position:fixed;right:26px;bottom:106px;z-index:250;display:flex;flex-direction:column;align-items:flex-end;gap:8px;width:42px;opacity:0;transform:translateY(10px);pointer-events:none;transition:opacity .28s var(--ease-out),transform .28s var(--ease-out)}
 .feed-jump.show{opacity:1;transform:none;pointer-events:auto}
 .feed-jump:not(.has-years) .fj-yr{display:none}
 .fj-btn{width:42px;height:42px;border-radius:50%;border:1px solid rgba(255,255,255,.22);background:rgba(30,28,26,.86);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:rgba(255,255,255,.8);display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;font-family:inherit;box-shadow:0 4px 14px rgba(0,0,0,.3);transition:background .22s ease,border-color .22s ease,color .22s ease,transform .22s ease;-webkit-tap-highlight-color:transparent}
 .fj-btn:hover{background:#FFD940;border-color:#FFD940;color:#201F1F;transform:translateY(-2px)}
 .fj-btn svg{display:block}
 .fj-yr{font-family:'Archivo',sans-serif;font-weight:600;font-size:10.5px;letter-spacing:.02em;font-variant-numeric:tabular-nums}
-.fj-years{display:flex;flex-direction:column;gap:2px;padding:6px;border-radius:14px;border:1px solid rgba(255,255,255,.14);background:rgba(30,28,26,.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 6px 20px rgba(0,0,0,.35);max-height:min(52vh,340px);overflow-y:auto;opacity:0;transform:translateY(6px) scale(.97);transform-origin:bottom right;pointer-events:none;transition:opacity .22s var(--ease-out),transform .22s var(--ease-out)}
+.fj-years{position:absolute;right:0;bottom:100%;margin-bottom:8px;display:flex;flex-direction:column;gap:2px;padding:6px;border-radius:14px;border:1px solid rgba(255,255,255,.14);background:rgba(30,28,26,.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 6px 20px rgba(0,0,0,.35);max-height:min(52vh,340px);overflow-y:auto;opacity:0;transform:translateY(6px) scale(.97);transform-origin:bottom right;pointer-events:none;transition:opacity .22s var(--ease-out),transform .22s var(--ease-out)}
 .feed-jump.years-open .fj-years{opacity:1;transform:none;pointer-events:auto}
 .fj-y{display:flex;align-items:baseline;justify-content:flex-start;gap:14px;font-family:'Archivo',sans-serif;font-weight:600;font-size:11.5px;letter-spacing:.04em;font-variant-numeric:tabular-nums;color:rgba(255,255,255,.6);background:transparent;border:none;border-radius:9px;padding:7px 11px;cursor:pointer;white-space:nowrap;transition:background .18s ease,color .18s ease;-webkit-tap-highlight-color:transparent}
 .fj-y:hover{background:rgba(255,217,64,.16);color:#FFD940}
@@ -1895,7 +1891,7 @@ body[data-theme="light"] .hdr-orb .rotor-css span{color:rgba(26,23,20,.85)}
     <div class="settings-item">
       <div>
         <div class="settings-item-label">版本</div>
-        <div class="settings-item-val">v2026.08.03-L</div>
+        <div class="settings-item-val">v2026.08.03-P</div>
       </div>
       <span style="font-size:14px;opacity:.5">🌻</span>
     </div>
@@ -2498,15 +2494,9 @@ function pwTypeText(i, key, rec){
 }
 /* 照片牆的「非照片格」：正常黃塊與補位墊片共用同一支，樣式才會一致 */
 function pwBlockHTML(i, key, rec, extra){
-  var STY=window.PW_BLOCK_STYLE||'solid', cls='pw-block'+(extra?' '+extra:'');
-  if(STY==='mono')  return '<div class="'+cls+' pw-b-mono"></div>';
-  if(STY==='ghost') return '<div class="'+cls+' pw-b-ghost"></div>';
-  if(STY==='type'){
-    var t=pwTypeText(i, key, rec);
-    return '<div class="'+cls+' pw-b-type"><span'+(t==='\u2726'?' class="st"':'')+'>'+escHtml(t)+'</span></div>';
-  }
-  var MIX=(window.PW_BLOCK_MIX&&window.PW_BLOCK_MIX.length)?window.PW_BLOCK_MIX:[1,.4,0];
-  return '<div class="'+cls+'" style="opacity:'+MIX[i%MIX.length]+'"></div>';
+  var t=pwTypeText(i, key, rec);
+  return '<div class="pw-block'+(extra?' '+extra:'')+'"><span'
+    +(t==='\u2726'?' class="st"':'')+'>'+escHtml(t)+'</span></div>';
 }
 function renderPhotoWall(filtered){
   var MO=['JANUARY','FEBRUARY','MARCH','APRIL','MAY','JUNE','JULY','AUGUST','SEPTEMBER','OCTOBER','NOVEMBER','DECEMBER'];
@@ -2528,7 +2518,7 @@ function renderPhotoWall(filtered){
       +'</button>';
   }
   function toCells(flat, key){
-    var gaps=(window.PW_GAPS&&window.PW_GAPS.length)?window.PW_GAPS:[4,6,3,5,7];
+    var gaps=[4,6,3,5,7];   /* 承重：hover 放大靠這些格子讓位，不要拉鬆 */
     var seq=[], gi=0, since=0;
     flat.forEach(function(it, j){
       seq.push(tile(it.r, it.ph)); since++;
@@ -2640,9 +2630,6 @@ function pwFull(cell){
 }
 window.pwFull=pwFull;
 window.PW_PAD_MAX=2;   /* 單排月份補位黃塊上限，設 0 = 第一排尾端留白 */
-window.PW_GAPS=[4,6,3,5,7];        /* 每幾張照片插一塊（承重：hover 靠這些格子讓位，不要隨便拉鬆）*/
-window.PW_BLOCK_MIX=[1,.4,0];      /* solid 樣式的透明度循環；0 = 隔位但看不見 */
-window.PW_BLOCK_STYLE='type';      /* solid | mono | ghost | type。改完跑 renderFeed() */
 window.PW_TYPE_SEQ=['mo3','year','month','star'];   /* type 樣式的內容循環：month|mo3|year|day|place|series|star */
 function pwFitMonths(){
   document.querySelectorAll('.pw-month-grid').forEach(function(g){
@@ -2657,8 +2644,8 @@ function pwFitMonths(){
     /* 只有塞不滿一排的月份補黃塊，把第一排收邊 */
     var need=(n<cols)?Math.min(cols-n, +window.PW_PAD_MAX||0):0;
     var nb=g.querySelectorAll('.pw-block:not(.pw-pad)').length;
-    var ym=g.getAttribute('data-ym')||'', solid=(window.PW_BLOCK_STYLE||'solid')==='solid';
-    for(pi=0;pi<need;pi++) g.insertAdjacentHTML('beforeend', pwBlockHTML(nb+pi, ym, null, 'pw-pad'+(solid&&pi?' pw-pad-2':'')));
+    var ym=g.getAttribute('data-ym')||'';
+    for(pi=0;pi<need;pi++) g.insertAdjacentHTML('beforeend', pwBlockHTML(nb+pi, ym, null, 'pw-pad'));
     /* 至少兩列：2×2 才有地方往下長，且不推、不遮 */
     var rows=Math.max(2, Math.ceil((n+need)/cols));
     g.style.gridTemplateRows='repeat('+rows+',1fr)';
