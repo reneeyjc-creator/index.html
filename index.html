@@ -1543,6 +1543,133 @@ body[data-theme="light"] .ym-nav:hover{background:rgba(0,0,0,.07)}
 
 /* 上傳區:金色框線與 6% 金底在白底上幾乎無感,改用淺色主題的 accent 橘 */
 body[data-theme="light"] .photo-upload-area:hover{border-color:var(--c-accent);background:rgba(255,107,61,.08)}
+
+/* ===== v2026.08.03-U ===== */
+
+/* ── 1. dock 換頁的起始定位：略過站頭標題區 ──
+   靠 scroll-margin-top，不用 JS 算 offset；--dock-top 一顆旋鈕同時管兩頁。
+   90px = mini-bar 44px + 46px 呼吸空間。 */
+:root{--dock-top:90px}
+.cal-header{scroll-margin-top:var(--dock-top)}
+.feed-row1{scroll-margin-top:var(--dock-top)}
+
+/* ── 2. 淺色主題版面補丁 ── */
+/* (a) 白色系分隔線在米白底上等於隱形 */
+body[data-theme="light"] .feed-item:first-child{border-top-color:rgba(0,0,0,.1)}
+body[data-theme="light"] .feed-month-divider::after{background:rgba(0,0,0,.1)}
+body[data-theme="light"] .carousel-dot{background:rgba(0,0,0,.2)}
+/* (b) 淺色底色覆寫壓過狀態樣式（特異度：底色 (0,2,1) > 通用 :hover (0,2,0)）
+       → 狀態樣式必須自己再寫一份淺色版 */
+body[data-theme="light"] .feed-item:hover{border-bottom-color:transparent}
+body[data-theme="light"] .nav-btn:active{color:var(--c-accent)}
+body[data-theme="light"] .date-range-clear:hover,
+body[data-theme="light"] .search-clear:hover{background:var(--c-accent);border-color:var(--c-accent);color:#fff}
+/* (c) 深色時代留下的重陰影 / 重遮罩，在米白上會變成一團髒 */
+/* 原始陰影只寫在 max-width:700px 的浮層樣式裡，覆寫必須收在同一個 media query，
+   否則桌機那一排「行內」的日期欄位會憑空多一道陰影。 */
+@media(max-width:700px){
+  body[data-theme="light"] .date-range-fields{box-shadow:0 10px 30px rgba(62,50,38,.16)}
+}
+body[data-theme="light"] .confirm-modal,
+body[data-theme="light"] .ym-overlay,
+body[data-theme="light"] .bulk-modal,
+body[data-theme="light"] .pw-modal{background:rgba(46,38,30,.34)}
+/* (d) 動態列表右上的日期時間（原本寫死在 JS 內嵌樣式裡） */
+.feed-meta-dt{font-size:11px;color:rgba(255,255,255,.3)}
+body[data-theme="light"] .feed-meta-dt{color:rgba(26,23,20,.42)}
+
+/* ── 3. 從剪貼簿貼上圖片 ── */
+.paste-photo-btn{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;margin-top:8px;padding:9px 12px;border:1px solid var(--c-border);border-radius:var(--radius);background:transparent;color:var(--c-muted);font-family:inherit;font-size:12px;letter-spacing:.04em;cursor:pointer;transition:color .2s,border-color .2s,background .2s}
+.paste-photo-btn:hover{color:var(--c-accent);border-color:var(--c-accent);background:rgba(255,217,64,.06)}
+body[data-theme="light"] .paste-photo-btn{color:rgba(26,23,20,.55);border-color:#D8D2C8;background:#fff}
+body[data-theme="light"] .paste-photo-btn:hover{color:var(--c-accent);border-color:var(--c-accent);background:rgba(255,107,61,.08)}
+.paste-photo-btn.pulse{color:var(--c-accent);border-color:var(--c-accent);animation:pastePulse 1.6s ease-in-out infinite}
+@keyframes pastePulse{0%,100%{box-shadow:0 0 0 0 rgba(255,217,64,0)}50%{box-shadow:0 0 0 5px rgba(255,217,64,.14)}}
+body[data-theme="light"] .paste-photo-btn.pulse{animation-name:pastePulseL}
+@keyframes pastePulseL{0%,100%{box-shadow:0 0 0 0 rgba(255,107,61,0)}50%{box-shadow:0 0 0 5px rgba(255,107,61,.16)}}
+@media(prefers-reduced-motion:reduce){.paste-photo-btn.pulse{animation:none}}
+
+/* ===== v2026.08.04-B ===== */
+/* 空狀態統一成「軌跡」(OTD) 那一套:轉動的太陽花 + 一顆行動鈕。
+   容器仍沿用 .empty 的盒子(surface 底 + 虛線框),只換掉裡面的 emoji 圖示。 */
+.empty-icon svg{display:block;margin:0 auto}
+.empty-sub{display:block;margin-top:6px;font-size:12px;color:var(--c-muted);opacity:.85}
+.empty-action{margin-top:16px;display:inline-flex;align-items:center;gap:6px;padding:8px 18px;border-radius:20px;border:1px solid var(--c-border2);background:transparent;color:var(--c-muted);font-size:13px;font-family:inherit;cursor:pointer;letter-spacing:.05em;transition:color .2s,border-color .2s,background .2s}
+.empty-action:hover{background:var(--c-accent);border-color:var(--c-accent);color:#201F1F}
+body[data-theme="light"] .empty-action{border-color:#C8C2B8;color:rgba(26,23,20,.55)}
+body[data-theme="light"] .empty-action:hover{background:var(--c-accent);border-color:var(--c-accent);color:#fff}
+
+/* ===== v2026.08.04-C:空狀態淺色版可讀性 ===== */
+/* -B 的淺色版是「米白底上再壓一層 3% 黑」,結果卡片比頁面還糊、字又只有 45% 黑,
+   整塊糊成一片。改成白卡片 + 分層的字級,讓主句真的像主句。 */
+.empty{max-width:560px;margin-left:auto;margin-right:auto;padding:40px 28px}
+.empty-msg{display:block;font-size:15px;font-weight:500;color:var(--c-text);opacity:.85;letter-spacing:.02em}
+.empty-sub{margin-top:7px}
+body[data-theme="light"] .empty{background:var(--c-surface);border-color:var(--c-border2);color:rgba(26,23,20,.5)}
+body[data-theme="light"] .empty-msg{color:rgba(26,23,20,.8);opacity:1}
+body[data-theme="light"] .empty-sub{color:rgba(26,23,20,.45)}
+/* 太陽花在深底上是發光的,搬到白卡片上 #FFD940 幾乎沒有對比 → 淺色版換成深一階的琥珀。
+   只在 .empty-icon 內生效,OTD(壓在照片上的深底)維持原本的亮金。 */
+.empty-icon svg{width:64px;height:64px}
+body[data-theme="light"] .empty-icon .sun-petals ellipse{fill:#E0A413}
+body[data-theme="light"] .empty-icon circle{fill:#4A3212}
+
+/* ===== v2026.08.04-D:搜尋空狀態換成星星 PENPEN ===== */
+/* 星形本體用 CSS 上色,才能在兩個主題各自處理「黑色物件放在深底上會消失」的問題:
+   深色主題整顆改成黃色(#F1DB7F),純黑星形在 #1A1814 上根本看不見,加輪廓光也只是勉強撐住;
+   淺色主題維持原作的黑,只需要極淡的黑描邊收邊。 */
+.pp-body{fill:#F1DB7F;stroke:none}
+body[data-theme="light"] .pp-body{fill:#100E0D;stroke:rgba(0,0,0,.1);stroke-width:1.4;stroke-linejoin:round}
+.empty-icon svg.pp-svg{width:76px;height:76px}
+.empty-icon .pp{transform-origin:60px 60px;animation:ppBob 3.4s ease-in-out infinite}
+@keyframes ppBob{0%,100%{transform:rotate(-4.5deg)}50%{transform:rotate(4.5deg)}}
+@media(prefers-reduced-motion:reduce){.empty-icon .pp{animation:none}}
+
+/* ===== v2026.08.04-G:星洞掉幀修正 ===== */
+/* 幕布自成一層,星洞每幀重繪就不會連帶讓底下整頁重繪 */
+.sh-layer{will-change:opacity;contain:paint}
+/* 轉場期間把所有 backdrop-filter 關掉。
+   backdrop-filter 每一幀都要重新取樣「背後那一片畫面」,跟一個每幀都在改形狀的
+   全螢幕幕布疊在一起,是這段動畫最主要的掉幀來源 —— 而且畫面上這些糊邊都在
+   小按鈕上,少 0.5 秒根本看不出來。sh-on 只在幕布不透明的期間存在,所以
+   幕布開始淡出、內容真正露臉時,模糊就已經回來了。 */
+body.sh-on .mini-bar,
+body.sh-on .bottom-dock,
+body.sh-on .fj-btn,
+body.sh-on .fj-years,
+body.sh-on .sync-pill,
+body.sh-on .otd-ctrl,
+body.sh-on .otd-player .so-close,
+body.sh-on .otd-empty-close,
+body.sh-on .lb-nav,
+body.sh-on .lb-counter,
+body.sh-on .carousel-btn{backdrop-filter:none;-webkit-backdrop-filter:none}
+
+/* ===== v2026.08.04-J:自動播放 = 縱深遞進(方案 D),前後鍵 = 橫向翻頁 ===== */
+/* 手動走 X 軸,自動走 Z 軸 —— 兩者方向感都在,但軸不同,一眼分得出來。
+   新照片從後方浮上來(scale .92 → 1),舊照片繼續往前穿出畫面(1 → 1.07)並淡出:
+   兩張朝同一個方向運動,深度才連貫;若讓舊的往後退會跟新的對撞。
+   旗標掛在 #otd-modal 上,因為圖片層和文字區不在同一個祖先底下。 */
+#otd-modal.otd-auto #otd-art-img.otd-in,
+#otd-modal.otd-auto #otd-art-img2.otd-in{animation:otdDepthIn var(--otd-dur,700ms) var(--ease-out) both}
+#otd-modal.otd-auto #otd-art-img.otd-out,
+#otd-modal.otd-auto #otd-art-img2.otd-out{animation:otdDepthOut var(--otd-dur,700ms) var(--ease-out) both}
+@keyframes otdDepthIn{
+  from{opacity:0;transform:translate(-50%,-50%) scale(var(--otd-back,.92))}
+  to{opacity:1;transform:translate(-50%,-50%) scale(1)}
+}
+@keyframes otdDepthOut{
+  from{opacity:1;transform:translate(-50%,-50%) scale(1)}
+  to{opacity:0;transform:translate(-50%,-50%) scale(var(--otd-fwd,1.07))}
+}
+/* 文字也跟著換語言:手動是往上推,自動是純淡入(共用原本的時長與 stagger) */
+#otd-modal.otd-auto .otd-track.anim>*{animation-name:otdTextFade}
+#otd-modal.otd-auto .otd-year-big.anim{animation-name:otdTextFade}
+@keyframes otdTextFade{from{opacity:0}to{opacity:1}}
+@media(prefers-reduced-motion:reduce){
+  #otd-modal.otd-auto #otd-art-img.otd-in,#otd-modal.otd-auto #otd-art-img2.otd-in,
+  #otd-modal.otd-auto #otd-art-img.otd-out,#otd-modal.otd-auto #otd-art-img2.otd-out{animation:none}
+}
 </style>
 </head>
 <body>
@@ -1785,6 +1912,10 @@ body[data-theme="light"] .photo-upload-area:hover{border-color:var(--c-accent);b
         <p>點擊或拖曳照片上傳</p>
         <p style="margin-top:2px;font-size:10px;color:var(--c-hint)">支援 JPG · PNG · WebP · GIF，自動壓縮</p>
       </div>
+      <button type="button" class="paste-photo-btn" id="paste-photo-btn" onclick="pastePhotoFromClipboard(event)" title="把剪貼簿裡的圖片帶進來（iOS 捷徑用）">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="3.6" y="3.2" width="8.8" height="10.4" rx="1.6" stroke="currentColor" stroke-width="1.25"/><path d="M6.2 3.2V2.4a.8.8 0 0 1 .8-.8h2a.8.8 0 0 1 .8.8v.8" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round"/></svg>
+        從剪貼簿貼上圖片
+      </button>
       <input type="file" id="f-photos" multiple accept="image/jpeg,image/png,image/webp,image/gif,image/*" style="display:none" onchange="handleFileInput(event)">
       <div class="photo-previews" id="preview-wrap"></div>
     </div>
@@ -1926,7 +2057,7 @@ body[data-theme="light"] .photo-upload-area:hover{border-color:var(--c-accent);b
     <div class="settings-item">
       <div>
         <div class="settings-item-label">版本</div>
-        <div class="settings-item-val">v2026.08.03-T</div>
+        <div class="settings-item-val">v2026.08.04-J</div>
       </div>
       <span style="font-size:14px;opacity:.5">🌻</span>
     </div>
@@ -2006,7 +2137,7 @@ body[data-theme="light"] .photo-upload-area:hover{border-color:var(--c-accent);b
         <div class="otd-title" id="otd-title">✦ 一緒に過ごした時間</div>
         <div class="otd-sub" id="otd-sub"></div>
       </div>
-      <button class="so-close" onclick="closeOnThisDay()"><span>✕</span></button>
+      <button class="so-close" onclick="closeOtdAnimated()"><span>✕</span></button>
     </div>
     <div class="otd-art-wrap">
       <svg class="otd-art-orbit" viewBox="0 0 400 400" aria-hidden="true">
@@ -2569,7 +2700,9 @@ function renderPhotoWall(filtered){
     if(!fps.length) return;
     events.push({r:r, photos:fps.map(function(p,i){ return {src:p, thumb:tps[i]||p}; })});
   });
-  if(!events.length){ window._pwList=[]; return '<div class="empty"><div class="empty-icon">\u{1F5BC}</div>\u5c1a\u7121\u7167\u7247\u8a18\u9304</div>'; }
+  if(!events.length){ window._pwList=[]; return feedFiltersActive()
+      ? emptyBox('\u9084\u6c92\u6709\u627e\u5230\u7b26\u5408\u7684PENPEN','\u9019\u500b\u7bc4\u570d\u88e1\u6c92\u6709\u7167\u7247',EMPTY_PENPEN)
+      : emptyBox('\u9084\u6c92\u6709\u4efb\u4f55\u7167\u7247\u8a18\u9304');  }
   function tile(r, ph){
     var i=idx++; pwList.push(ph.src);
     var d=pwFmtDate(r.date)+(r.place?' \u00b7 '+r.place:'');
@@ -2646,7 +2779,7 @@ function renderSplit(filtered, q){
     events.push({r:r, photos:fps.map(function(pp,i){ return {src:pp, thumb:tps[i]||pp}; })});
   });
   var label=String(q||'').trim() || (LABELS[currentFilter]||'ALL');
-  if(!events.length){ window._pwList=[]; return '<div class="empty"><div class="empty-icon">\u{1F50D}</div>\u627e\u4e0d\u5230\u7b26\u5408\u7684\u7167\u7247</div>'; }
+  if(!events.length){ window._pwList=[]; return emptyBox('\u9084\u6c92\u6709\u627e\u5230\u7b26\u5408\u7684PENPEN','\u63db\u500b\u95dc\u9375\u5b57\uff0c\u6216\u8005\u653e\u5bec\u65e5\u671f\u7bc4\u570d\u8a66\u8a66',EMPTY_PENPEN); }
   var pool=[]; events.forEach(function(ev){ ev.photos.forEach(function(ph){ pool.push(ph); }); });
   var rnd=spRng(spHash(label+'|'+pool.length));
   var hero=pool[Math.floor(rnd()*pool.length)];
@@ -3225,7 +3358,7 @@ function dayItemHTML(r, idx){
         +(batchMode&&isUnlocked?'<input type="checkbox" class="batch-check" data-fid="'+fid+'"'+(batchSel[fid]?' checked':'')+' onchange="toggleBatchSel(this.dataset.fid,this.checked)">':'')
         +'<span class="feed-badge badge-'+r.type+'">'+(LABELS[r.type]||r.type)+'</span>'
         +(r.series?'<button class="feed-series-chip" data-s="'+escHtml(r.series)+'" onclick="searchSeries(this.dataset.s)" title="查看整個系列">✦ '+escHtml(r.series)+'</button>':'')
-        +'<span style="font-size:11px;color:rgba(255,255,255,.3)">'+dt+'</span>'
+        +'<span class="feed-meta-dt">'+dt+'</span>'
         +actions
       +'</div>'
       +'<div class="feed-title">'+escHtml(r.title)+'</div>'
@@ -3427,7 +3560,7 @@ function finalizeDelete(fid,rec){
 }
 function showUndoToast(msg,onUndo){
   var t=document.getElementById('toast');
-  t.innerHTML=msg+' <button onclick="window._undoFn&&window._undoFn()" style="margin-left:10px;background:#FFD940;color:#201F1F;border:none;border-radius:12px;padding:3px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">復原</button>';
+  t.innerHTML=msg+' <button onclick="window._undoFn&&window._undoFn()" style="margin-left:10px;background:var(--c-accent);color:#201F1F;border:none;border-radius:12px;padding:3px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">復原</button>';
   window._undoFn=function(){ t.classList.remove('show'); window._undoFn=null; onUndo(); };
   t.classList.add('show');
   t.style.pointerEvents='auto';
@@ -3564,7 +3697,9 @@ function renderFeed(){
     }
     container.innerHTML=filtered.length
       ?'<div class="feed-list">'+listHTML+'</div>'
-      :'<div class="empty"><div class="empty-icon">🌟</div>尚無記錄，點右下角 ＋ 新增</div>';
+      :(feedFiltersActive()
+          ? emptyBox('還沒有找到符合的PENPEN','換個關鍵字，或者放寬日期範圍試試',EMPTY_PENPEN)
+          : emptyBox('還沒有任何記錄','點右下角的 ＋ 開始第一筆'));
   } else if(searchQ){
     /* 照片牆 + 有搜尋關鍵字 → 分割頁 */
     container.innerHTML=renderSplit(filtered, searchQ); pwPreloadFull();
@@ -3688,6 +3823,46 @@ window.debouncedRenderFeed=debouncedRenderFeed;
 
 // ── On This Day ──
 var otdList=[], otdIdx=0;
+/* 空狀態共用的太陽花(原本只寫在 openOnThisDay 裡)。外層 .empty-icon / .otd-empty .big
+   帶 float,內層 g.empty-sun-spin 自轉,兩層動畫疊起來才是「軌跡」那顆的手感。 */
+var EMPTY_SUN='<svg width="56" height="56" viewBox="0 0 120 120" fill="none"><g class="empty-sun-spin"><g class="sun-petals" fill="#FFD940"><ellipse cx="60" cy="36" rx="8.5" ry="14.5"/><ellipse cx="60" cy="36" rx="8.5" ry="14.5" transform="rotate(60 60 60)"/><ellipse cx="60" cy="36" rx="8.5" ry="14.5" transform="rotate(120 60 60)"/><ellipse cx="60" cy="36" rx="8.5" ry="14.5" transform="rotate(180 60 60)"/><ellipse cx="60" cy="36" rx="8.5" ry="14.5" transform="rotate(240 60 60)"/><ellipse cx="60" cy="36" rx="8.5" ry="14.5" transform="rotate(300 60 60)"/></g><circle cx="60" cy="60" r="14" fill="#5C4018"/></g></svg>';
+var EMPTY_PENPEN='<svg class="pp-svg" width="76" height="76" viewBox="0 0 120 120" fill="none"><g class="pp"><path class="pp-body" d="M51.6 18.8Q60 5 68.4 18.8L69.5 20.6Q78.2 34.9 94.6 38.8L96.6 39.3Q112.3 43 101.8 55.2L100.4 56.8Q89.5 69.6 90.8 86.3L91 88.4Q92.3 104.5 77.5 98.3L75.5 97.5Q60 91 44.5 97.5L42.5 98.3Q27.7 104.5 29 88.4L29.2 86.3Q30.5 69.6 19.6 56.8L18.2 55.2Q7.7 43 23.4 39.3L25.4 38.8Q41.8 34.9 50.5 20.6Z"/><g class="pp-face"><path d="M61.4 52Q59 42.6 48.8 42.6Q35 43.4 34 58.4Q33 76 46 82.6Q61.4 87.3 76.8 82.6Q89.8 76 88.8 58.4Q87.8 43.4 74 42.6Q63.8 42.6 61.4 52Z" fill="#FFFFFF"/><ellipse cx="42.1" cy="61.4" rx="6.5" ry="4.9" transform="rotate(-10 42.1 61.4)" fill="#E9A6C8"/><ellipse cx="80.9" cy="61.4" rx="6.5" ry="4.9" transform="rotate(10 80.9 61.4)" fill="#E9A6C8"/><ellipse cx="47.2" cy="57.7" rx="3.6" ry="1.6" fill="#100E0D"/><ellipse cx="76.1" cy="57.7" rx="3.6" ry="1.6" fill="#100E0D"/><path d="M41.6 50.2L52.8 49" stroke="#100E0D" stroke-width="1.9" stroke-linecap="round" fill="none"/><path d="M70.5 49L81.7 50.2" stroke="#100E0D" stroke-width="1.9" stroke-linecap="round" fill="none"/><path d="M61.2 53.6Q52.8 55.6 52.8 60.6Q52.8 66.4 61.2 66.4Q69.6 66.4 69.6 60.6Q69.6 55.6 61.2 53.6Z" fill="#D9822B"/><path d="M53.9 56.3Q61.5 63.2 68.5 57.9" stroke="#A85B14" stroke-width="1.5" stroke-linecap="round" fill="none"/></g></g></svg>';
+window.EMPTY_SUN=EMPTY_SUN;
+window.EMPTY_PENPEN=EMPTY_PENPEN;
+
+/* 目前是不是「有下條件卻沒結果」——決定空狀態要說哪一句、要不要給清除鈕 */
+function feedFiltersActive(){
+  var q=document.getElementById('search-input');
+  var f=document.getElementById('date-from'), t=document.getElementById('date-to');
+  return !!((q&&q.value.trim())||(f&&f.value)||(t&&t.value)
+            ||(typeof currentFilter!=='undefined'&&currentFilter!=='all'));
+}
+function emptyBox(msg, sub, icon){
+  return '<div class="empty">'
+    +'<span class="empty-icon">'+(icon||EMPTY_SUN)+'</span>'
+    +'<span class="empty-msg">'+msg+'</span>'
+    +(sub?'<span class="empty-sub">'+sub+'</span>':'')
+    +(feedFiltersActive()
+       ?'<br><button class="empty-action" onclick="clearFeedFilters()"><span>✕</span> 清除搜尋條件</button>'
+       :'')
+  +'</div>';
+}
+function clearFeedFilters(){
+  var q=document.getElementById('search-input');
+  if(q) q.value='';
+  if(typeof toggleSearchClear==='function') toggleSearchClear();
+  var f=document.getElementById('date-from'), t=document.getElementById('date-to');
+  if(f) f.value=''; if(t) t.value='';
+  currentFilter='all';
+  document.querySelectorAll('.of-item').forEach(function(b){
+    b.classList.toggle('active', b.classList.contains('f-all'));
+  });
+  renderFeed();
+}
+window.emptyBox=emptyBox;
+window.clearFeedFilters=clearFeedFilters;
+window.feedFiltersActive=feedFiltersActive;
+
 function openOnThisDay(){
   var now=nowKST();
   var mm=String(now.getMonth()+1).padStart(2,'0');
@@ -3700,11 +3875,11 @@ function openOnThisDay(){
   var player=modal.querySelector('.otd-player');
   if(!otdList.length){
     player.style.display='none';
-    var pengu='<svg width="56" height="56" viewBox="0 0 120 120" fill="none"><g class="empty-sun-spin"><g fill="#FFD940"><ellipse cx="60" cy="36" rx="8.5" ry="14.5"/><ellipse cx="60" cy="36" rx="8.5" ry="14.5" transform="rotate(60 60 60)"/><ellipse cx="60" cy="36" rx="8.5" ry="14.5" transform="rotate(120 60 60)"/><ellipse cx="60" cy="36" rx="8.5" ry="14.5" transform="rotate(180 60 60)"/><ellipse cx="60" cy="36" rx="8.5" ry="14.5" transform="rotate(240 60 60)"/><ellipse cx="60" cy="36" rx="8.5" ry="14.5" transform="rotate(300 60 60)"/></g><circle cx="60" cy="60" r="14" fill="#5C4018"/></g></svg>';
+    var pengu=EMPTY_SUN;
     var old=modal.querySelector('.otd-empty'); if(old) old.remove();
     var div=document.createElement('div');
     div.className='otd-empty';
-    div.innerHTML='<span class="big">'+pengu+'</span>今天還沒有找到過去的軌跡<br><button class="otd-empty-close" onclick="closeOnThisDay()"><span>✕</span> 關閉</button>';
+    div.innerHTML='<span class="big">'+pengu+'</span>今天還沒有找到過去的軌跡<br><button class="otd-empty-close" onclick="closeOtdAnimated()"><span>✕</span> 關閉</button>';
     modal.appendChild(div);
   } else {
     var old=modal.querySelector('.otd-empty'); if(old) old.remove();
@@ -3724,42 +3899,67 @@ function setOtdBg(photo){
   hide.classList.add('otd-bg-off');
   otdBgFlip=!otdBgFlip;
 }
-function renderOtdTrack(dir){
+function renderOtdTrack(dir, auto){
   var r=otdList[otdIdx]; if(!r) return;
   otdPrefetch();
+  var modal=document.getElementById('otd-modal');
+  if(modal) modal.classList.toggle('otd-auto', !!auto);
   var y=(r.date||'').slice(0,4);
   var photo=visiblePhotos(r)[0]||'';
   var art=document.getElementById('otd-art');
   art.classList.remove('slide-in-l','slide-in-r');
-  art.classList.add(dir<0?'slide-out-r':'slide-out-l');
+  if(auto){
+    /* 放映模式的方向在 Z 軸上,外框不做位移退場;圖片撐到 swap 才開始遞進,
+       中間不會出現空窗。 */
+    art.classList.remove('slide-out-l','slide-out-r');
+  } else {
+    /* 回到手動就把縱深動畫的殘留狀態清掉,否則 fill:both 會把圖釘在
+       scale 1.07 / opacity 0 上 */
+    var _l=[document.getElementById('otd-art-img'), document.getElementById('otd-art-img2')];
+    _l.forEach(function(x){ if(x) x.classList.remove('otd-in','otd-out'); });
+    art.classList.add(dir<0?'slide-out-r':'slide-out-l');
+  }
+  /* 舊圖要撐到溶解走完才收掉,否則 560ms 一到就被 display:none 砍斷,
+     會看到前一張突然消失而不是化開 */
+  var FADE = auto ? ((+window.OTD_TUNE.dur||700)+160) : 560;
   // 文字與圖片同時退場,避免圖還在淡出、字已經換好的錯位
   var yb=document.getElementById('otd-year-big');
   var tk=document.getElementById('otd-track');
   yb.classList.add('otd-fading'); tk.classList.add('otd-fading');
   var badgeColors={schedule:'#FF8FA0',sns:'#6dc0de',bubble:'#9b72e1',media:'#2ECC71',message:'var(--c-message)'};
+  /* 圖片在淡出還在跑的時候就先掛進背景層並解碼完,swap 當下只剩切 class。
+     原本是:先用一個丟棄式 Image 解碼一次 → 進 swap → 再對真正要顯示的那層
+     decode() 一次。解兩次、而且第二次的非同步回合發生在文字已經換好之後,
+     圖片就會比文字慢半拍浮出來。 */
+  var layers=[document.getElementById('otd-art-img'), document.getElementById('otd-art-img2')];
+  var front=(window.__otdFront===1)?1:0, back=1-front;
+  var fl=layers[front], bl=layers[back];
+  var tok=window.__otdTok=(window.__otdTok||0)+1;
+  if(photo){ bl.classList.remove('show'); bl.src=photo; bl.style.display='block'; }
   var swap=function(){
-    var layers=[document.getElementById('otd-art-img'), document.getElementById('otd-art-img2')];
+    if(tok!==window.__otdTok) return;   /* 連點圓點時,舊的那次不要蓋掉新的 */
     art.classList.remove('slide-out-l','slide-out-r');
+    if(auto && photo){
+      /* 每次換片都要重跑動畫:先把兩層的 in/out 都清掉、強制一次 reflow、再重掛。
+         不清乾淨的話同一個 class 再加一次不會重新播放。 */
+      fl.classList.remove('otd-in','otd-out');
+      bl.classList.remove('otd-in','otd-out');
+      void bl.offsetWidth;
+      bl.classList.add('otd-in');
+      fl.classList.add('otd-out');
+    }
     if(photo){
-      var front=(window.__otdFront===1)?1:0, back=1-front;
-      var fl=layers[front], bl=layers[back];
-      bl.src=photo; bl.style.display='block';
-      var reveal=function(){
-        void bl.offsetWidth;
-        bl.classList.add('show');
-        fl.classList.remove('show');
-        window.__otdFront=back;
-        setTimeout(function(){
-          if(window.__otdFront!==front){ fl.style.display='none'; fl.removeAttribute('src'); }
-        },560);
-      };
-      if(bl.decode){ bl.decode().then(reveal).catch(reveal); }
-      else if(bl.complete){ reveal(); }
-      else { bl.onload=reveal; bl.onerror=reveal; }
+      void bl.offsetWidth;
+      bl.classList.add('show');
+      fl.classList.remove('show');
+      window.__otdFront=back;
+      setTimeout(function(){
+        if(window.__otdFront!==front){ fl.style.display='none'; fl.removeAttribute('src'); }
+      },FADE);
       art.removeAttribute('data-empty');
     } else {
       layers.forEach(function(l){ l.classList.remove('show'); });
-      setTimeout(function(){ layers.forEach(function(l){ if(!l.classList.contains('show')){ l.style.display='none'; l.removeAttribute('src'); } }); },560);
+      setTimeout(function(){ layers.forEach(function(l){ if(!l.classList.contains('show')){ l.style.display='none'; l.removeAttribute('src'); } }); },FADE);
       art.setAttribute('data-empty','✦');
     }
     setOtdBg(photo);
@@ -3780,12 +3980,15 @@ function renderOtdTrack(dir){
     var _tt=tk.querySelector('.otd-track-title');
     if(_tt){ _tt.style.fontSize=''; var _sw=_tt.scrollWidth, _cw=_tt.clientWidth; if(_cw>0&&_sw>_cw){ var _b=parseFloat(getComputedStyle(_tt).fontSize)||20; _tt.style.fontSize=Math.max(13,Math.floor(_b*_cw/_sw))+'px'; } }
   };
-  // 先在背景解碼避免卡頓,並讓淡出動畫完整走完
+  // 等背景層解碼完 + 讓淡出動畫完整走完,兩者取較晚的那個
   var OUT=260, t0=Date.now();
   var go=function(){ setTimeout(swap, Math.max(0, OUT-(Date.now()-t0))); };
   if(photo){
-    var pre=new Image(); pre.src=photo;
-    if(pre.decode){ pre.decode().then(go).catch(go); } else { pre.onload=go; pre.onerror=go; setTimeout(go,600); }
+    var fired=false, once=function(){ if(!fired){ fired=true; go(); } };
+    if(bl.decode){ bl.decode().then(once).catch(once); }
+    else if(bl.complete){ once(); }
+    else { bl.onload=once; bl.onerror=once; }
+    setTimeout(once, 1200);            /* 保險:網路很慢時不要卡在淡出狀態不動 */
   } else { go(); }
   // 圓點即時更新,點擊才有回饋
   document.getElementById('otd-dots').innerHTML=otdList.map(function(_,i){
@@ -3793,19 +3996,26 @@ function renderOtdTrack(dir){
   }).join('');
 }
 
+var _otdPre=[];
 function otdPrefetch(){
   if(!otdList.length) return;
-  [1,-1].forEach(function(d){
+  /* 一定要留著參考。沒有人握著的 Image 可能在載完之前就被 GC 掉,
+     預載等於白做 —— 自動播放時每 4 秒換一張,這條最容易被忽略。
+     +2 是給自動播放留的緩衝,只預載 ±1 的話追不上。 */
+  var keep=[];
+  [1,2,-1].forEach(function(d){
     var k=(otdIdx+d+otdList.length)%otdList.length;
     var rr=otdList[k]; if(!rr) return;
     var p=(visiblePhotos(rr)[0]||''); if(!p) return;
     var im=new Image(); im.src=p; if(im.decode) im.decode().catch(function(){});
+    keep.push(im);
   });
+  _otdPre=keep;
 }
-function otdStep(d){
+function otdStep(d, auto){
   if(!otdList.length) return;
   otdIdx=(otdIdx+d+otdList.length)%otdList.length;
-  renderOtdTrack(d);
+  renderOtdTrack(d, auto);
 }
 function otdGoto(i){ var d=i>otdIdx?1:-1; otdIdx=i; renderOtdTrack(d); }
 
@@ -3823,18 +4033,37 @@ function buildOtdTitle(){
 }
 buildOtdTitle();
 
+/* 自動播放的手感旋鈕(console 可改,下一次換片生效) */
+window.OTD_TUNE={dur:700, back:.92, fwd:1.07, interval:4000};
 var otdTimer=null;
 function otdTogglePlay(){
   if(otdTimer){ otdStopPlay(); }
   else{
     var t=document.querySelector('.otd-title');
     if(t){ t.classList.remove('title-emerge'); void t.offsetWidth; t.classList.add('title-emerge'); }
-    otdTimer=setInterval(function(){ otdStep(1); },4000);
+    var m=document.getElementById('otd-modal');
+    if(m){
+      /* 把旋鈕寫進 CSS 變數,console 改完下一次換片就生效 */
+      m.style.setProperty('--otd-dur',(+window.OTD_TUNE.dur||700)+'ms');
+      m.style.setProperty('--otd-back',String(+window.OTD_TUNE.back||.92));
+      m.style.setProperty('--otd-fwd',String(+window.OTD_TUNE.fwd||1.07));
+      m.classList.add('otd-auto');
+    }
+    /* 只切模式,不重新 render —— 重畫等於同一張圖再進場一次,像閃了一下。
+       第一次縱深遞進留給 interval 的第一拍。 */
+    otdTimer=setInterval(function(){ otdStep(1, true); }, +window.OTD_TUNE.interval||4000);
     document.getElementById('otd-play-icon').innerHTML='<path d="M3 2.5h3.5v11H3zM9.5 2.5H13v11H9.5z"/>';
   }
 }
 function otdStopPlay(){
   clearInterval(otdTimer); otdTimer=null;
+  var m=document.getElementById('otd-modal');
+  if(m) m.classList.remove('otd-auto');
+  var a=document.getElementById('otd-art');
+  if(a) a.classList.remove('slide-out-l','slide-out-r');
+  ['otd-art-img','otd-art-img2'].forEach(function(id){
+    var x=document.getElementById(id); if(x) x.classList.remove('otd-in','otd-out');
+  });
   var ic=document.getElementById('otd-play-icon');
   if(ic) ic.innerHTML='<path d="M4 2.5v11l9-5.5z"/>';
 }
@@ -3881,17 +4110,39 @@ function closeOnThisDay(){ otdStopPlay(); document.getElementById('otd-modal').c
 window.toggleOnThisDay=openOnThisDay;
 
 // ── Dock ──
+window.DOCK_TUNE={skipHeader:true};
+/* 換頁時把起始位置定在「頁面內容的第一列」——月曆是月份標題列、動態頁是軌道分類列，
+   略過站頭那一大塊標題區。留白量由 CSS 的 --dock-top(scroll-margin-top) 決定，
+   不在 JS 裡算 offset，才不會跟 mini-bar 高度兩邊各改一個數字。 */
+function dockScrollTop(p){
+  if(!window.DOCK_TUNE || window.DOCK_TUNE.skipHeader===false) return;
+  var node = p==='calendar' ? document.querySelector('#page-calendar .cal-header')
+           : p==='feed'     ? document.querySelector('#page-feed .feed-row1')
+           : null;
+  if(!node) return;
+  try{ node.scrollIntoView({block:'start',behavior:'auto'}); }
+  catch(e){
+    var off=parseInt(getComputedStyle(document.documentElement).getPropertyValue('--dock-top'),10)||90;
+    var y=node.getBoundingClientRect().top+(window.pageYOffset||0)-off;
+    window.scrollTo(0,Math.max(0,y));
+  }
+}
+window.dockScrollTop=dockScrollTop;
 function dockGo(p){
   var prev=document.querySelector('.page.active');
   var fromCal=!!(prev && prev.id==='page-calendar');
+  var changed=!(prev && prev.id==='page-'+p);   /* 同一頁再點一次不動，避免閱讀中被彈回頂端 */
   switchPage(p,null);
   if(p==='feed' && fromCal && window.SH_ON && window.SH_ON.feed && typeof shStart==='function') shStart();
   document.getElementById('dock-cal').classList.toggle('active',p==='calendar');
   document.getElementById('dock-feed').classList.toggle('active',p==='feed');
+  if(changed) requestAnimationFrame(function(){ dockScrollTop(p); });
 }
 function dockToday(){
   dockGo('calendar');
   goToday();
+  /* 「今天」是明確的定位動作,即使本來就在月曆頁也要把月份列帶回視野 */
+  requestAnimationFrame(function(){ dockScrollTop('calendar'); });
 }
 window.dockGo=dockGo;
 window.dockToday=dockToday;
@@ -4107,10 +4358,10 @@ window.closeOnThisDay=closeOnThisDay;
 
 window.setViewSeg=setViewSeg;
 /* ── 星洞轉場：外圈整片 accent、中間挖一個 ✦ 形狀的洞，往下滑把洞撐開 ── */
-window.SH_TUNE={waist:.055, start:.055, travel:1.25, ease:.16, fade:.92};
+window.SH_TUNE={waist:.055, start:.055, travel:.9, ease:.2, fade:.92, outro:.28, close:.48, skip:.6};
 /* 星洞掛在哪個入口：dock 的「軌跡」(✦ 圖示、OTD) 語意最貼，動態頁預設關閉 */
 window.SH_ON={feed:false, otd:true};
-var SH={on:false,p:0,t:0,raf:0,w:0,h:0};
+var SH={on:false,p:0,t:0,raf:0,w:0,h:0,dir:1,done:null,t0:0,lR:-1,lOp:'',lHint:'',lCls:null};
 function shPath(cx,cy,R,W){
   var w=R*W, n=function(v){ return Math.round(v*10)/10; };
   return 'M0 0H'+n(SH.w)+'V'+n(SH.h)+'H0Z'
@@ -4125,7 +4376,10 @@ function shMeasure(){
   var svg=document.getElementById('sh-svg');
   if(svg) svg.setAttribute('viewBox','0 0 '+SH.w+' '+SH.h);
 }
-function shDraw(){
+/* 每一次寫 DOM 都要付代價,尤其 setAttribute('d') 會讓整片全螢幕路徑重新
+   細分再重繪。所以這裡把四個寫入點全部加上「值沒變就不要寫」的守衛,
+   半徑再加一個 skip 門檻:視覺上不到 1px 的變化不值得換一次全螢幕重繪。 */
+function shDraw(force){
   var el=document.getElementById('sh-path'); if(!el) return;
   var d=Math.sqrt(SH.w*SH.w+SH.h*SH.h)/2;
   var W=+window.SH_TUNE.waist||.055;
@@ -4133,20 +4387,31 @@ function shDraw(){
   var R0=Math.min(SH.w,SH.h)*(+window.SH_TUNE.start||.055);
   var R1=d/(0.3536+0.707*W)*1.03;
   var R=R0*Math.pow(R1/R0, SH.p);                       /* 指數內插：縮放手感才線性 */
-  el.setAttribute('d', shPath(SH.w/2, SH.h/2, R, W));
+  var skip=+window.SH_TUNE.skip; if(!(skip>=0)) skip=.6;
+  if(force || SH.lR<0 || Math.abs(R-SH.lR)>=skip){
+    el.setAttribute('d', shPath(SH.w/2, SH.h/2, R, W));
+    SH.lR=R;
+  }
   var f=+window.SH_TUNE.fade||.92;
-  if(SH.p>=f) document.body.classList.remove('sh-on');   /* 幕布開始淡出 = 放行底下的進場動畫 */
+  /* toggle 而非 remove:反向播放時 p 會從 1 掉回 f 以下,幕布要重新變成不透明,
+     底下的 OTD 動畫也要重新凍結。原本寫 remove 是單向的,反向會漏掉。 */
+  var cls=(SH.p<f);
+  if(cls!==SH.lCls){ document.body.classList.toggle('sh-on', cls); SH.lCls=cls; }
   var layer=document.getElementById('sh-layer');
-  if(layer) layer.style.opacity = SH.p>f ? String(Math.max(0,1-(SH.p-f)/(1-f))) : '1';
+  var op = SH.p>f ? String(Math.max(0,1-(SH.p-f)/(1-f))) : '1';
+  if(layer && op!==SH.lOp){ layer.style.opacity=op; SH.lOp=op; }
   var hint=document.getElementById('sh-hint');
-  if(hint) hint.style.opacity = SH.p>.04 ? '0' : '1';
+  /* 反向是自動播放,不需要也不該提示「往下滑」 */
+  var hop=(SH.dir<0 || SH.p>.04) ? '0' : '1';
+  if(hint && hop!==SH.lHint){ hint.style.opacity=hop; SH.lHint=hop; }
 }
+function shResetCache(){ SH.lR=-1; SH.lOp=''; SH.lHint=''; SH.lCls=null; SH.t0=0; }
 function shTick(){
   SH.raf=0; if(!SH.on) return;
   SH.p += (SH.t-SH.p)*(+window.SH_TUNE.ease||.16);
   if(Math.abs(SH.t-SH.p)<.0015) SH.p=SH.t;
   shDraw();
-  if(SH.p>=.999){ shEnd(); return; }
+  if(SH.p>=.999){ shDraw(true); shEnd(); return; }
   if(SH.p!==SH.t) SH.raf=requestAnimationFrame(shTick);
 }
 function shPush(dy){
@@ -4163,8 +4428,9 @@ function shClick(){ SH.t=1; if(!SH.raf) SH.raf=requestAnimationFrame(shTick); }
 function shStart(){
   var layer=document.getElementById('sh-layer'); if(!layer||SH.on) return;
   if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  SH.on=true; SH.p=0; SH.t=0;
-  shMeasure(); shDraw();
+  SH.on=true; SH.p=0; SH.t=0; SH.dir=1; SH.done=null;
+  shResetCache();
+  shMeasure(); shDraw(true);
   layer.classList.add('on'); layer.style.opacity='1';
   document.body.classList.add('sh-on');
   document.body.style.overflow='hidden';
@@ -4177,7 +4443,9 @@ function shStart(){
 }
 function shEnd(){
   var layer=document.getElementById('sh-layer');
-  SH.on=false; if(SH.raf){ cancelAnimationFrame(SH.raf); SH.raf=0; }
+  SH.on=false; SH.dir=1; SH.done=null;
+  shResetCache();
+  if(SH.raf){ cancelAnimationFrame(SH.raf); SH.raf=0; }
   document.body.classList.remove('sh-on');
   document.body.style.overflow='';
   if(!layer) return;
@@ -4189,7 +4457,70 @@ function shEnd(){
   window.removeEventListener('keydown', shKey);
   window.removeEventListener('resize', shMeasure);
 }
+/* ── 反向:星洞從撐滿收回成一顆小星,收攏完才真的關掉底下的東西 ──
+   跟正向刻意不對稱:正向是「探索」,要使用者自己往下滑把洞撐開;
+   反向是「確認」,沒有可探索的東西,所以自動播、不掛 wheel/touch/click。
+   收攏到底時整片 accent 蓋滿畫面,這時候才呼叫 done()(關掉 OTD),
+   再把整層淡出 —— 少了這段淡出會看到一整片橘色硬切掉,很粗暴。 */
+function shFinishReverse(){
+  var layer=document.getElementById('sh-layer');
+  if(SH.done){ try{ SH.done(); }catch(e){} SH.done=null; }
+  if(!layer){ shEnd(); return; }
+  layer.style.transition='opacity '+((+window.SH_TUNE.outro||.28))+'s ease';
+  layer.style.opacity='0';
+  setTimeout(function(){ layer.style.transition=''; shEnd(); },
+             Math.round(((+window.SH_TUNE.outro||.28))*1000)+30);
+}
+function shReverse(done){
+  var layer=document.getElementById('sh-layer');
+  if(!layer || SH.on){ if(done) done(); return; }
+  if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+    if(done) done(); return;
+  }
+  SH.on=true; SH.dir=-1; SH.done=done||null;
+  SH.p=1; SH.t=0;
+  shResetCache();
+  shMeasure(); shDraw(true);
+  layer.classList.add('on');
+  /* 幕布淡入:反向第一幀 p 會從 1 直接掉到 ~.84,一口氣穿過整個 fade 區間(.92→1),
+     不給過場的話會看到整片 accent 硬閃出來。強制 reflow 是為了讓
+     display:none → block 之後真的有一次 style recalc,否則 transition 會被跳過。 */
+  layer.style.transition='opacity '+((+window.SH_TUNE.outro||.28))+'s ease';
+  void layer.offsetWidth;
+  document.body.style.overflow='hidden';
+  window.addEventListener('resize', shMeasure);
+  SH.raf=requestAnimationFrame(shTickClose);
+}
+/* 反向不用正向那套「指數逼近目標」的緩動 —— 那種寫法越接近終點每幀走得越少,
+   尾巴會拖成一格一格的,看起來就是卡。關閉是確定要發生的事,用固定時長 +
+   easeInOutQuad 跑完,節奏可預期,也保證一定收得完。 */
+function shTickClose(ts){
+  SH.raf=0; if(!SH.on) return;
+  if(!SH.t0) SH.t0=ts;
+  var dur=(+window.SH_TUNE.close||.48)*1000;
+  var k=Math.min(1,(ts-SH.t0)/dur);
+  var e=(k<.5) ? 2*k*k : 1-Math.pow(-2*k+2,2)/2;
+  SH.p=1-e;
+  shDraw();
+  if(k>=1){ shDraw(true); shFinishReverse(); return; }
+  SH.raf=requestAnimationFrame(shTickClose);
+}
 window.shStart=shStart; window.shEnd=shEnd; window.shPath=shPath;
+window.shReverse=shReverse; window.shFinishReverse=shFinishReverse;
+
+/* 只有「使用者按了關閉」才播反向。switchPage / ESC 的全部收起維持瞬間關閉——
+   那是善後動作,不該再讓人等一段動畫。 */
+function closeOtdAnimated(){
+  var m=document.getElementById('otd-modal');
+  if(!m || !m.classList.contains('open')){ closeOnThisDay(); return; }
+  if(window.SH_ON && window.SH_ON.otd && !SH.on){
+    otdStopPlay();                       /* 幕布蓋著時不要還在自動換頁 */
+    shReverse(function(){ closeOnThisDay(); });
+  } else {
+    closeOnThisDay();
+  }
+}
+window.closeOtdAnimated=closeOtdAnimated;
 function dockOtd(){
   openOnThisDay();
   /* 先把 OTD 蓋在底下渲染好，星洞撐開時直接看到播放器 */
@@ -4760,14 +5091,15 @@ function parseSharedInput(){
   try{
     var p=new URLSearchParams(location.search);
     var url=p.get('url')||'', text=p.get('text')||'', title=p.get('title')||'';
-    if(!url&&!text&&!title) return null;
+    var clip=(p.get('clip')==='1');
+    if(!url&&!text&&!title&&!clip) return null;
     if(!url){
       var m=text.match(/https?:\/\/[^\s]+/);
       if(m){ url=m[0]; text=text.replace(m[0],'').trim(); }
     }
     var t=(title||text||'').replace(/\s+/g,' ').trim();
     if(t.length>80) t=t.slice(0,80);
-    return {url:url, title:t, desc:(text&&text!==t)?text:''};
+    return {url:url, title:t, desc:(text&&text!==t)?text:'', clip:clip};
   }catch(e){ return null; }
 }
 function guessShareType(u){
@@ -4786,7 +5118,12 @@ function applySharedInput(s){
   for(var i=0;i<btns.length;i++){
     if((btns[i].getAttribute('onclick')||'').indexOf("'"+ty+"'")>-1){ btns[i].click(); break; }
   }
-  showToast('已帶入分享內容，確認後儲存', 4000);
+  if(s.clip){
+    if(typeof markPasteHint==='function') markPasteHint(true);
+    showToast('已帶入分享內容 → 再點「從剪貼簿貼上圖片」', 6000);
+  }else{
+    showToast('已帶入分享內容，確認後儲存', 4000);
+  }
 }
 function handleSharedInput(){
   var s=window.__pendingShare||parseSharedInput();
@@ -4802,6 +5139,81 @@ function handleSharedInput(){
   applySharedInput(s);
 }
 window.handleSharedInput=handleSharedInput;
+
+// ── 貼上圖片:剪貼簿 → 新增表單 ──
+/* 兩條路徑:
+   1) paste 事件 —— 桌機 Ctrl+V、以及 iOS 長按貼上時 Safari 會夾帶 clipboardData.files。
+   2) navigator.clipboard.read() —— iOS 16+ 走這條,會跳原生「允許貼上」確認,所以
+      一定要掛在使用者手勢底下(按鈕 onclick),不能在載入時自動呼叫,否則必定被拒。
+   iOS 捷徑側:下載圖片 →(建議先轉成 PNG,Safari 的 clipboard.read 對 JPEG 支援不穩)
+   → 拷貝到剪貼簿 → 開啟 URL ...?url=<原貼文>&title=<標題>&clip=1 */
+(function(){
+  function addFormOpen(){
+    var el=document.getElementById('add-so');
+    return !!(el && el.classList.contains('open'));
+  }
+  function markPasteHint(on){
+    var b=document.getElementById('paste-photo-btn');
+    if(b) b.classList.toggle('pulse', !!on);
+  }
+  window.markPasteHint=markPasteHint;
+
+  function feedIn(files){
+    if(!files.length) return false;
+    processFiles(files);
+    markPasteHint(false);
+    showToast('✓ 已從剪貼簿帶入 '+files.length+' 張', 2500);
+    return true;
+  }
+
+  document.addEventListener('paste', function(e){
+    if(!addFormOpen()) return;
+    var dt=e.clipboardData; if(!dt) return;
+    var files=[], i, f;
+    if(dt.files && dt.files.length){
+      for(i=0;i<dt.files.length;i++){
+        f=dt.files[i];
+        if(f && f.type && f.type.indexOf('image/')===0) files.push(f);
+      }
+    }
+    if(!files.length && dt.items){
+      for(i=0;i<dt.items.length;i++){
+        var it=dt.items[i];
+        if(it.kind==='file' && it.type && it.type.indexOf('image/')===0){
+          f=it.getAsFile(); if(f) files.push(f);
+        }
+      }
+    }
+    if(!files.length) return;
+    e.preventDefault();
+    feedIn(files);
+  });
+
+  window.pastePhotoFromClipboard=function(ev){
+    if(ev){ ev.preventDefault(); ev.stopPropagation(); }
+    if(!addFormOpen()){ showToast('請先開啟新增表單', 3000); return; }
+    if(!navigator.clipboard || !navigator.clipboard.read){
+      showToast('此瀏覽器不支援讀剪貼簿,請用 Ctrl+V 或點上方選檔', 4500); return;
+    }
+    navigator.clipboard.read().then(function(items){
+      var files=[], jobs=[];
+      Array.prototype.forEach.call(items, function(it){
+        var types=(it.types||[]).filter(function(x){ return x.indexOf('image/')===0; });
+        if(!types.length) return;
+        var t=types[0];
+        jobs.push(it.getType(t).then(function(blob){
+          var ext=(t.split('/')[1]||'png').split('+')[0];
+          files.push(new File([blob], 'clip_'+Date.now()+'_'+files.length+'.'+ext, {type:t}));
+        }));
+      });
+      return Promise.all(jobs).then(function(){
+        if(!feedIn(files)) showToast('剪貼簿裡沒有圖片', 3000);
+      });
+    }).catch(function(){
+      showToast('沒讀到剪貼簿。iOS 請在跳出的提示按「允許貼上」', 4500);
+    });
+  };
+})();
 // 開站時檢查分享參數(等資料與 UI 就緒)
 (function(){
   var done=false;
