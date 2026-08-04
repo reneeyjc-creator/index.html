@@ -187,36 +187,8 @@ body[data-theme="light"] .rec-meta .rec-mi{color:rgba(26,23,20,.45)}
 body[data-theme="light"] .rec-meta button.rec-mi:hover{color:var(--c-accent)}
 body[data-theme="light"] .rec-meta .rec-link a{color:#D14A18}
 body[data-theme="light"] .rec-meta .rec-plain{color:rgba(26,23,20,.32)}
-.mig-row{border-bottom:1px solid rgba(255,255,255,.07);padding:12px 0}
-.mig-pre{font-family:'Archivo','Noto Sans TC',sans-serif;font-size:13px;color:#FFD940;margin-bottom:2px}
-.mig-cnt{font-size:11px;color:#8F8983;margin-bottom:8px}
-.mig-ins{display:flex;gap:8px;flex-wrap:wrap}
-.mig-in{flex:1 1 120px;min-width:0;padding:7px 9px;border:1px solid rgba(255,255,255,.15);border-radius:var(--radius);background:rgba(255,255,255,.06);color:#E8E4E0;font-family:inherit;font-size:13px;outline:none}
-.mig-in:focus{border-color:var(--c-accent)}
-.mig-ex{font-size:11px;color:#8F8983;margin-top:7px;line-height:1.5}
-.mig-act{display:flex;gap:8px;justify-content:flex-end;margin-top:18px}
-body[data-theme="light"] .mig-row{border-bottom-color:rgba(0,0,0,.08)}
-body[data-theme="light"] .mig-pre{color:#A83A10}
-body[data-theme="light"] .mig-in{background:#fff;border-color:#D8D2C8;color:#1E1B18}
-body[data-theme="light"] .mig-cnt,body[data-theme="light"] .mig-ex{color:rgba(0,0,0,.5)}
-@media(max-width:700px){.mig-in{font-size:16px}}
 .ct-pre{color:rgba(255,255,255,.42)}
 body[data-theme="light"] .ct-pre{color:rgba(0,0,0,.4)}
-.fmt-box{background:#201F1F;border:1px solid rgba(255,217,64,.3);border-radius:10px;padding:26px 24px;width:100%;max-width:470px;max-height:82vh;overflow-y:auto;position:relative;text-align:left}
-.fmt-box h3{font-family:'Archivo','Noto Sans TC',sans-serif;font-size:13px;letter-spacing:.16em;color:#E8E4E0;margin:0 0 6px;font-weight:600}
-.fmt-sub{font-size:11px;color:#8F8983;line-height:1.7;margin-bottom:4px}
-.fmt-sec{font-family:'Archivo','Noto Sans TC',sans-serif;font-size:10px;letter-spacing:.18em;color:#8F8983;margin:20px 0 8px}
-.fmt-tb{width:100%;border-collapse:collapse;font-size:12px}
-.fmt-tb th{font-family:'Archivo','Noto Sans TC',sans-serif;font-size:10px;letter-spacing:.12em;color:#8F8983;font-weight:500;text-align:left;padding:5px 10px 5px 0;border-bottom:1px solid rgba(255,255,255,.14)}
-.fmt-tb td{padding:6px 10px 6px 0;border-bottom:1px solid rgba(255,255,255,.07);color:#E0DDD8;vertical-align:top;line-height:1.55}
-.fmt-tb td.fmt-key{font-family:'Archivo','Noto Sans TC',sans-serif;color:#FFD940;white-space:nowrap}
-.fmt-tb td.fmt-note{color:#8F8983;font-size:11px}
-body[data-theme="light"] .fmt-box{background:#fff;border-color:rgba(0,0,0,.15)}
-body[data-theme="light"] .fmt-box h3{color:#1E1B18}
-body[data-theme="light"] .fmt-tb td{color:#1E1B18;border-bottom-color:rgba(0,0,0,.08)}
-body[data-theme="light"] .fmt-tb th{border-bottom-color:rgba(0,0,0,.15)}
-body[data-theme="light"] .fmt-rule,body[data-theme="light"] .fmt-tb td.fmt-key{color:#A83A10}
-body[data-theme="light"] .fmt-sec,body[data-theme="light"] .fmt-sub,body[data-theme="light"] .fmt-tb td.fmt-note{color:rgba(0,0,0,.5)}
 .date-range-clear svg{width:9px;height:9px;display:block}
 
 /* Legend */
@@ -754,7 +726,7 @@ body[data-theme="light"] .pw-box h3{color:#1E1B18}
 .orbit-spin{transform-origin:350px 85px;animation:orbitSpin 44s linear infinite}
 @keyframes orbitSpin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
 .tw{animation:twinkle 3.4s ease-in-out infinite}
-@keyframes twinkle{0%,100%{opacity:.25}50%{opacity:1}}body[data-theme="light"] .hdr-orbit .tw{fill:rgba(255,107,61,.6)}
+@keyframes twinkle{0%,100%{opacity:.25}50%{opacity:1}}
 
 /* ── Space bg layer ── */
 .space-bg{position:fixed;inset:0;pointer-events:none;z-index:0}
@@ -1588,6 +1560,43 @@ body[data-theme="light"] .batch-bar-btn.on{color:#fff}
   .batch-panel{transition:opacity .01s}
   .fy-line{transition:none}
 }
+
+/* ===== v2026.08.05-K：表單內的格式速查 =====
+   原本這份內容躺在設定面板的獨立 modal 裡，離真正需要它的地方（新增表單）很遠，
+   填到一半沒人會跑去設定翻。改成表單標題列的一顆 ?，就地展開、就地收合。
+   用 grid-template-rows 0fr→1fr 收合，跟年份摺疊同一套，不用寫死高度。 */
+.so-head-act{display:flex;align-items:center;gap:8px}
+.so-help{width:32px;height:32px;border-radius:8px;border:1px solid rgba(255,255,255,.18);
+  background:transparent;color:rgba(255,255,255,.5);font-family:'Archivo',sans-serif;font-size:14px;
+  font-weight:600;line-height:1;padding:0;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:color .2s,border-color .2s,background .2s}
+.so-help:hover{color:var(--c-text);border-color:rgba(255,255,255,.32)}
+.so-help.on{color:#201F1F;background:var(--c-accent);border-color:var(--c-accent)}
+.fg-wrap{display:grid;grid-template-rows:0fr;transition:grid-template-rows .32s var(--ease-out),margin-bottom .32s var(--ease-out);overflow:hidden;margin-bottom:0}
+.fg-wrap.open{grid-template-rows:1fr;margin-bottom:16px}
+.fg-inner{min-height:0;overflow:hidden}
+.fg-wrap.open .fg-inner{padding:14px 15px 13px;border:1px solid rgba(255,217,64,.22);border-radius:var(--radius-lg);background:rgba(255,217,64,.03)}
+.fg-lead{font-size:11px;line-height:1.7;color:var(--c-hint);margin-bottom:2px}
+.fg-sec{font-family:'Archivo','Noto Sans TC',sans-serif;font-size:10px;letter-spacing:.18em;color:var(--c-muted);margin:14px 0 6px;padding-bottom:5px;border-bottom:1px solid rgba(255,255,255,.09)}
+.fg-dl{display:grid;grid-template-columns:auto 1fr;gap:5px 12px;margin:0;font-size:12px;line-height:1.55}
+.fg-dl-tight{font-size:11px}
+.fg-dl dt{font-family:'Archivo','Noto Sans TC',sans-serif;color:var(--c-accent);white-space:nowrap;margin:0}
+.fg-dl dd{margin:0;color:rgba(232,228,224,.82)}
+.fg-dl-tight dd{color:var(--c-hint)}
+.fg-note{font-size:11px;line-height:1.75;color:var(--c-hint)}
+.fg-note b{color:var(--c-text);font-weight:600}
+body[data-theme="light"] .so-help{border-color:rgba(0,0,0,.22);color:rgba(26,23,20,.5)}
+body[data-theme="light"] .so-help:hover{color:#1A1714;border-color:rgba(0,0,0,.35)}
+body[data-theme="light"] .so-help.on{color:#fff;background:var(--c-accent);border-color:var(--c-accent)}
+body[data-theme="light"] .fg-wrap.open .fg-inner{border-color:rgba(255,107,61,.28);background:rgba(255,107,61,.04)}
+body[data-theme="light"] .fg-sec{border-bottom-color:rgba(0,0,0,.1)}
+body[data-theme="light"] .fg-dl dd{color:rgba(26,23,20,.8)}
+@media(max-width:700px){
+  .fg-dl{grid-template-columns:1fr;gap:1px}
+  .fg-dl dt{margin-top:7px}
+  .fg-dl dt:first-of-type{margin-top:0}
+}
+@media(prefers-reduced-motion:reduce){ .fg-wrap{transition:none} }
 </style>
 </head>
 <body>
@@ -1608,7 +1617,6 @@ body[data-theme="light"] .batch-bar-btn.on{color:#fff}
     <circle cx="15%" cy="760" r="1.4" fill="rgba(255,255,255,.22)"/>
   </svg>
 </div>
-
 
 <header class="site-header">
   <svg class="hdr-glow" viewBox="0 0 1000 520" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
@@ -1696,7 +1704,6 @@ body[data-theme="light"] .batch-bar-btn.on{color:#fff}
 
     <span class="hdr-krname-vert" id="kr-name" tabindex="0" role="button" aria-label="이준호 李俊昊"><b>이</b><b>준</b><b>호</b></span>
 
-
     <span class="hdr-spark s1" aria-hidden="true">✦</span>
     <span class="hdr-spark s2" aria-hidden="true">✦</span>
     <span class="hdr-spark s3" aria-hidden="true">✦</span>
@@ -1735,8 +1742,6 @@ body[data-theme="light"] .batch-bar-btn.on{color:#fff}
 <!-- Calendar page -->
 <div class="page active" id="page-calendar">
 
-
-
   <div class="cal-header">
     <button class="nav-btn" onclick="changeMonth(-1)"><svg width="88" height="18" viewBox="0 0 88 18" fill="none"><path d="M86 9H12" stroke="currentColor" stroke-width="1.5"/><path d="M14 2C10.5 5.5 7 8 3 9c4 1 7.5 3.5 11 7" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></button>
     <button class="cal-month-title" id="cal-title" onclick="openYearMonthPicker()" style="cursor:pointer;background:transparent;border:none;font-family:'Boldonse',sans-serif;color:#E8E4E0;font-size:clamp(10px,2.5vw,24px);font-weight:400;letter-spacing:.02em;text-transform:uppercase;text-decoration:none" title="點擊切換年月"></button>
@@ -1756,7 +1761,6 @@ body[data-theme="light"] .batch-bar-btn.on{color:#fff}
   </div>
   <div class="cal-grid" id="cal-grid"></div>
 </div>
-
 
 <!-- Feed page -->
 <div class="page" id="page-feed">
@@ -1807,14 +1811,45 @@ body[data-theme="light"] .batch-bar-btn.on{color:#fff}
   <div id="feed-container"></div>
 </div>
 
-
 <!-- Add / Edit slide-over -->
 <div class="slideover" id="add-so">
   <div class="so-head">
     <h2 id="so-title">新增記錄</h2>
-    <button class="so-close" onclick="closeAddForm()"><span>✕</span></button>
+    <div class="so-head-act">
+      <button class="so-help" id="so-help-btn" onclick="toggleFormGuide()" aria-expanded="false" aria-controls="form-guide" title="紀錄格式速查">?</button>
+      <button class="so-close" onclick="closeAddForm()"><span>✕</span></button>
+    </div>
   </div>
   <div class="so-body">
+    <div class="fg-wrap" id="form-guide"><div class="fg-inner">
+      <div class="fg-lead">一項資訊只寫在一個地方。平台和發布者是獨立欄位，標題不用再寫前綴。</div>
+      <div class="fg-sec">欄位分工</div>
+      <dl class="fg-dl">
+        <dt>標題</dt><dd>只寫內容重點，不寫平台、帳號、類型</dd>
+        <dt>主題</dt><dd>作品或系列名，會變成可點的 ✦ 標籤</dd>
+        <dt>平台</dt><dd>IG 貼文、IG 限動、新聞媒體…可自由新增</dd>
+        <dt>發布者</dt><dd>帳號或機構，例 le2jh、Naver。點標籤可篩選</dd>
+        <dt>地點</dt><dd>場館、城市</dd>
+        <dt>說明</dt><dd>補充內容、備註</dd>
+        <dt>連結</dt><dd>只放網址</dd>
+        <dt>類別</dt><dd>由色點表達，不寫進標題</dd>
+      </dl>
+      <div class="fg-sec">帳號</div>
+      <dl class="fg-dl fg-dl-tight">
+        <dt>IG</dt><dd>le2jh · POST_LEEJUNHO · Real_2PM · O3cltv</dd>
+        <dt>X</dt><dd>個人 · 個人官方 · 2PM</dd>
+        <dt>YT</dt><dd>個人官方 · 2PM</dd>
+        <dt>其他</dt><dd>Threads · Weverse · 微博 · 小紅書</dd>
+      </dl>
+      <div class="fg-sec">限動</div>
+      <div class="fg-note">連結 24 小時後就會失效，所以<b>不要填連結</b>，改成一定要放照片。沒有連結時平台會顯示成灰色純文字，一眼就看得出這則已經回不去了。</div>
+      <div class="fg-sec">範例</div>
+      <dl class="fg-dl fg-dl-tight">
+        <dt>花絮照片</dt><dd>主題 2PM Concert／平台 IG 貼文／發布者 Real_2PM</dd>
+        <dt>男女主角確認出演</dt><dd>主題 駐韓外國使館／平台 新聞媒體／發布者 Naver</dd>
+        <dt>咖啡車應援感謝</dt><dd>平台 IG 限動／發布者 le2jh／不填連結</dd>
+      </dl>
+    </div></div>
     <div class="form-group">
       <label>類型</label>
       <div class="type-btns" id="add-type-btns">
@@ -1879,60 +1914,6 @@ body[data-theme="light"] .batch-bar-btn.on{color:#fff}
   </div>
 </div>
 
-<!-- 標題前綴遷移 -->
-<div class="pw-modal" id="mig-modal" onclick="if(event.target===this)closeMigrate()">
-  <div class="fmt-box">
-    <button class="pw-x" onclick="closeMigrate()">✕</button>
-    <h3>標題前綴遷移</h3>
-    <div class="fmt-sub" id="mig-warn"></div>
-    <div class="fmt-sub">下面是掃描出來、標題裡帶分隔符的前綴。替每個前綴指定平台和發布者，套用後前綴會從標題移除、值寫進欄位。留空的前綴不處理。</div>
-    <div id="mig-body"></div>
-    <div class="mig-act">
-      <button class="settings-item-btn" onclick="closeMigrate()">取消</button>
-      <button class="settings-item-btn" onclick="applyMigrate()">套用</button>
-    </div>
-  </div>
-</div>
-
-<!-- 紀錄格式速查 -->
-<div class="pw-modal" id="fmt-modal" onclick="if(event.target===this)closeFmtGuide()">
-  <div class="fmt-box">
-    <button class="pw-x" onclick="closeFmtGuide()">✕</button>
-    <h3>紀錄格式速查</h3>
-    <div class="fmt-sub">一項資訊只寫在一個地方。平台和發布者現在是獨立欄位，標題不用再寫前綴。</div>
-    <div class="fmt-sec">欄位分工</div>
-    <table class="fmt-tb">
-      <tr><th>欄位</th><th>放什麼</th></tr>
-        <tr><td class="fmt-key">標題</td><td>只寫內容重點。不要寫平台、帳號、類型</td></tr>
-        <tr><td class="fmt-key">主題</td><td>作品或系列名，會變成可點的 ✦ 標籤</td></tr>
-        <tr><td class="fmt-key">平台</td><td>IG 貼文、IG 限動、新聞媒體…可自由新增</td></tr>
-        <tr><td class="fmt-key">發布者</td><td>帳號或機構，例 le2jh、Naver。點標籤可篩選</td></tr>
-        <tr><td class="fmt-key">地點</td><td>場館、城市</td></tr>
-        <tr><td class="fmt-key">說明</td><td>補充內容、備註</td></tr>
-        <tr><td class="fmt-key">連結</td><td>只放網址</td></tr>
-        <tr><td class="fmt-key">類別</td><td>由色點表達</td></tr>
-    </table>
-    <div class="fmt-sec">帳號</div>
-    <table class="fmt-tb">
-      <tr><th>平台</th><th>發布者</th></tr>
-        <tr><td class="fmt-key">IG</td><td class="fmt-note">le2jh · POST_LEEJUNHO · Real_2PM · O3cltv</td></tr>
-        <tr><td class="fmt-key">X</td><td class="fmt-note">個人 · 個人官方 · 2PM</td></tr>
-        <tr><td class="fmt-key">YT</td><td class="fmt-note">個人官方 · 2PM</td></tr>
-        <tr><td class="fmt-key">其他</td><td class="fmt-note">Threads · Weverse · 微博 · 小紅書</td></tr>
-    </table>
-    <div class="fmt-sec">限動</div>
-    <div class="fmt-sub">限動 24 小時後連結就會失效，所以<b>不要填連結</b>，改成一定要放照片。沒有連結時平台會顯示成灰色純文字，一眼就看得出這則已經回不去了。</div>
-    <div class="fmt-sec">範例</div>
-    <table class="fmt-tb">
-      <tr><td class="fmt-key">花絮照片</td><td class="fmt-note">主題 2PM Concert／平台 IG 貼文／發布者 Real_2PM</td></tr>
-      <tr><td class="fmt-key">男女主角確認出演</td><td class="fmt-note">主題 駐韓外國使館／平台 新聞媒體／發布者 Naver</td></tr>
-      <tr><td class="fmt-key">咖啡車應援感謝</td><td class="fmt-note">平台 IG 限動／發布者 le2jh／不填連結</td></tr>
-    </table>
-  
-  </div>
-</div>
-
-<!-- Settings panel -->
 <div class="settings-panel" id="settings-panel">
   <div class="settings-head">
     <h3>⚙ Settings</h3>
@@ -1976,28 +1957,13 @@ body[data-theme="light"] .batch-bar-btn.on{color:#fff}
     </div>
     <div class="settings-item">
       <div>
-        <div class="settings-item-label">標題前綴遷移</div>
-        <div class="settings-item-val">把舊標題的前綴拆進欄位</div>
-      </div>
-      <button class="settings-item-btn" onclick="openMigrate()">整理</button>
-    </div>
-    <div class="settings-item">
-      <div>
-        <div class="settings-item-label">紀錄格式</div>
-        <div class="settings-item-val">帳號前綴與欄位分工</div>
-      </div>
-      <button class="settings-item-btn" onclick="openFmtGuide()">速查表</button>
-    </div>
-    <div class="settings-item">
-      <div>
         <div class="settings-item-label">版本</div>
-        <div class="settings-item-val">v2026.08.05-I</div>
+        <div class="settings-item-val">v2026.08.05-K</div>
       </div>
       <span style="font-size:14px;opacity:.5">🌻</span>
     </div>
   </div>
 </div>
-
 
 <!-- Footer -->
 <footer class="cosmic-footer hud">
@@ -3096,7 +3062,6 @@ function setCalFilter(f,el){
   renderCalendar();
 }
 
-
 // ── Anniversaries (紀念日) — hardcoded, recurring by month-day ──
 // recur:true = show every year on that MM-DD; recur:false = only that exact YYYY-MM-DD
 var ANNIVERSARIES=[
@@ -3230,81 +3195,6 @@ function metaRowHTML(r){
   items=items.filter(function(x){ return x; });
   return items.length?'<div class="rec-meta">'+items.join('')+'</div>':'';
 }
-// ── 標題前綴遷移(一次性工具) ──
-var MIG_RE=/^\s*([^｜|丨]{1,16})\s*[｜|丨]\s*(.+)$/;
-function migScan(){
-  var map={};
-  records.forEach(function(r){
-    var m=MIG_RE.exec(r.title||'');
-    if(!m) return;
-    var pre=m[1].trim(), rest=m[2].trim();
-    if(!pre||!rest||!r._fid) return;
-    if(!map[pre]) map[pre]={n:0,sample:rest,fids:[]};
-    map[pre].n++; map[pre].fids.push(r._fid);
-  });
-  return map;
-}
-function openMigrate(){
-  var map=migScan(), keys=Object.keys(map).sort(function(a,b){return map[b].n-map[a].n;});
-  var t=0; try{ t=parseInt(localStorage.getItem('lastBackupAt')||'0',10); }catch(e){}
-  var days=t?Math.floor((Date.now()-t)/86400000):-1;
-  var warn = days<0 ? '⚠ 還沒備份過。這個動作會直接改寫紀錄且無法復原,請先到設定匯出 JSON。'
-           : days>0 ? ('⚠ 上次備份是 '+days+' 天前,建議先重新匯出 JSON。')
-                    : '上次備份:今天。';
-  document.getElementById('mig-warn').textContent=warn;
-  var body=document.getElementById('mig-body');
-  if(!keys.length){ body.innerHTML='<div class="fmt-sub">沒有掃到帶前綴的標題,不需要遷移。</div>'; }
-  else{
-    body.innerHTML=keys.map(function(k,i){
-      return '<div class="mig-row">'
-        +'<div class="mig-pre">'+escHtml(k)+'</div>'
-        +'<div class="mig-cnt">'+map[k].n+' 筆</div>'
-        +'<div class="mig-ins">'
-        +'<input class="mig-in" data-pre="'+escHtml(k)+'" data-f="platform" list="platform-list" placeholder="平台">'
-        +'<input class="mig-in" data-pre="'+escHtml(k)+'" data-f="author" list="author-list" placeholder="發布者">'
-        +'</div>'
-        +'<div class="mig-ex">標題會變成:'+escHtml(map[k].sample)+'</div>'
-        +'</div>';
-    }).join('');
-  }
-  document.getElementById('mig-modal').classList.add('open');
-}
-function closeMigrate(){ var m=document.getElementById('mig-modal'); if(m) m.classList.remove('open'); }
-function migPlan(){
-  var vals={};
-  document.querySelectorAll('#mig-body .mig-in').forEach(function(el){
-    var p=el.dataset.pre; if(!vals[p]) vals[p]={};
-    vals[p][el.dataset.f]=el.value.trim();
-  });
-  var ups=[];
-  records.forEach(function(r){
-    var m=MIG_RE.exec(r.title||''); if(!m||!r._fid) return;
-    var pre=m[1].trim(), rest=m[2].trim(), v=vals[pre];
-    if(!v||(!v.platform&&!v.author)) return;
-    var d={title:rest};
-    if(v.platform&&!(r.platform||'').trim()) d.platform=normUsed(v.platform,'platform',PLATFORM_PRESETS);
-    if(v.author&&!(r.author||'').trim()) d.author=normUsed(v.author,'author',AUTHOR_PRESETS);
-    ups.push({fid:r._fid,data:d});
-  });
-  return ups;
-}
-function applyMigrate(){
-  if(!isUnlocked){ showToast('請先解鎖才能修改紀錄',3000); return; }
-  var ups=migPlan();
-  if(!ups.length){ showToast('沒有要套用的項目,請先填寫平台或發布者'); return; }
-  if(!confirm('將改寫 '+ups.length+' 筆紀錄的標題與欄位。這個動作無法復原,確定要繼續嗎?')) return;
-  migCommit(ups,0);
-}
-function migCommit(ups,i){
-  if(i>=ups.length){ showToast('✓ 已遷移 '+ups.length+' 筆'); closeMigrate(); return; }
-  var end=Math.min(i+400,ups.length), batch=db.batch();
-  for(var k=i;k<end;k++) batch.update(colRef.doc(ups[k].fid), ups[k].data);
-  batch.commit().then(function(){ migCommit(ups,end); })
-    .catch(function(){ showToast('遷移失敗,請確認已解鎖',4000); });
-}
-window.openMigrate=openMigrate;
-window.closeMigrate=closeMigrate;
-window.applyMigrate=applyMigrate;
 function searchAuthor(a){ searchSeries(a); }
 function searchPlatform(p){ searchSeries(p); }
 window.searchAuthor=searchAuthor;
@@ -3377,7 +3267,8 @@ function closeDaySo(){
 
 function openAddForm(date){
   editId=null;
-  document.getElementById('so-title').textContent='新增記錄';
+  if(typeof toggleFormGuide==="function") toggleFormGuide(false);
+  document.getElementById("so-title").textContent="新增記錄";
   document.getElementById('f-date').value=date||toISO(nowKST());
   document.getElementById('f-time').value='';
   document.getElementById('f-title').value='';
@@ -3397,6 +3288,14 @@ function openAddForm(date){
   document.getElementById('add-so').classList.add('open');
   document.getElementById('overlay').classList.add('show');
 }
+function toggleFormGuide(force){
+  var w=document.getElementById('form-guide'), b=document.getElementById('so-help-btn');
+  if(!w) return;
+  var on=(force===undefined)?!w.classList.contains('open'):!!force;
+  w.classList.toggle('open',on);
+  if(b){ b.classList.toggle('on',on); b.setAttribute('aria-expanded',on?'true':'false'); }
+}
+window.toggleFormGuide=toggleFormGuide;
 function closeAddForm(){ document.getElementById('add-so').classList.remove('open'); document.getElementById('overlay').classList.remove('show'); }
 function closeAll(){
   closeSettings(); closeAddForm(); closeDaySo(); }
@@ -3406,7 +3305,8 @@ function openEditModal(fid){
   for(var i=0;i<records.length;i++){if(records[i]._fid===fid){rec=records[i];break;}}
   if(!rec) return;
   editId=fid;
-  document.getElementById('so-title').textContent='編輯記錄';
+  if(typeof toggleFormGuide==="function") toggleFormGuide(false);
+  document.getElementById("so-title").textContent="編輯記錄";
   document.getElementById('f-date').value=rec.date;
   document.getElementById('f-time').value=rec.time||'';
   document.getElementById('f-title').value=rec.title;
@@ -3698,7 +3598,6 @@ function renderFeed(){
   requestAnimationFrame(markClampedDescs);
 }
 
-
 var lbList=[], lbIdx=0;
 function openLB(el){
   var full=el.dataset&&el.dataset.full?el.dataset.full:el.src;
@@ -3787,7 +3686,6 @@ function carouselStep(id,dir){
   var n=el.querySelectorAll('.carousel-track img').length;
   carouselGo(id,(cur+dir+n)%n);
 }
-
 
 function setViewSeg(v,el,idx){
   currentView=v;
@@ -4128,7 +4026,6 @@ function dockToday(){
 }
 window.dockGo=dockGo;
 window.dockToday=dockToday;
-
 
 // ── Theme (in-memory, no storage) ──
 var currentTheme='dark';
@@ -4522,10 +4419,6 @@ window.ymNav=ymNav;
 window.ymToggleMode=ymToggleMode;
 window.ymPickYear=ymPickYear;
 window.selectYM=selectYM;
-function openFmtGuide(){ var m=document.getElementById('fmt-modal'); if(m) m.classList.add('open'); }
-function closeFmtGuide(){ var m=document.getElementById('fmt-modal'); if(m) m.classList.remove('open'); }
-window.openFmtGuide=openFmtGuide;
-window.closeFmtGuide=closeFmtGuide;
 window.clearDateRange=clearDateRange;
 window.openConfirm=openConfirm;
 window.closeConfirm=closeConfirm;
@@ -4796,7 +4689,6 @@ document.addEventListener('keydown', function(e){
   },{passive:true});
 })();
 
-
 // ── 動態頁跳轉:回到最上方 + 跳年份 ──
 (function(){
   var wrap=null, ticking=false;
@@ -4954,7 +4846,6 @@ document.addEventListener('keydown', function(e){
   }
   tick(); setInterval(tick,1000);
 })();
-
 
 // ── 批次貼網址:一次貼多個連結 → 建立多筆紀錄 ──
 (function(){
