@@ -1836,10 +1836,11 @@ body[data-theme="light"] .fg-dl dd{color:rgba(26,23,20,.8)}
       </dl>
       <div class="fg-sec">帳號</div>
       <dl class="fg-dl fg-dl-tight">
-        <dt>IG</dt><dd>le2jh · POST_LEEJUNHO · Real_2PM · O3cltv</dd>
-        <dt>X</dt><dd>個人 · 個人官方 · 2PM</dd>
-        <dt>YT</dt><dd>個人官方 · 2PM</dd>
-        <dt>其他</dt><dd>Threads · Weverse · 微博 · 小紅書</dd>
+        <dt>IG</dt><dd>le2jh · post잊 · real_2pm · o3cltv · 2PM_JP</dd>
+        <dt>X</dt><dd>dlwnsghek · 잊官推 · 2PM官推 · 2PM_JP官推</dd>
+        <dt>YT</dt><dd>잊YT · 2PM_YT</dd>
+        <dt>泡泡</dt><dd>잊</dd>
+        <dt>其他</dt><dd>Leejunho · Threads · Weverse · 微博 · 小紅書</dd>
       </dl>
       <div class="fg-sec">限動</div>
       <div class="fg-note">連結 24 小時後就會失效，所以<b>不要填連結</b>，改成一定要放照片。沒有連結時平台會顯示成灰色純文字，一眼就看得出這則已經回不去了。</div>
@@ -1958,7 +1959,7 @@ body[data-theme="light"] .fg-dl dd{color:rgba(26,23,20,.8)}
     <div class="settings-item">
       <div>
         <div class="settings-item-label">版本</div>
-        <div class="settings-item-val">v2026.08.05-K</div>
+        <div class="settings-item-val">v2026.08.05-M</div>
       </div>
       <span style="font-size:14px;opacity:.5">🌻</span>
     </div>
@@ -2469,9 +2470,22 @@ function renderAll(){ renderCalendar(); renderFeed(); }
 function toISO(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
 // Current date/time in Korea Standard Time (KST, UTC+9), returned as a Date whose
 // local getters (getFullYear/Month/Date/Hours) reflect Korean wall-clock time.
+/* 原本是 new Date(toLocaleString('en-US',{timeZone})) 的來回轉換。問題是那個字串
+   （"8/5/2026, 7:29:10 AM"）不是標準格式，能不能被 Date 解析是各家引擎自己決定的；
+   ICU 72 之後 en-US 在 AM/PM 前面吐的是 U+202F 窄空格，部分引擎會直接回 Invalid Date，
+   一路壞到 toISO() 變成 "NaN-NaN-NaN"。改成讀 formatToParts 的數字欄位自己組。
+   formatter 也快取起來——時鐘每秒要用，每次重建 Intl 物件很貴。 */
+var _kstFmt=null;
 function nowKST(){
-  var s=new Date().toLocaleString('en-US',{timeZone:'Asia/Seoul'});
-  return new Date(s);
+  try{
+    if(!_kstFmt) _kstFmt=new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Seoul',hour12:false,
+      year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    var p={};
+    _kstFmt.formatToParts(new Date()).forEach(function(x){ p[x.type]=x.value; });
+    return new Date(+p.year, +p.month-1, +p.day, (+p.hour)%24, +p.minute, +p.second);
+  }catch(e){
+    return new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Seoul'}));
+  }
 }
 window.nowKST=nowKST;
 function refreshSeriesDatalist(){
@@ -2590,6 +2604,19 @@ function pwTypeText(i, key, rec){
   if(k==='mo3')  return (mi>=0&&mi<12)?PW_MO3[mi]:mm;
   return mm;
 }
+/* 照片牆與日誌的年份摺疊列共用：土星圖示 + 年份 + 筆數 + 分隔線 + ＋/－
+   兩邊只差「N 張」跟「N 筆」，其餘一模一樣，改樣式時很容易只改到一邊。 */
+var FY_PLANET='<svg class="fy-planet" width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="5.5" fill="#FFD940" opacity=".9"/><ellipse cx="12" cy="12" rx="10" ry="3.4" fill="none" stroke="#FFD940" stroke-width="1.1" opacity=".7" transform="rotate(-14 12 12)"/></svg>';
+function fyHeadHTML(y, countText){
+  return '<button class="feed-year-head" onclick="toggleFeedYear(this)">'
+    +FY_PLANET
+    +'<span class="fy-year">'+escHtml(y)+'</span>'
+    +'<span class="fy-count">'+escHtml(countText)+'</span>'
+    +'<span class="fy-line"></span>'
+    +'<span class="fy-toggle"><span class="fy-h"></span><span class="fy-v"></span></span>'
+    +'<span class="fy-tail"></span>'
+  +'</button>';
+}
 /* 照片牆 / 搜尋分割頁共用：日期正規化 + 單一照片格 HTML（原本兩支 render 各抄一份） */
 function pwYmd(d){ return String(d||'').replace(/\D/g,''); }
 function pwTileHTML(r, ph, i){
@@ -2607,7 +2634,6 @@ function pwBlockHTML(i, key, rec, extra){
 }
 function renderPhotoWall(filtered){
   var MO=['JANUARY','FEBRUARY','MARCH','APRIL','MAY','JUNE','JULY','AUGUST','SEPTEMBER','OCTOBER','NOVEMBER','DECEMBER'];
-  var PLANET='<svg class="fy-planet" width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="5.5" fill="#FFD940" opacity=".9"/><ellipse cx="12" cy="12" rx="10" ry="3.4" fill="none" stroke="#FFD940" stroke-width="1.1" opacity=".7" transform="rotate(-14 12 12)"/></svg>';
   var ymd=pwYmd;
   var events=[], pwList=[], idx=0;
   filtered.forEach(function(r){
@@ -2660,14 +2686,7 @@ function renderPhotoWall(filtered){
     yevents.forEach(function(ev){ pc+=ev.photos.length; });
     var isOpen=(y===thisYear)||(!anyThis && y===years[0]);
     return '<div class="feed-year'+(isOpen?' open':'')+'">'
-      +'<button class="feed-year-head" onclick="toggleFeedYear(this)">'
-        +PLANET
-        +'<span class="fy-year">'+escHtml(y)+'</span>'
-        +'<span class="fy-count">'+pc+' \u5f35</span>'
-        +'<span class="fy-line"></span>'
-        +'<span class="fy-toggle"><span class="fy-h"></span><span class="fy-v"></span></span>'
-        +'<span class="fy-tail"></span>'
-      +'</button>'
+      +fyHeadHTML(y, pc+' \u5f35')
       +'<div class="feed-year-body"><div class="feed-year-inner">'+monthsHTML(yevents)+'</div></div>'
     +'</div>';
   }).join('');
@@ -3099,10 +3118,22 @@ function renderCalendar(){
   for(var i=1;i<=last.getDate();i++) cells.push({d:new Date(viewYear,viewMonth,i),other:false});
   var rem=7-(cells.length%7||7);
   for(var i=1;i<=rem&&rem<7;i++) cells.push({d:new Date(viewYear,viewMonth+1,i),other:true});
+  /* 原本每個格子都跑一次 records.filter()，等於把整份 records 掃 42 遍。
+     改成先一趟分桶，格子直接查表。資料量越大差越多。 */
+  var byDate={};
+  records.forEach(function(r){
+    if(deletedIds[r._fid]) return;
+    if(calFilter!=='all' && r.type!==calFilter) return;
+    (byDate[r.date]=byDate[r.date]||[]).push(r);
+  });
+  Object.keys(byDate).forEach(function(k){
+    byDate[k].sort(function(a,b){ return (a.time||'').localeCompare(b.time||''); });
+  });
+  var frag=document.createDocumentFragment();
   cells.forEach(function(item){
     var d=item.d, other=item.other;
     var iso=toISO(d);
-    var dayRecs=records.filter(function(r){return !deletedIds[r._fid]&&r.date===iso&&(calFilter==='all'||r.type===calFilter);}).sort(function(a,b){return (a.time||'').localeCompare(b.time||'');});
+    var dayRecs=byDate[iso]||[];
     var firstPhoto=null;
     for(var ri=0;ri<dayRecs.length;ri++){var ph=visibleThumbs(dayRecs[ri]);if(ph.length){firstPhoto=ph[0];break;}}
     var firstRec=dayRecs[0];
@@ -3134,7 +3165,7 @@ function renderCalendar(){
     }
     var annivColor=annivs.length?annivs[0].displayColor:'#FFD940';
     var annivStar=annivs.length?'<span class="cell-anniv-star"><svg viewBox="0 0 60 60" width="58" height="58" fill="none"><defs><linearGradient id="mt'+iso.replace(/-/g,'')+'" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="'+annivColor+'" stop-opacity="0"/><stop offset="100%" stop-color="'+annivColor+'" stop-opacity=".85"/></linearGradient></defs><path d="M6 40C16 33 28 24 42 15" stroke="url(#mt'+iso.replace(/-/g,'')+')" stroke-width="2" stroke-linecap="round"/><path d="M9 37c2-1.4 4-2.8 6-4.2" stroke="url(#mt'+iso.replace(/-/g,'')+')" stroke-width="1.4" stroke-linecap="round" opacity=".5"/><path d="M45 12c.7 4.6 2.4 6.3 7 7-4.6.7-6.3 2.4-7 7-.7-4.6-2.4-6.3-7-7 4.6-.7 6.3-2.4 7-7z" fill="'+annivColor+'"/></svg></span>':'';
-    var annivBadge=annivs.length?'<span class="cell-anniv">'+annivs.map(function(a){return '<span class="anniv-chip" title="'+a.label+'" style="--ac:'+a.color+'">'+a.icon+'</span>';}).join('')+'</span>':'';
+    var annivBadge=annivs.length?'<span class="cell-anniv">'+annivs.map(function(a){return '<span class="anniv-chip" title="'+escHtml(a.label)+'" style="--ac:'+a.color+'">'+a.icon+'</span>';}).join('')+'</span>':'';
     var annivText=annivs.length?'<div class="cell-anniv-text" style="color:'+annivs[0].displayColor+'">'+annivs.map(function(a){return escHtml(a.label)+(a.countLabel?' '+a.countLabel:'');}).join('・')+'</div>':'';
     el.innerHTML=annivStar+'<div class="cell-date-row"><span class="cell-date">'+dateNum+'</span>'+plusRow+annivBadge+'<span class="cell-dots">'+dots+'</span></div>'+photoHTML+'<div class="cell-text">'+annivText+cellTextHTML+'</div>';
     if(dayRecs.length||annivs.length){
@@ -3142,8 +3173,9 @@ function renderCalendar(){
         cell.onclick=function(){ openDaySo(iso,d); };
       })(iso,d,el);
     }
-    grid.appendChild(el);
+    frag.appendChild(el);
   });
+  grid.appendChild(frag);   /* 42 次 DOM 插入合併成 1 次 */
 }
 
 var calFilter = 'all';
@@ -3570,14 +3602,7 @@ function renderFeed(){
           lazyAttr=' data-lazy="'+y+'"';
         }
         return '<div class="feed-year'+(isOpen?' open':'')+'">'
-          +'<button class="feed-year-head" onclick="toggleFeedYear(this)">'
-            +'<svg class="fy-planet" width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="5.5" fill="#FFD940" opacity=".9"/><ellipse cx="12" cy="12" rx="10" ry="3.4" fill="none" stroke="#FFD940" stroke-width="1.1" opacity=".7" transform="rotate(-14 12 12)"/></svg>'
-            +'<span class="fy-year">'+y+'</span>'
-            +'<span class="fy-count">'+recs.length+' 筆</span>'
-            +'<span class="fy-line"></span>'
-            +'<span class="fy-toggle"><span class="fy-h"></span><span class="fy-v"></span></span>'
-            +'<span class="fy-tail"></span>'
-          +'</button>'
+          +fyHeadHTML(y, recs.length+' 筆')
           +'<div class="feed-year-body"'+lazyAttr+'><div class="feed-year-inner">'+innerHTML+'</div></div>'
         +'</div>';
       }).join('');
@@ -3966,23 +3991,6 @@ function otdStopPlay(){
   },{passive:true});
 })();
 
-// swipe on OTD player (mobile)
-(function(){
-  var sx=null,sy=null;
-  document.addEventListener('touchstart',function(e){
-    var mo=document.getElementById('otd-modal');
-    if(!mo||!mo.classList.contains('open')) return;
-    sx=e.touches[0].clientX; sy=e.touches[0].clientY;
-  },{passive:true});
-  document.addEventListener('touchend',function(e){
-    if(sx===null) return;
-    var mo=document.getElementById('otd-modal');
-    if(!mo||!mo.classList.contains('open')){ sx=null; return; }
-    var dx=e.changedTouches[0].clientX-sx, dy=e.changedTouches[0].clientY-sy;
-    if(Math.abs(dx)>55&&Math.abs(dx)>Math.abs(dy)*1.6){ otdStep(dx<0?1:-1); }
-    sx=null;sy=null;
-  },{passive:true});
-})();
 window.otdTogglePlay=otdTogglePlay;
 window.otdStep=otdStep;
 window.otdGoto=otdGoto;
@@ -4832,7 +4840,7 @@ document.addEventListener('keydown', function(e){
   if(!els.length) return;
   function tick(){
     try{
-      var kst=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Seoul'}));
+      var kst=nowKST();
       var hh=String(kst.getHours()).padStart(2,'0');
       var mm=String(kst.getMinutes()).padStart(2,'0');
       var ss=String(kst.getSeconds()).padStart(2,'0');
@@ -4844,7 +4852,11 @@ document.addEventListener('keydown', function(e){
       });
     }catch(e){}
   }
-  tick(); setInterval(tick,1000);
+  var timer=null;
+  function start(){ if(timer) return; tick(); timer=setInterval(tick,1000); }
+  function stop(){ if(timer){ clearInterval(timer); timer=null; } }
+  document.addEventListener('visibilitychange',function(){ document.hidden?stop():start(); });
+  start();
 })();
 
 // ── 批次貼網址:一次貼多個連結 → 建立多筆紀錄 ──
