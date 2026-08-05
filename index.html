@@ -275,10 +275,13 @@ body[data-theme="light"] .feed-desc-more:hover{color:var(--c-accent)}
 .sp-bg{position:sticky;top:0;height:100vh;margin-bottom:-100vh;z-index:0;overflow:hidden}
 .sp-bg img{width:100%;height:100%;object-fit:cover;transform:scale(1.06);filter:grayscale(.94) brightness(.28) blur(2px)}
 .sp-body{position:relative;z-index:1;padding:54px 46px 64px}
-.sp-year{display:flex;align-items:center;gap:18px;margin:0 0 26px}
-.sp-year-n{font-family:'Boldonse',sans-serif;font-weight:400;font-size:26px;line-height:1;color:var(--c-accent);letter-spacing:.05em}
+/* --sp-yr-sz 拉成變數，方便在 console 直接試大小不用改檔：
+   document.documentElement.style.setProperty('--sp-yr-sz','17px') */
+:root{--sp-yr-sz:19px}
+.sp-year{display:flex;align-items:center;gap:14px;margin:0 0 22px}
+.sp-year-n{font-family:'Boldonse',sans-serif;font-weight:400;font-size:var(--sp-yr-sz);line-height:1;color:var(--c-accent);letter-spacing:.05em}
 .sp-year-line{flex:1;height:1px;background:var(--c-accent);opacity:.9}
-.sp-year-star{color:var(--c-accent);font-size:22px;line-height:1}
+.sp-year-star{color:var(--c-accent);font-size:calc(var(--sp-yr-sz) * .8);line-height:1}
 .sp-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:22px 34px;margin-bottom:52px}
 .sp-grid>*{aspect-ratio:1}
 /* ── 星洞轉場（列表 → 照片牆） ── */
@@ -302,8 +305,8 @@ body[data-theme="light"] .pw-cap{background:linear-gradient(0deg,rgba(0,0,0,.7),
   .sp-pola-bar{font-size:13px;padding:var(--sp-bar-py,6px) 12px}
   .sp-bg{position:absolute;inset:0;height:100%;margin:0}
   .sp-body{padding:26px 18px 38px}
-  .sp-year-n{font-size:21px}
-  .sp-year{gap:12px;margin-bottom:18px}
+  :root{--sp-yr-sz:16px}
+  .sp-year{gap:10px;margin-bottom:16px}
   .sp-grid{grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:32px}
 }
 .pw-month-grid.pw-hot .pw-block{display:none}
@@ -1995,7 +1998,7 @@ body[data-theme="light"] .form-group input.field-err,body[data-theme="light"] .f
     <div class="settings-item">
       <div>
         <div class="settings-item-label">版本</div>
-        <div class="settings-item-val">v2026.08.05-S</div>
+        <div class="settings-item-val">v2026.08.05-T</div>
       </div>
       <span style="font-size:14px;opacity:.5">🌻</span>
     </div>
