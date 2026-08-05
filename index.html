@@ -1528,14 +1528,14 @@ body[data-theme="light"] .batch-bar-btn.batch-cancel:hover{background:none;borde
   border-radius:50%;transition:color .15s,background .15s}
 .bp-clr:hover{color:var(--c-text)}
 .bp-clr.on{color:#201F1F;background:var(--c-accent)}
-.bp-types{flex:1 1 0;display:flex;flex-wrap:wrap;gap:5px}
-.bp-type{display:inline-flex;align-items:center;gap:5px;padding:4px 9px;font-family:inherit;font-size:11px;
+.bp-types{flex:1 1 0;min-width:0;display:flex;flex-wrap:nowrap;gap:4px}
+.bp-type{flex:1 1 0;min-width:0;display:inline-flex;align-items:center;justify-content:center;gap:4px;padding:4px 2px;white-space:nowrap;font-family:inherit;font-size:10px;
   background:transparent;border:1px solid var(--c-border);border-radius:14px;color:var(--c-muted);cursor:pointer;
   transition:color .15s,border-color .15s}
-.bp-type i{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.bp-type i{width:4px;height:4px;border-radius:50%;flex-shrink:0}
 .bp-type:hover{color:var(--c-text)}
 .bp-type.on{color:var(--c-text);border-color:var(--c-accent)}
-.bp-foot{display:flex;justify-content:flex-end;gap:6px;padding-top:9px;margin-top:4px;border-top:1px solid var(--c-border)}
+.bp-foot{display:flex;justify-content:flex-end;gap:6px;padding-top:10px;margin-top:2px}
 .bp-cancel,.bp-apply{font-family:inherit;font-size:11px;letter-spacing:.1em;padding:6px 14px;border-radius:16px;cursor:pointer;transition:opacity .15s,background .15s,color .15s}
 .bp-cancel{background:none;border:none;color:var(--c-muted)}
 .bp-cancel:hover{color:var(--c-text)}
@@ -2062,7 +2062,7 @@ body[data-theme="light"] .bp-row textarea::placeholder,body[data-theme="light"] 
     <div class="settings-item">
       <div>
         <div class="settings-item-label">版本</div>
-        <div class="settings-item-val">v2026.08.06-B</div>
+        <div class="settings-item-val">v2026.08.06-D</div>
       </div>
       <span style="font-size:14px;opacity:.5">🌻</span>
     </div>
@@ -3165,7 +3165,7 @@ function applyBatchFields(){
      但說明是每筆各自的內容。整批寫入會把既有的說明蓋掉，而且救不回來，
      所以先數出有幾筆會被覆蓋，讓人確認過再送。 */
   var byFid={};
-  (window.records||[]).forEach(function(r){ if(r&&r._fid) byFid[r._fid]=r; });
+  records.forEach(function(r){ if(r&&r._fid) byFid[r._fid]=r; });
   if(typeof d.desc==='string' && d.desc!==''){
     var willLose=fids.filter(function(f){
       var r=byFid[f];
@@ -5159,7 +5159,7 @@ document.addEventListener('keydown', function(e){
       uniq.push(it);
     });
     var existing={};
-    (window.records||[]).forEach(function(r){ if(r && r.source) existing[String(r.source).trim()]=1; });
+    records.forEach(function(r){ if(r && r.source) existing[String(r.source).trim()]=1; });
     var today=toISO(nowKST()), gotX=0;
     rows=uniq.map(function(it){
       var x=xDateTimeFromUrl(it.url);
