@@ -887,6 +887,7 @@ body[data-theme="light"] .cell-photo .cell-plus{background:rgba(244,241,236,.94)
 .bulk-date,.bulk-time,.bulk-type,.bulk-title{border:1px solid rgba(255,255,255,.15);border-radius:var(--radius);background:rgba(255,255,255,.06);color:#E8E4E0;font-family:inherit;font-size:12px;padding:6px 8px;outline:none;transition:border-color .15s}
 .bulk-date:focus,.bulk-time:focus,.bulk-type:focus,.bulk-title:focus{border-color:#FFD940}
 .bulk-date,.bulk-time{flex-shrink:0}
+.bulk-url-none{opacity:.4;font-style:normal}
 .bulk-time{width:92px}
 .bulk-type{flex-shrink:0}
 .bulk-title{width:100%}
@@ -1993,14 +1994,14 @@ body[data-theme="light"] .form-group input.field-err,body[data-theme="light"] .f
     <div class="settings-item">
       <div>
         <div class="settings-item-label">批次新增</div>
-        <div class="settings-item-val">貼一批網址快速建檔</div>
+        <div class="settings-item-val">貼網址或試算表快速建檔</div>
       </div>
-      <button class="settings-item-btn" onclick="openBulkImport()">批次貼網址</button>
+      <button class="settings-item-btn" onclick="openBulkImport()">批次新增</button>
     </div>
     <div class="settings-item">
       <div>
         <div class="settings-item-label">版本</div>
-        <div class="settings-item-val">v2026.08.05-V</div>
+        <div class="settings-item-val">v2026.08.05-W</div>
       </div>
       <span style="font-size:14px;opacity:.5">🌻</span>
     </div>
@@ -2104,12 +2105,12 @@ body[data-theme="light"] .form-group input.field-err,body[data-theme="light"] .f
 <div class="bulk-modal" id="bulk-modal">
   <div class="bulk-box">
     <div class="bulk-head">
-      <h3>批次貼網址</h3>
+      <h3>批次新增</h3>
       <button class="so-close" onclick="closeBulkImport()" aria-label="關閉"><span>✕</span></button>
     </div>
 
     <div class="bulk-step" id="bulk-step-paste">
-      <p class="bulk-hint">整段貼上就好，會自動抓出所有連結並去除重複。<br><b>X 的網址會自動帶入發文日期與時間</b>（IG 短碼不含時間資訊，日期預設今天）。<br>也可以直接從試算表整塊複製貼上，日期／時間／標題／網址會自動分欄，順序不拘。<br>照片沒辦法自動帶入，要另外上傳。</p>
+      <p class="bulk-hint">貼一串網址，會自動抓出連結並去除重複；<b>X 的網址會自動帶入發文日期與時間</b>。<br>也可以從試算表整塊複製貼上，日期／時間／標題／網址／分類自動分欄，順序不拘。<br><b>沒有網址的紀錄也可以</b>——演唱會、生日、通告只要填日期和標題，分類預設「行程」。<br>照片要另外上傳。</p>
       <textarea class="bulk-ta" id="bulk-ta" placeholder="https://www.instagram.com/p/xxxxx/&#10;https://www.instagram.com/p/yyyyy/&#10;…"></textarea>
       <div class="bulk-actions">
         <span class="bulk-count"></span>
@@ -4936,6 +4937,8 @@ document.addEventListener('keydown', function(e){
 (function(){
   var rows=[];
   var LB={schedule:'行程',sns:'社群',bubble:'泡泡',media:'媒體',message:'消息'};
+  var TYPE_BY_LABEL={};
+  Object.keys(LB).forEach(function(k){ TYPE_BY_LABEL[LB[k]]=k; TYPE_BY_LABEL[k]=k; });
   function step(which){
     document.getElementById('bulk-step-paste').style.display = which==='paste'?'':'none';
     document.getElementById('bulk-step-rows').style.display  = which==='rows' ?'':'none';
@@ -4986,7 +4989,8 @@ document.addEventListener('keydown', function(e){
           +'<button class="bulk-del" onclick="bulkDel('+i+')" aria-label="移除這一筆"><svg viewBox="0 0 13 13" width="11" height="11" fill="none" aria-hidden="true"><path d="M3 3l7 7M10 3l-7 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>'
         +'</div>'
         +'<input type="text" class="bulk-title" value="'+escHtml(r.title)+'" placeholder="標題（留空的不會建立）" oninput="bulkSet('+i+',\'title\',this.value)">'
-        +'<a class="bulk-url" href="'+escHtml(r.url)+'" target="_blank" rel="noopener">'+escHtml(shortLabel(r.url))+'</a>'
+        +(r.url?'<a class="bulk-url" href="'+escHtml(r.url)+'" target="_blank" rel="noopener">'+escHtml(shortLabel(r.url))+'</a>'
+               :'<span class="bulk-url bulk-url-none">無連結</span>')
       +'</div>';
     }).join('');
     recount();
@@ -5019,7 +5023,7 @@ document.addEventListener('keydown', function(e){
     var out=[];
     (txt||'').split(/\r?\n/).forEach(function(line){
       if(line.indexOf('\t')<0) return;
-      var url='', date='', time='', title='';
+      var url='', date='', time='', title='', type='';
       line.split('\t').forEach(function(cell){
         cell=(cell||'').trim();
         if(!cell) return;
@@ -5028,19 +5032,25 @@ document.addEventListener('keydown', function(e){
         if(!date && d){ date=d[1]+'-'+('0'+d[2]).slice(-2)+'-'+('0'+d[3]).slice(-2); return; }
         var t=cell.match(/^(\d{1,2}):(\d{2})$/);
         if(!time && t){ time=('0'+t[1]).slice(-2)+':'+t[2]; return; }
+        if(!type && TYPE_BY_LABEL[cell]){ type=TYPE_BY_LABEL[cell]; return; }
         if(!title) title=cell;
       });
-      if(url) out.push({url:url, date:date, time:time, title:title});
+      /* 沒有網址也要收：演唱會、生日、電視通告這些本來就沒有連結。
+         判斷依據改成「有日期或有標題」，只有整列空白才丟掉。 */
+      if(url||date||title) out.push({url:url, date:date, time:time, title:title, type:type});
     });
     return out;
   }
   window.bulkParse=function(){
     var raw=document.getElementById('bulk-ta').value;
     var tabbed=parseTabbed(raw);
-    var items=tabbed.length ? tabbed : extract(raw).map(function(u){ return {url:u,date:'',time:'',title:''}; });
-    if(!items.length){ showToast('沒有偵測到網址',3000); return; }
+    var items=tabbed.length ? tabbed : extract(raw).map(function(u){ return {url:u,date:'',time:'',title:'',type:''}; });
+    if(!items.length){ showToast('沒有讀到可用的內容',3000); return; }
     var seen={}, uniq=[];
-    items.forEach(function(it){ if(seen[it.url]) return; seen[it.url]=1; uniq.push(it); });
+    items.forEach(function(it){
+      if(it.url){ if(seen[it.url]) return; seen[it.url]=1; }   /* 沒網址的無從比對，一律保留 */
+      uniq.push(it);
+    });
     var existing={};
     (window.records||[]).forEach(function(r){ if(r && r.source) existing[String(r.source).trim()]=1; });
     var today=toISO(nowKST()), gotX=0;
@@ -5050,9 +5060,10 @@ document.addEventListener('keydown', function(e){
       return { url:it.url,
                date: it.date || (x?x.date:today),
                time: it.time || (x?x.time:''),
-               type: guessShareType(it.url),
+               /* 沒有網址就猜不出來源，這類多半是行程（演唱會、生日、通告） */
+               type: it.type || (it.url ? guessShareType(it.url) : 'schedule'),
                title: it.title||'',
-               dup: !!existing[it.url] };
+               dup: !!(it.url && existing[it.url]) };
     });
     render();
     step('rows');
