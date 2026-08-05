@@ -1664,6 +1664,31 @@ body[data-theme="light"] input:-webkit-autofill,
 body[data-theme="light"] textarea:-webkit-autofill{ -webkit-text-fill-color:#1A1714; caret-color:#1A1714 }
 body[data-theme="light"] input:autofill,
 body[data-theme="light"] textarea:autofill{ color:#1A1714 }
+
+/* ===== v2026.08.05-Z：批次面板的說明欄 ===== */
+.bp-block{margin-bottom:6px}
+.bp-block-head{display:flex;align-items:center;gap:8px;margin-bottom:5px}
+.bp-block-head>label{flex:0 0 auto;font-size:11px;letter-spacing:.06em;color:var(--c-muted)}
+.bp-seg{display:inline-flex;margin-right:auto;border:1px solid var(--c-border);border-radius:12px;overflow:hidden}
+.bp-seg.off{opacity:.35}
+.bp-seg-b{font-family:inherit;font-size:10px;letter-spacing:.06em;padding:3px 10px;background:none;border:none;
+  color:var(--c-muted);cursor:pointer;transition:color .15s,background .15s}
+.bp-seg-b+.bp-seg-b{border-left:1px solid var(--c-border)}
+.bp-seg-b:hover:not(:disabled){color:var(--c-text)}
+.bp-seg-b.on{background:var(--c-accent);color:#201F1F}
+.bp-seg-b:disabled{cursor:default}
+body[data-theme="light"] .bp-seg,body[data-theme="light"] .bp-seg-b+.bp-seg-b{border-color:#D8D2C8}
+body[data-theme="light"] .bp-seg-b.on{color:#fff}
+.bp-row textarea,.bp-block textarea{flex:1 1 0;min-width:0;padding:7px 9px;font-family:inherit;font-size:13px;line-height:1.5;
+  background:rgba(255,255,255,.05);border:1px solid var(--c-border);border-radius:var(--radius);
+  color:var(--c-text);outline:none;resize:vertical;min-height:52px;
+  transition:border-color .15s,opacity .15s}
+.bp-row textarea:focus,.bp-block textarea:focus{border-color:var(--c-accent)}
+.bp-row textarea::placeholder,.bp-block textarea::placeholder{color:rgba(255,255,255,.22)}
+.bp-row textarea:disabled,.bp-block textarea:disabled{opacity:.35}
+body[data-theme="light"] .bp-row textarea,body[data-theme="light"] .bp-block textarea{background:rgba(0,0,0,.03);border-color:#D8D2C8;color:#1A1714}
+body[data-theme="light"] .bp-row textarea::placeholder,body[data-theme="light"] .bp-block textarea::placeholder{color:rgba(0,0,0,.28)}
+@media(max-width:700px){ .bp-row textarea,.bp-block textarea{font-size:16px} }
 </style>
 </head>
 <body>
@@ -1797,6 +1822,17 @@ body[data-theme="light"] textarea:autofill{ color:#1A1714 }
     <div class="bp-row"><label>平台</label><input type="text" id="bp-platform" list="platform-list" placeholder="不變更"><button type="button" class="bp-clr" data-f="platform" onclick="bpClr(this)" title="清空這個欄位">&#8709;</button></div>
     <div class="bp-row"><label>日期</label><input type="date" id="bp-date"><span class="bp-clr-sp"></span></div>
     <div class="bp-row"><label>時間</label><input type="time" id="bp-time"><button type="button" class="bp-clr" data-f="time" onclick="bpClr(this)" title="清空這個欄位">&#8709;</button></div>
+    <div class="bp-block">
+      <div class="bp-block-head">
+        <label for="bp-desc">說明</label>
+        <span class="bp-seg" id="bp-desc-mode">
+          <button type="button" class="bp-seg-b on" data-m="replace" onclick="bpSetDescMode(this)" title="用這段文字取代原本的說明">覆蓋</button>
+          <button type="button" class="bp-seg-b" data-m="append" onclick="bpSetDescMode(this)" title="接在原本的說明後面，不動原內容">附加</button>
+        </span>
+        <button type="button" class="bp-clr" data-f="desc" onclick="bpClr(this)" title="清空這個欄位">&#8709;</button>
+      </div>
+      <textarea id="bp-desc" rows="2" placeholder="不變更"></textarea>
+    </div>
     <div class="bp-foot"><button type="button" class="bp-cancel" onclick="toggleBatchPanel(false)">取消</button><button type="button" class="bp-apply" onclick="applyBatchFields()">套用</button></div>
   </div>
 </div>
@@ -2026,7 +2062,7 @@ body[data-theme="light"] textarea:autofill{ color:#1A1714 }
     <div class="settings-item">
       <div>
         <div class="settings-item-label">版本</div>
-        <div class="settings-item-val">v2026.08.05-Y</div>
+        <div class="settings-item-val">v2026.08.06-A</div>
       </div>
       <span style="font-size:14px;opacity:.5">🌻</span>
     </div>
@@ -3049,10 +3085,13 @@ function updateBatchCount(){
    欄位一多就要重複開關批次模式 N 次。 */
 window.toggleBatchMode=toggleBatchMode;
 window.toggleBatchSel=toggleBatchSel;
-var BP_FIELDS=['series','place','author','platform','date','time'];
-var bpClearMap={}, bpType='';
+var BP_FIELDS=['series','place','author','platform','date','time','desc'];
+var bpClearMap={}, bpType='', bpDescMode='replace';
 function bpReset(){
-  bpClearMap={}; bpType='';
+  bpClearMap={}; bpType=''; bpDescMode='replace';
+  Array.prototype.forEach.call(document.querySelectorAll('#bp-desc-mode .bp-seg-b'),function(b){
+    b.classList.toggle('on', b.getAttribute('data-m')==='replace');
+  });
   BP_FIELDS.forEach(function(f){
     var el=document.getElementById('bp-'+f);
     if(el){ el.value=''; el.disabled=false; }
@@ -3074,7 +3113,20 @@ function bpClr(btn){
   btn.classList.toggle('on',on); bpClearMap[f]=on;
   var el=document.getElementById('bp-'+f);
   if(el){ el.disabled=on; if(on) el.value=''; }
+  /* 按了清空，覆蓋／附加就沒有意義了，一起停用免得誤會 */
+  if(f==='desc'){
+    var seg=document.getElementById('bp-desc-mode');
+    if(seg){ seg.classList.toggle('off',on);
+      Array.prototype.forEach.call(seg.querySelectorAll('.bp-seg-b'),function(b){ b.disabled=on; }); }
+  }
 }
+function bpSetDescMode(el){
+  bpDescMode=el.getAttribute('data-m')||'replace';
+  Array.prototype.forEach.call(document.querySelectorAll('#bp-desc-mode .bp-seg-b'),function(b){
+    b.classList.toggle('on', b.getAttribute('data-m')===bpDescMode);
+  });
+}
+window.bpSetDescMode=bpSetDescMode;
 function bpPickType(el){
   var t=el.getAttribute('data-t');
   bpType=(bpType===t)?'':t;
@@ -3099,13 +3151,43 @@ function applyBatchFields(){
   take('platform','平台',function(v){ return normUsed(v,'platform',PLATFORM_PRESETS); });
   take('date','日期');
   take('time','時間');
-  if(!Object.keys(d).length){ showToast('沒有要變更的欄位'); return; }
+  take('desc','說明');
+  /* 附加模式下每一筆的結果都不一樣（各自的原文 + 新文字），
+     沒辦法用同一份 payload 送給所有人，所以把 desc 從共用欄位裡抽出來，
+     在下面逐筆組合。覆蓋模式維持共用。 */
+  var appendText='';
+  if(bpDescMode==='append' && !bpClearMap.desc && typeof d.desc==='string' && d.desc!==''){
+    appendText=d.desc; delete d.desc;
+    names[names.indexOf('說明')]='說明（附加）';
+  }
+  if(!Object.keys(d).length && !appendText){ showToast('沒有要變更的欄位'); return; }
+  /* 說明跟其他欄位性質不同：主題／平台／發布者這些整批本來就該一樣，
+     但說明是每筆各自的內容。整批寫入會把既有的說明蓋掉，而且救不回來，
+     所以先數出有幾筆會被覆蓋，讓人確認過再送。 */
+  var byFid={};
+  (window.records||[]).forEach(function(r){ if(r&&r._fid) byFid[r._fid]=r; });
+  if(typeof d.desc==='string' && d.desc!==''){
+    var willLose=fids.filter(function(f){
+      var r=byFid[f];
+      return r && String(r.desc||'').trim() && String(r.desc||'').trim()!==d.desc;
+    }).length;
+    if(willLose && !confirm('其中 '+willLose+' 筆已經有說明，會被這段文字覆蓋且無法復原。\n\n確定執行？')) return;
+  }
   var btn=document.querySelector('#batch-panel .bp-apply');
   if(btn){ btn.disabled=true; btn.textContent='套用中…'; }
-  var batch=db.batch();
-  fids.forEach(function(fid){ batch.update(colRef.doc(fid), d); });
+  var batch=db.batch(), skipped=0;
+  fids.forEach(function(fid){
+    var payload=d;
+    if(appendText){
+      var prev=String((byFid[fid]&&byFid[fid].desc)||'');
+      /* 已經含有同一段文字就不再接一次，避免不小心按兩下變成重複兩段 */
+      if(prev.indexOf(appendText)>-1){ skipped++; }
+      else { payload=Object.assign({}, d, {desc: prev.trim() ? prev.replace(/\s+$/,'')+'\n'+appendText : appendText}); }
+    }
+    if(Object.keys(payload).length) batch.update(colRef.doc(fid), payload);
+  });
   batch.commit().then(function(){
-    showToast('\u2713 已更新 '+fids.length+' 筆的'+names.join('、'));
+    showToast('\u2713 已更新 '+fids.length+' 筆的'+names.join('、')+(skipped?'（'+skipped+' 筆已有相同內容，略過）':''));
     toggleBatchPanel(false); toggleBatchMode();
   }).catch(function(){
     showToast('修改失敗，請確認已解鎖', 4000);
