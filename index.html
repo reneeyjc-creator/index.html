@@ -884,9 +884,10 @@ body[data-theme="light"] .cell-photo .cell-plus{background:rgba(244,241,236,.94)
 .bulk-row{border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:9px 10px;display:flex;flex-direction:column;gap:6px;background:rgba(255,255,255,.03)}
 .bulk-row.dup{opacity:.5}
 .bulk-row-top{display:flex;align-items:center;gap:7px}
-.bulk-date,.bulk-type,.bulk-title{border:1px solid rgba(255,255,255,.15);border-radius:var(--radius);background:rgba(255,255,255,.06);color:#E8E4E0;font-family:inherit;font-size:12px;padding:6px 8px;outline:none;transition:border-color .15s}
-.bulk-date:focus,.bulk-type:focus,.bulk-title:focus{border-color:#FFD940}
-.bulk-date{flex-shrink:0}
+.bulk-date,.bulk-time,.bulk-type,.bulk-title{border:1px solid rgba(255,255,255,.15);border-radius:var(--radius);background:rgba(255,255,255,.06);color:#E8E4E0;font-family:inherit;font-size:12px;padding:6px 8px;outline:none;transition:border-color .15s}
+.bulk-date:focus,.bulk-time:focus,.bulk-type:focus,.bulk-title:focus{border-color:#FFD940}
+.bulk-date,.bulk-time{flex-shrink:0}
+.bulk-time{width:92px}
 .bulk-type{flex-shrink:0}
 .bulk-title{width:100%}
 .bulk-title::placeholder{color:rgba(255,255,255,.25)}
@@ -905,7 +906,7 @@ body[data-theme="light"] .bulk-box{background:#F2EEE7;border-color:rgba(0,0,0,.1
 body[data-theme="light"] .bulk-head{border-bottom-color:rgba(0,0,0,.1)}
 body[data-theme="light"] .bulk-head h3{color:#1E1B18}
 body[data-theme="light"] .bulk-hint{color:rgba(26,23,20,.5)}
-body[data-theme="light"] .bulk-ta,body[data-theme="light"] .bulk-date,body[data-theme="light"] .bulk-type,body[data-theme="light"] .bulk-title{background:#fff;border-color:#D8D2C8;color:#1E1B18}
+body[data-theme="light"] .bulk-ta,body[data-theme="light"] .bulk-time,body[data-theme="light"] .bulk-date,body[data-theme="light"] .bulk-type,body[data-theme="light"] .bulk-title{background:#fff;border-color:#D8D2C8;color:#1E1B18}
 body[data-theme="light"] .bulk-ta:focus,body[data-theme="light"] .bulk-date:focus,body[data-theme="light"] .bulk-type:focus,body[data-theme="light"] .bulk-title:focus{border-color:#FF6B3D}
 body[data-theme="light"] .bulk-ta::placeholder,body[data-theme="light"] .bulk-title::placeholder{color:rgba(0,0,0,.3)}
 body[data-theme="light"] .bulk-row{background:#fff;border-color:rgba(0,0,0,.08)}
@@ -922,7 +923,8 @@ body[data-theme="light"] .bulk-back:hover{color:rgba(26,23,20,.9);border-color:r
   .bulk-modal{padding:10px}
   .bulk-box{max-height:92vh}
   .bulk-row-top{flex-wrap:wrap}
-  .bulk-date,.bulk-type{font-size:11px;padding:5px 6px}
+  .bulk-date,.bulk-time,.bulk-type{font-size:11px;padding:5px 6px}
+  .bulk-time{width:74px}
   .bulk-go,.bulk-back{padding:10px 14px}
   .bulk-count{font-size:10px}
 }
@@ -1998,7 +2000,7 @@ body[data-theme="light"] .form-group input.field-err,body[data-theme="light"] .f
     <div class="settings-item">
       <div>
         <div class="settings-item-label">版本</div>
-        <div class="settings-item-val">v2026.08.05-U</div>
+        <div class="settings-item-val">v2026.08.05-V</div>
       </div>
       <span style="font-size:14px;opacity:.5">🌻</span>
     </div>
@@ -2107,7 +2109,7 @@ body[data-theme="light"] .form-group input.field-err,body[data-theme="light"] .f
     </div>
 
     <div class="bulk-step" id="bulk-step-paste">
-      <p class="bulk-hint">整段貼上就好，會自動抓出裡面所有連結並去除重複。<br>照片沒辦法自動帶入，IG 擋未登入存取。</p>
+      <p class="bulk-hint">整段貼上就好，會自動抓出所有連結並去除重複。<br><b>X 的網址會自動帶入發文日期與時間</b>（IG 短碼不含時間資訊，日期預設今天）。<br>也可以直接從試算表整塊複製貼上，日期／時間／標題／網址會自動分欄，順序不拘。<br>照片沒辦法自動帶入，要另外上傳。</p>
       <textarea class="bulk-ta" id="bulk-ta" placeholder="https://www.instagram.com/p/xxxxx/&#10;https://www.instagram.com/p/yyyyy/&#10;…"></textarea>
       <div class="bulk-actions">
         <span class="bulk-count"></span>
@@ -4978,6 +4980,7 @@ document.addEventListener('keydown', function(e){
       return '<div class="bulk-row'+(r.dup?' dup':'')+'">'
         +'<div class="bulk-row-top">'
           +'<input type="date" class="bulk-date" value="'+escHtml(r.date)+'" onchange="bulkSet('+i+',\'date\',this.value)">'
+          +'<input type="time" class="bulk-time" value="'+escHtml(r.time||'')+'" onchange="bulkSet('+i+',\'time\',this.value)" title="時間（可留空）">'
           +'<select class="bulk-type" onchange="bulkSet('+i+',\'type\',this.value)">'+opts+'</select>'
           +(r.dup?'<span class="bulk-dup">已存在</span>':'')
           +'<button class="bulk-del" onclick="bulkDel('+i+')" aria-label="移除這一筆"><svg viewBox="0 0 13 13" width="11" height="11" fill="none" aria-hidden="true"><path d="M3 3l7 7M10 3l-7 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>'
@@ -5009,17 +5012,52 @@ document.addEventListener('keydown', function(e){
     if(k==='title') recount();     // 只重算不重繪,否則輸入中會失焦
   };
   window.bulkDel=function(i){ rows.splice(i,1); render(); };
+  /* 從試算表整塊複製過來的內容，每列是用 tab 分欄。
+     欄位順序不強制——逐格判斷是網址、日期、時間還是標題，
+     這樣「日期/標題/網址」和「網址/日期/標題」都能吃。 */
+  function parseTabbed(txt){
+    var out=[];
+    (txt||'').split(/\r?\n/).forEach(function(line){
+      if(line.indexOf('\t')<0) return;
+      var url='', date='', time='', title='';
+      line.split('\t').forEach(function(cell){
+        cell=(cell||'').trim();
+        if(!cell) return;
+        if(!url && /^https?:\/\//i.test(cell)){ url=cell.replace(/[)\]},.;、。]+$/,''); return; }
+        var d=cell.match(/^(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})$/);
+        if(!date && d){ date=d[1]+'-'+('0'+d[2]).slice(-2)+'-'+('0'+d[3]).slice(-2); return; }
+        var t=cell.match(/^(\d{1,2}):(\d{2})$/);
+        if(!time && t){ time=('0'+t[1]).slice(-2)+':'+t[2]; return; }
+        if(!title) title=cell;
+      });
+      if(url) out.push({url:url, date:date, time:time, title:title});
+    });
+    return out;
+  }
   window.bulkParse=function(){
-    var urls=extract(document.getElementById('bulk-ta').value);
-    if(!urls.length){ showToast('沒有偵測到網址',3000); return; }
+    var raw=document.getElementById('bulk-ta').value;
+    var tabbed=parseTabbed(raw);
+    var items=tabbed.length ? tabbed : extract(raw).map(function(u){ return {url:u,date:'',time:'',title:''}; });
+    if(!items.length){ showToast('沒有偵測到網址',3000); return; }
+    var seen={}, uniq=[];
+    items.forEach(function(it){ if(seen[it.url]) return; seen[it.url]=1; uniq.push(it); });
     var existing={};
     (window.records||[]).forEach(function(r){ if(r && r.source) existing[String(r.source).trim()]=1; });
-    var today=toISO(nowKST());
-    rows=urls.map(function(u){
-      return { url:u, date:today, type:guessShareType(u), title:'', dup:!!existing[u] };
+    var today=toISO(nowKST()), gotX=0;
+    rows=uniq.map(function(it){
+      var x=xDateTimeFromUrl(it.url);
+      if(x && (!it.date || !it.time)) gotX++;
+      return { url:it.url,
+               date: it.date || (x?x.date:today),
+               time: it.time || (x?x.time:''),
+               type: guessShareType(it.url),
+               title: it.title||'',
+               dup: !!existing[it.url] };
     });
     render();
     step('rows');
+    if(gotX) showToast('已從 '+gotX+' 筆 X 網址帶入發文時間');
+    else if(tabbed.length) showToast('已讀入 '+rows.length+' 列');
   };
   window.bulkCommit=function(){
     var list=rows.filter(function(r){ return r.title.trim() && !r.dup; });
@@ -5029,7 +5067,7 @@ document.addEventListener('keydown', function(e){
     showToast('建立中…',60000);
     var done=0, fail=0, pending=list.length;
     list.forEach(function(r){
-      var rec={type:r.type,date:r.date,time:'',title:r.title.trim(),
+      var rec={type:r.type,date:r.date,time:(r.time||''),title:r.title.trim(),
                series:'',place:'',desc:'',source:r.url,photos:[],thumbs:[]};
       Promise.resolve(saveData(rec,null)).then(function(){done++;},function(){fail++;})
         .then(function(){
@@ -5056,6 +5094,27 @@ function parseSharedInput(){
     var t=(title||text||'').replace(/\s+/g,' ').trim();
     if(t.length>80) t=t.slice(0,80);
     return {url:url, title:t, desc:(text&&text!==t)?text:'', clip:clip};
+  }catch(e){ return null; }
+}
+/* X（Twitter）的貼文 id 不是流水號，它是 snowflake：高位元存的是毫秒時間戳。
+   (id >> 22) + 1288834974657 就是發文的 Unix 毫秒（1288834974657 是 X 的起始時間）。
+   現在的 id 約 1.9e18，已經超過 JS 安全整數上限，一定要用 BigInt，
+   用一般數字算會靜默地少掉精度、算出錯誤的日期。
+   IG 的短碼是隨機的，沒有任何時間資訊，所以只有 X 能這樣做。 */
+function xDateTimeFromUrl(u){
+  try{
+    var m=String(u||'').match(/(?:twitter|x)\.com\/[^\/]+\/status(?:es)?\/(\d{8,25})/i);
+    if(!m) return null;
+    var ms=Number((BigInt(m[1]) >> 22n) + 1288834974657n);
+    if(!isFinite(ms)||ms<1288834974657) return null;
+    var d=new Date(ms);
+    if(isNaN(d.getTime())) return null;
+    /* 換算成韓國時間再取年月日時分，跟站上其他日期的基準一致 */
+    var p={}, f=new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Seoul',hour12:false,
+      year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
+    f.formatToParts(d).forEach(function(x){ p[x.type]=x.value; });
+    return { date:p.year+'-'+p.month+'-'+p.day,
+             time:String((+p.hour)%24).padStart(2,'0')+':'+p.minute };
   }catch(e){ return null; }
 }
 function guessShareType(u){
