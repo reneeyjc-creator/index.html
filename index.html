@@ -1639,6 +1639,31 @@ body[data-theme="light"] .form-group input.field-err,body[data-theme="light"] .f
   }
   html{scroll-behavior:auto!important}
 }
+
+/* ===== v2026.08.05-X：關掉瀏覽器自動填入的反白 =====
+   Chrome 記得你在同一個欄位打過的字，之後會用 #E8F0FE 的淺藍色蓋掉整個輸入框
+   （那是它的自動填入樣式，不是網站的 CSS）。
+   背景色沒辦法直接覆寫，但可以用超長的 transition 讓它永遠來不及套用；
+   文字顏色則要用 -webkit-text-fill-color 才蓋得掉。
+   這裡不畫 inset 陰影，否則膠囊型搜尋框裡會出現一塊直角的實色。 */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active,
+textarea:-webkit-autofill{
+  -webkit-text-fill-color:var(--c-text);
+  caret-color:var(--c-text);
+  transition:background-color 100000s ease-in-out 0s;
+}
+/* Firefox 走標準的 :autofill，底色是可以直接改的 */
+input:autofill,textarea:autofill{
+  background-color:transparent;
+  color:var(--c-text);
+}
+body[data-theme="light"] input:-webkit-autofill,
+body[data-theme="light"] textarea:-webkit-autofill{ -webkit-text-fill-color:#1A1714; caret-color:#1A1714 }
+body[data-theme="light"] input:autofill,
+body[data-theme="light"] textarea:autofill{ color:#1A1714 }
 </style>
 </head>
 <body>
@@ -2001,7 +2026,7 @@ body[data-theme="light"] .form-group input.field-err,body[data-theme="light"] .f
     <div class="settings-item">
       <div>
         <div class="settings-item-label">版本</div>
-        <div class="settings-item-val">v2026.08.05-W</div>
+        <div class="settings-item-val">v2026.08.05-Y</div>
       </div>
       <span style="font-size:14px;opacity:.5">🌻</span>
     </div>
