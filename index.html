@@ -754,10 +754,10 @@ body[data-theme="light"] .pw-input::placeholder{color:rgba(0,0,0,.35)}
 .feed-year-head{width:100%;display:flex;align-items:center;gap:10px;padding:18px 16px 10px;background:transparent;border:none;cursor:pointer;font-family:inherit;color:inherit}
 .fy-planet{flex-shrink:0}
 .fy-year{font-family:'Boldonse',sans-serif;font-size:17px;color:rgba(255,217,64,.75);letter-spacing:.05em;line-height:1;flex:0 0 auto;min-width:var(--fy-yw,62px);white-space:nowrap}.fy-line{flex:1 1 0;height:1px;background:rgba(255,255,255,.08);transition:flex-grow .42s var(--ease-out)}.fy-tail{flex:0 1 0;flex-grow:0;height:1px;transition:flex-grow .42s var(--ease-out)}.fy-line{transition:flex-grow .42s var(--ease-out),opacity .28s var(--ease-out),margin .42s var(--ease-out)}.feed-year:not(.open) .fy-line{flex-grow:var(--fy-line-min,0);opacity:0;margin-right:-10px}.feed-year:not(.open) .fy-tail{flex-grow:calc(1 - var(--fy-line-min,0))}
-.fy-toggle{position:relative;width:var(--fy-tsz,13px);height:var(--fy-tsz,13px);flex-shrink:0;transition:transform .28s var(--ease-bounce)}.fy-toggle::before{content:'';position:absolute;inset:calc(var(--fy-tsz,13px) * -.46);border-radius:50%;background:rgba(255,217,64,.13);opacity:0;transform:scale(.5);transition:opacity .22s var(--ease-out),transform .3s var(--ease-bounce);pointer-events:none}.feed-year-head:hover .fy-toggle{transform:scale(1.18)}.feed-year-head:hover .fy-toggle::before{opacity:1;transform:scale(1)}
-.fy-h,.fy-v{position:absolute;background:rgba(255,255,255,.5);border-radius:1px;transition:transform .3s var(--ease-out),background .2s}
-.fy-h{left:0;right:0;top:calc(50% - var(--fy-tw,1.6px) / 2);height:var(--fy-tw,1.6px)}
-.fy-v{top:0;bottom:0;left:calc(50% - var(--fy-tw,1.6px) / 2);width:var(--fy-tw,1.6px)}
+.fy-toggle{position:relative;width:var(--fy-tsz,12px);height:var(--fy-tsz,12px);flex-shrink:0;transition:transform .28s var(--ease-bounce)}.fy-toggle::before{content:'';position:absolute;inset:calc(var(--fy-tsz,12px) * -.5);border-radius:50%;background:rgba(255,217,64,.13);opacity:0;transform:scale(.5);transition:opacity .22s var(--ease-out),transform .3s var(--ease-bounce);pointer-events:none}.feed-year-head:hover .fy-toggle{transform:scale(1.18)}.feed-year-head:hover .fy-toggle::before{opacity:1;transform:scale(1)}
+.fy-h,.fy-v{position:absolute;background:rgba(255,255,255,.5);border-radius:0;transition:transform .3s var(--ease-out),background .2s}
+.fy-h{left:0;right:0;top:calc(50% - var(--fy-tw,2px) / 2);height:var(--fy-tw,2px)}
+.fy-v{top:0;bottom:0;left:calc(50% - var(--fy-tw,2px) / 2);width:var(--fy-tw,2px)}
 .feed-year.open .fy-v{transform:scaleY(0)}
 .feed-year-head:hover .fy-h,.feed-year-head:hover .fy-v{background:#FFD940}
 .feed-year-body{display:grid;grid-template-rows:0fr;transition:grid-template-rows .35s var(--ease-out);overflow:hidden}
@@ -1998,7 +1998,7 @@ body[data-theme="light"] .form-group input.field-err,body[data-theme="light"] .f
     <div class="settings-item">
       <div>
         <div class="settings-item-label">版本</div>
-        <div class="settings-item-val">v2026.08.05-T</div>
+        <div class="settings-item-val">v2026.08.05-U</div>
       </div>
       <span style="font-size:14px;opacity:.5">🌻</span>
     </div>
