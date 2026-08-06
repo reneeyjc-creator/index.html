@@ -1481,10 +1481,10 @@ body.sh-on .carousel-btn{backdrop-filter:none;-webkit-backdrop-filter:none}
 /* 原本三顆並排的實心金色方鈕太重,而且「取消」跟兩個動作長得一樣重要。
    改成:金色只留給筆數(它才是狀態),動作是描邊幽靈鈕,取消降級成純文字。
    圓角跟膠囊本體對齊,不再是 4px 的直角小方塊。 */
-.batch-bar{gap:0;padding:8px 8px 8px 18px;border-radius:22px;border-color:rgba(255,217,64,.22);background:rgba(26,24,22,.94);backdrop-filter:blur(10px)}
-#batch-count{color:var(--c-accent);font-weight:600;letter-spacing:.1em;white-space:nowrap;padding-right:16px;position:relative}
+.batch-bar{gap:0;padding:8px 8px 8px 18px;max-width:calc(100vw - 20px);border-radius:22px;border-color:rgba(255,217,64,.22);background:rgba(26,24,22,.94);backdrop-filter:blur(10px)}
+#batch-count{flex:0 0 auto;color:var(--c-accent);font-weight:600;letter-spacing:.1em;white-space:nowrap;padding-right:16px;position:relative}
 #batch-count::after{content:'';position:absolute;right:8px;top:50%;transform:translateY(-50%);width:1px;height:14px;background:rgba(255,255,255,.14)}
-.batch-bar-btn{background:transparent;border:1px solid var(--c-border2);border-radius:16px;padding:6px 14px;margin-left:6px;font-size:11px;letter-spacing:.1em;color:var(--c-text);font-weight:500;font-family:inherit;cursor:pointer;transition:color .18s,border-color .18s,background .18s}
+.batch-bar-btn{flex:0 0 auto;white-space:nowrap;background:transparent;border:1px solid var(--c-border2);border-radius:16px;padding:6px 14px;margin-left:6px;font-size:11px;letter-spacing:.1em;color:var(--c-text);font-weight:500;font-family:inherit;cursor:pointer;transition:color .18s,border-color .18s,background .18s}
 .batch-bar-btn:hover{background:var(--c-accent);border-color:var(--c-accent);color:#201F1F}
 .batch-bar-btn.batch-cancel{background:none;border-color:transparent;color:var(--c-muted);padding:6px 10px;margin-left:2px}
 .batch-bar-btn.batch-cancel:hover{background:none;border-color:transparent;color:var(--c-text)}
@@ -1496,8 +1496,11 @@ body[data-theme="light"] .batch-bar-btn:hover{background:var(--c-accent);border-
 body[data-theme="light"] .batch-bar-btn.batch-cancel{border-color:transparent;color:rgba(26,23,20,.5)}
 body[data-theme="light"] .batch-bar-btn.batch-cancel:hover{background:none;border-color:transparent;color:rgba(26,23,20,.85)}
 @media(max-width:700px){
-  .batch-bar{padding:7px 7px 7px 14px;font-size:11px}
-  .batch-bar-btn{padding:6px 11px;letter-spacing:.06em}
+  .batch-bar{padding:7px 7px 7px 13px;font-size:11px}
+  .batch-bar-btn{padding:6px 10px;letter-spacing:.02em;margin-left:4px}
+  .batch-bar-btn.batch-cancel{padding:6px 8px;margin-left:0}
+  #batch-count{padding-right:12px;letter-spacing:.04em}
+  #batch-count::after{right:6px}
 }
 
 /* ===== v2026.08.05-H：批次設定面板 =====
@@ -2062,7 +2065,7 @@ body[data-theme="light"] .bp-row textarea::placeholder,body[data-theme="light"] 
     <div class="settings-item">
       <div>
         <div class="settings-item-label">版本</div>
-        <div class="settings-item-val">v2026.08.06-D</div>
+        <div class="settings-item-val">v2026.08.06-E</div>
       </div>
       <span style="font-size:14px;opacity:.5">🌻</span>
     </div>
