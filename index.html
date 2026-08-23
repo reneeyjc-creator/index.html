@@ -370,6 +370,13 @@ body[data-theme="light"] .pw-spread-sub{color:rgba(26,23,20,.55)}
 .carousel-dot{width:4px;height:4px;border-radius:50%;background:rgba(255,255,255,.25);cursor:pointer;transition:background .2s;border:none;padding:0}
 .carousel-dot.active{background:#FFD940}
 .carousel-single img{width:176px;height:176px;object-fit:cover;border-radius:0;cursor:pointer;display:block;flex-shrink:0;align-self:start}
+/* ===== v2026.08.23-A: 影片標記 =====
+   videoCount>0 的記錄，縮圖右下角加播放徽章。
+   影片本身沒上傳 Storage，縮圖是抽的第一幀，點下去連回原帖。
+   刻意不用置中大播放鍵 —— 那會暗示站內可以播放。 */
+.has-vid{position:relative}
+.has-vid::after{content:'';position:absolute;right:6px;bottom:6px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,.55);pointer-events:none;z-index:3}
+.has-vid::before{content:'';position:absolute;right:12px;bottom:12px;width:0;height:0;border-left:6px solid #fff;border-top:4px solid transparent;border-bottom:4px solid transparent;pointer-events:none;z-index:4}
 
 /* ── Day slide-over (detail) ── */
 .day-so{position:fixed;right:0;top:0;height:100vh;width:400px;background:#1A1814;border-left:1px solid #3A3634;overflow-y:auto;z-index:250;transform:translateX(100%);transition:transform .25s;box-shadow:-6px 0 24px rgba(0,0,0,.5);color:#E8E4E0}
@@ -3394,14 +3401,14 @@ function dayItemHTML(r, idx){
   var allThumbs=visibleThumbs(r);
   var firstPhoto=allPhotos[0]||null;
   var thumb=firstPhoto
-    ?'<img style="width:80px;height:80px;object-fit:cover;border-radius:0;cursor:pointer;flex-shrink:0" src="'+escHtml(firstPhoto)+'" onclick="openLB(this)" alt="" decoding="async" loading="lazy">'
+    ?'<span class="day-thumb-wrap'+vidCls(r)+'" style="display:inline-block;flex-shrink:0;line-height:0"><img style="width:80px;height:80px;object-fit:cover;border-radius:0;cursor:pointer" src="'+escHtml(firstPhoto)+'" onclick="openLB(this)" alt="" decoding="async" loading="lazy"></span>'
     :'';
   var extraCarousel='';
   if(allPhotos.length>1){
     var cid='dc'+Date.now()+Math.random().toString(36).slice(2,6);
     var slides=allPhotos.map(function(src,i){return '<img src="'+escHtml(allThumbs[i]||src)+'" data-full="'+escHtml(src)+'" onclick="openLB(this)" alt="" decoding="async" loading="lazy">';}).join('');
     var dots=allPhotos.map(function(_,i){return '<button class="carousel-dot'+(i===0?' active':'')+'" data-cid="'+cid+'" data-idx="'+i+'" onclick="carouselGo(this.dataset.cid,+this.dataset.idx)"></button>';}).join('');
-    thumb='<div class="carousel" id="'+cid+'" style="width:88px"><div class="carousel-track">'+slides+'</div>'
+    thumb='<div class="carousel'+vidCls(r)+'" id="'+cid+'" style="width:88px"><div class="carousel-track">'+slides+'</div>'
       +'<button class="carousel-btn carousel-prev" style="width:24px;height:24px;font-size:14px" data-cid="'+cid+'" data-dir="-1" onclick="carouselStep(this.dataset.cid,+this.dataset.dir)">&#8249;</button>'
       +'<button class="carousel-btn carousel-next" style="width:24px;height:24px;font-size:14px" data-cid="'+cid+'" data-dir="1" onclick="carouselStep(this.dataset.cid,+this.dataset.dir)">&#8250;</button>'
       +'<div class="carousel-dots">'+dots+'</div></div>';
@@ -3688,12 +3695,12 @@ function feedItemHTML(r, idx, hideDate){
   var thumb='';
   var extraPhotos='';
   if(allPhotos.length===1){
-    thumb='<div class="carousel-single"><img src="'+escHtml(allThumbs[0]||allPhotos[0])+'" data-full="'+escHtml(allPhotos[0])+'" onclick="openLB(this)" alt="" decoding="async" loading="lazy"></div>';
+    thumb='<div class="carousel-single'+vidCls(r)+'"><img src="'+escHtml(allThumbs[0]||allPhotos[0])+'" data-full="'+escHtml(allPhotos[0])+'" onclick="openLB(this)" alt="" decoding="async" loading="lazy"></div>';
   } else if(allPhotos.length>1){
     var cid='c'+Date.now()+Math.random().toString(36).slice(2,6);
     var slides=allPhotos.map(function(src,i){ return '<img src="'+escHtml(allThumbs[i]||src)+'" data-full="'+escHtml(src)+'" onclick="openLB(this)" alt="" decoding="async" loading="lazy">'; }).join('');
     var dots=allPhotos.map(function(_,i){ return '<button class="carousel-dot'+(i===0?' active':'')+'" data-cid="'+cid+'" data-idx="'+i+'" onclick="carouselGo(this.dataset.cid,+this.dataset.idx)"></button>'; }).join('');
-    thumb='<div class="carousel" id="'+cid+'"><div class="carousel-track">'+slides+'</div>'
+    thumb='<div class="carousel'+vidCls(r)+'" id="'+cid+'"><div class="carousel-track">'+slides+'</div>'
       +'<button class="carousel-btn carousel-prev" data-cid="'+cid+'" data-dir="-1" onclick="carouselStep(this.dataset.cid,+this.dataset.dir)">&#8249;</button>'
       +'<button class="carousel-btn carousel-next" data-cid="'+cid+'" data-dir="1" onclick="carouselStep(this.dataset.cid,+this.dataset.dir)">&#8250;</button>'
       +'<div class="carousel-dots">'+dots+'</div></div>';
@@ -4619,6 +4626,10 @@ window.toggleLock=toggleLock;
 window.checkPassword=checkPassword;
 window.openAddFormGuarded=openAddFormGuarded;
 window.renderDaySo=renderDaySo;
+
+function hasVideo(r){ return ((r&&r.videoCount)||0)>0; }
+function vidCls(r){ return hasVideo(r)?' has-vid':''; }
+window.hasVideo=hasVideo;
 
 function visibleThumbs(r){
   var ps=visiblePhotos(r);
