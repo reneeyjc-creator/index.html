@@ -2588,6 +2588,14 @@ function init(){
   colRef.orderBy('createdAt','desc').onSnapshot(function(snap){
     records=snap.docs.map(function(d){ return Object.assign({},d.data(),{_fid:d.id}); });
     window.__dataReady=true;
+    /* v2026.08.23-E：跨平台同步發布的重複。
+       post잊(IG) 與 잊官推(X) 常把同一份內容同時發到兩邊，內文與張數都相同。
+       X 版標記 dupOf=<IG 紀錄的 _fid> 之後在這裡濾掉 —— 資料留著（可反悔、
+       也保住「兩邊都發了」這個事實），只是不進 records，所以時間軸、搜尋、
+       歷年今日一律看不到。
+       要暫時看全部：console 執行 toggleDupes() */
+    window.__allRecords=records;
+    if(!window.SHOW_DUPES) records=records.filter(function(r){ return !r.dupOf; });
     records.sort(function(a,b){ return b.date.localeCompare(a.date)||((b.time||'').localeCompare(a.time||'')); });
     renderAll();
     renderDaySo();
@@ -2608,6 +2616,15 @@ function deleteFromDB(fid){
 }
 
 function renderAll(){ renderCalendar(); renderFeed(); }
+function toggleDupes(){
+  window.SHOW_DUPES=!window.SHOW_DUPES;
+  var all=window.__allRecords||records;
+  records=window.SHOW_DUPES?all.slice():all.filter(function(r){ return !r.dupOf; });
+  records.sort(function(a,b){ return b.date.localeCompare(a.date)||((b.time||'').localeCompare(a.time||'')); });
+  renderAll();
+  console.log(window.SHOW_DUPES?'顯示重複紀錄':'隱藏重複紀錄','／目前',records.length,'筆');
+}
+window.toggleDupes=toggleDupes;
 function toISO(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
 // Current date/time in Korea Standard Time (KST, UTC+9), returned as a Date whose
 // local getters (getFullYear/Month/Date/Hours) reflect Korean wall-clock time.
