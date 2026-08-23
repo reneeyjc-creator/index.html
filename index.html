@@ -3418,6 +3418,18 @@ function metaRowHTML(r){
       +(srcUrl?'<a class="rec-out" href="'+escHtml(srcUrl)+'" target="_blank" rel="noopener" onclick="event.stopPropagation()" title="開啟原始貼文" aria-label="開啟原始貼文">'
       +'<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3.4 8.6L8.6 3.4M5.8 3.4h2.8v2.8"/></svg></a>':'')
       +'</span>');
+    /* v2026.08.23-F：同一份內容同步發到 IG 與 X 時，合併成一筆並列兩個平台。
+       alsoOn = [{platform, source, author}]，每個都有自己的外連圖示。
+       被合併掉的那筆標了 dupOf，在載入時就濾掉了（見 onSnapshot）。 */
+    (r.alsoOn||[]).forEach(function(ao){
+      var ap=(ao&&ao.platform||'').trim(); if(!ap) return;
+      var au=(ao&&ao.source||'').trim();
+      items.push('<span class="rec-mi rec-plat-wrap">'
+        +'<button class="rec-plat" data-p="'+escHtml(ap)+'" onclick="event.stopPropagation();searchPlatform(this.dataset.p)" title="只看這個平台的紀錄">'+escHtml(ap)+'</button>'
+        +(au?'<a class="rec-out" href="'+escHtml(au)+'" target="_blank" rel="noopener" onclick="event.stopPropagation()" title="開啟原始貼文" aria-label="開啟原始貼文">'
+        +'<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3.4 8.6L8.6 3.4M5.8 3.4h2.8v2.8"/></svg></a>':'')
+        +'</span>');
+    });
   } else if(label){
     items.push(srcUrl
       ? '<span class="rec-mi rec-link"><a href="'+escHtml(srcUrl)+'" target="_blank" rel="noopener" onclick="event.stopPropagation()">'+escHtml(label)+'</a></span>'
@@ -3426,6 +3438,10 @@ function metaRowHTML(r){
   if(author){
     items.push('<button class="rec-mi rec-author" data-a="'+escHtml(author)+'" onclick="event.stopPropagation();searchAuthor(this.dataset.a)" title="只看這個發布者的紀錄">'+escHtml(author)+'</button>');
   }
+  (r.alsoOn||[]).forEach(function(ao){
+    var aa=(ao&&ao.author||'').trim(); if(!aa||aa===author) return;
+    items.push('<button class="rec-mi rec-author" data-a="'+escHtml(aa)+'" onclick="event.stopPropagation();searchAuthor(this.dataset.a)" title="只看這個發布者的紀錄">'+escHtml(aa)+'</button>');
+  });
   if(r.place){
     items.push('<button class="rec-mi feed-place-chip" data-s="'+escHtml(r.place)+'" onclick="searchSeries(this.dataset.s)" title="查看此地點的所有事件">⌖ '+escHtml(r.place)+'</button>');
     items.push(placeMapBtn(r.place));
@@ -3799,7 +3815,7 @@ function renderFeed(){
   var filtered=records.filter(function(r){
     if(deletedIds[r._fid]) return false;
     if(currentFilter!=='all'&&r.type!==currentFilter) return false;
-    if(searchQ){var _terms=searchQ.split(/\s+/).filter(Boolean);var _hay=((r.title||'')+' '+(r.desc||'')+' '+(r.series||'')+' '+(r.place||'')+' '+(r.author||'')+' '+(r.platform||'')).toLowerCase();for(var _ti=0;_ti<_terms.length;_ti++){if(_hay.indexOf(_terms[_ti])===-1) return false;}}
+    if(searchQ){var _terms=searchQ.split(/\s+/).filter(Boolean);var _hay=((r.title||'')+' '+(r.desc||'')+' '+(r.series||'')+' '+(r.place||'')+' '+(r.author||'')+' '+(r.platform||'')+' '+(r.alsoOn||[]).map(function(a){return (a.platform||'')+' '+(a.author||'');}).join(' ')).toLowerCase();for(var _ti=0;_ti<_terms.length;_ti++){if(_hay.indexOf(_terms[_ti])===-1) return false;}}
     if(dateFrom&&r.date<dateFrom) return false;
     if(dateTo&&r.date>dateTo) return false;
     return true;
