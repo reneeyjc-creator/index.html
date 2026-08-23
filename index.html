@@ -588,6 +588,23 @@ body[data-theme="light"] .date-range-clear:hover,body[data-theme="light"] .searc
 
 /* ── On This Day ── */
 .otd-modal{display:none;position:fixed;inset:0;z-index:600;align-items:center;justify-content:center;overflow:hidden;background:#141210}
+/* ===== v2026.08.23-B: 手機版 OTD 破版 =====
+   .otd-player 原本 max-height:100vh。iOS Safari 的 100vh 是「網址列收起後」
+   的大視窗高度，實際可視區比它矮，flex 置中之下內容就從上下兩端被切掉
+   （標題被切、控制列被網址列蓋住）。改用 dvh（動態視窗高度）並補上安全區。 */
+.otd-modal{height:100dvh}
+.otd-player{max-height:100dvh}
+@media(max-width:700px){
+  .otd-player{
+    padding-top:max(18px,env(safe-area-inset-top));
+    padding-bottom:max(24px,calc(env(safe-area-inset-bottom) + 16px));
+    padding-left:20px;padding-right:20px;gap:12px;
+  }
+  .otd-art-wrap{max-height:38vh}
+  .otd-title{font-size:17px}
+  .otd-year-big{font-size:26px;right:10px;top:8px}
+  .otd-track-title{font-size:17px}
+}
 .otd-modal.open{display:flex}
 .otd-bg{position:absolute;inset:-40px;background-size:cover;background-position:center;filter:blur(46px) brightness(.42) saturate(1.15);transform:scale(1.15) translateZ(0);background-color:#141210;will-change:opacity;opacity:1;transition:opacity 1.15s ease}
 .otd-bg.otd-bg-off{opacity:0}
@@ -4627,7 +4644,12 @@ window.checkPassword=checkPassword;
 window.openAddFormGuarded=openAddFormGuarded;
 window.renderDaySo=renderDaySo;
 
-function hasVideo(r){ return ((r&&r.videoCount)||0)>0; }
+var VIDEO_PLATFORMS=/(YT|Reels|Shorts|影片)/i;
+function hasVideo(r){
+  if(!r) return false;
+  if((r.videoCount||0)>0) return true;
+  return VIDEO_PLATFORMS.test(String(r.platform||''));
+}
 function vidCls(r){ return hasVideo(r)?' has-vid':''; }
 window.hasVideo=hasVideo;
 
