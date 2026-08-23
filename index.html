@@ -606,6 +606,12 @@ body[data-theme="light"] .date-range-clear:hover,body[data-theme="light"] .searc
      另外三層獨立模糊，手機直接關掉改用實心底。 */
   .otd-bg{filter:blur(22px) brightness(.42) saturate(1.15)}
   .otd-ctrl{backdrop-filter:none;background:rgba(255,255,255,.14)}
+  /* v2026.08.23-D：.otd-modal 是 align-items:center。flex 置中的子元素只要
+     比容器高，就會從「上緣」溢出，而且那段捲不到 —— 標題被切就是這個，
+     跟 100vh/100dvh 沒關係。手機改成上緣對齊，由 player 自己內部捲動。 */
+  .otd-modal{align-items:flex-start}
+  .otd-player{max-height:100dvh;margin:0 auto}
+  .otd-art-wrap{max-height:32vh}
   .otd-year-big{font-size:26px;right:10px;top:8px}
   .otd-track-title{font-size:17px}
 }
