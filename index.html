@@ -169,6 +169,9 @@ body[data-theme="light"] .cal-cell.today .cell-date-row .cell-date{background:#F
 .cell-plus-row{display:inline-flex}
 .dr-label,.drc-text{display:none}
 .rec-meta{display:flex;align-items:center;flex-wrap:wrap;row-gap:4px;margin-top:6px}
+.also-row{display:flex;gap:8px}
+.also-row input{flex:1 1 0;min-width:0}
+.also-group input+input{margin-top:8px}
 /* v2026.08.23-H：一個平台一列，平台與它自己的發布者同列。
      IG 貼文 ↗ | post잊
      X  貼文 ↗ | 잊官推
@@ -2022,6 +2025,16 @@ body[data-theme="light"] .bp-row textarea::placeholder,body[data-theme="light"] 
     <div class="form-group"><label>地點（選填）</label><input type="text" id="f-place" list="place-list" placeholder="例：台大體育館"><datalist id="place-list"></datalist></div>
     <div class="form-group"><label>說明（選填）</label><textarea id="f-desc" placeholder="內容、備註…"></textarea></div>
     <div class="form-group"><label>連結（選填）</label><input type="text" id="f-source" placeholder="貼上原始貼文連結"></div>
+    <!-- v2026.08.23-I：同一份內容同時發在兩個平台時填這裡。
+         寫進 alsoOn，卡片上會多一列「平台 ↗ | 發布者」。留空就沒有這一列。 -->
+    <div class="form-group also-group">
+      <label>同步發布（選填）</label>
+      <div class="also-row">
+        <input type="text" id="f-also-platform" list="platform-list" placeholder="平台，例：X 貼文">
+        <input type="text" id="f-also-author" list="author-list" placeholder="發布者">
+      </div>
+      <input type="text" id="f-also-source" placeholder="該平台的貼文連結">
+    </div>
     <div class="form-group">
       <label>照片（無張數限制）</label>
       <div class="photo-upload-area" onclick="document.getElementById('f-photos').click()" ondragover="event.preventDefault()" ondrop="handleDrop(event)">
@@ -3367,7 +3380,14 @@ function renderCalendar(){
     var cellTextHTML='';
     if(dayRecs.length){
       var ttl=function(rec){
-        var p=(rec.author||'').trim();
+        /* v2026.08.23-J：跨平台同步發布的紀錄（alsoOn）在月曆格裡也要看得到
+           兩個發布者，不然會誤以為那天只有一個帳號發過。 */
+        var names=[(rec.author||'').trim()];
+        (rec.alsoOn||[]).forEach(function(ao){
+          var aa=(ao&&ao.author||'').trim();
+          if(aa && names.indexOf(aa)===-1) names.push(aa);
+        });
+        var p=names.filter(function(x){ return x; }).join('・');
         var pre=p?'<span class="ct-pre">'+escHtml(p)+'｜</span>':'';
         return '<div class="cell-title"><span class="ct-dot cdot-'+(rec.type||'')+'"></span><span class="ct-txt">'+pre+escHtml(rec.title)+'</span></div>';
       };
@@ -3549,6 +3569,9 @@ function openAddForm(date){
   document.getElementById('f-desc').value='';
   refreshSeriesDatalist();
   document.getElementById('f-source').value='';
+  document.getElementById('f-also-platform').value='';
+  document.getElementById('f-also-author').value='';
+  document.getElementById('f-also-source').value='';
   document.getElementById('f-photos').value='';
   pendingPhotos=[]; renderPreviews();
   currentType='schedule';
@@ -3594,6 +3617,10 @@ function openEditModal(fid){
   document.getElementById('f-desc').value=rec.desc||'';
   refreshSeriesDatalist();
   document.getElementById('f-source').value=rec.source||'';
+  var _ao=(rec.alsoOn||[])[0]||{};
+  document.getElementById('f-also-platform').value=_ao.platform||'';
+  document.getElementById('f-also-author').value=_ao.author||'';
+  document.getElementById('f-also-source').value=_ao.source||'';
   document.getElementById('f-photos').value='';
   pendingPhotos=(rec.photos||[]).map(function(data,i){return {name:'p'+i,data:data,thumb:(rec.thumbs||[])[i]||''};});
   renderPreviews();
@@ -3633,6 +3660,9 @@ function saveRecord(){
   var source=document.getElementById('f-source').value.trim();
   var platform=normUsed(document.getElementById('f-platform').value,'platform',PLATFORM_PRESETS);
   var author=normUsed(document.getElementById('f-author').value,'author',AUTHOR_PRESETS);
+  var aoP=document.getElementById('f-also-platform').value.trim();
+  var aoA=document.getElementById('f-also-author').value.trim();
+  var aoS=document.getElementById('f-also-source').value.trim();
   /* 原本是 alert('請填寫日期和標題')：阻斷式系統彈窗，跟整站語言斷裂，
      而且不告訴你缺的是哪一個。改成 toast + 把該欄位標紅並捲過去聚焦。 */
   var missId=!date?'f-date':(!title?'f-title':null);
@@ -3656,6 +3686,19 @@ function saveRecord(){
   })).then(function(photos){
     var thumbs=photoItems.map(function(p){return p.thumb||'';});
     var record={type:currentType,date:date,time:time,title:title,series:series,platform:platform,author:author,place:place,desc:desc,source:source,photos:photos,thumbs:thumbs};
+    /* alsoOn：表單只管第一筆，既有的第二筆以後原樣保留（目前實際上都只有一筆）。
+       saveData 用的是 Firestore update()，沒列到的欄位不會被刪 —— 所以只有在
+       使用者真的動過這三格時才需要寫，清空則明確寫成空陣列。 */
+    var prevRec=null, pool=window.__allRecords||records;
+    if(eid){ for(var _i=0;_i<pool.length;_i++){ if(pool[_i]._fid===eid){ prevRec=pool[_i]; break; } } }
+    var prevAo=(prevRec&&prevRec.alsoOn)||[];
+    if(aoP){
+      record.alsoOn=[{platform:normUsed(aoP,'platform',PLATFORM_PRESETS),
+                      author:normUsed(aoA,'author',AUTHOR_PRESETS),
+                      source:aoS}].concat(prevAo.slice(1));
+    } else if(prevAo.length){
+      record.alsoOn=prevAo.slice(1);
+    }
     saveData(record, eid||null);
     showToast('✓  Saved');
   });
