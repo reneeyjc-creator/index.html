@@ -602,6 +602,10 @@ body[data-theme="light"] .date-range-clear:hover,body[data-theme="light"] .searc
   }
   .otd-art-wrap{max-height:38vh}
   .otd-title{font-size:17px}
+  /* blur 半徑是 GPU 成本的大宗，手機砍半；控制鈕的 backdrop-filter 是
+     另外三層獨立模糊，手機直接關掉改用實心底。 */
+  .otd-bg{filter:blur(22px) brightness(.42) saturate(1.15)}
+  .otd-ctrl{backdrop-filter:none;background:rgba(255,255,255,.14)}
   .otd-year-big{font-size:26px;right:10px;top:8px}
   .otd-track-title{font-size:17px}
 }
@@ -2577,6 +2581,7 @@ function init(){
   showStatus('連線中…',true);
   colRef.orderBy('createdAt','desc').onSnapshot(function(snap){
     records=snap.docs.map(function(d){ return Object.assign({},d.data(),{_fid:d.id}); });
+    window.__dataReady=true;
     records.sort(function(a,b){ return b.date.localeCompare(a.date)||((b.time||'').localeCompare(a.time||'')); });
     renderAll();
     renderDaySo();
@@ -3983,6 +3988,25 @@ function openOnThisDay(){
   otdList.sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); });
   var modal=document.getElementById('otd-modal');
   var player=modal.querySelector('.otd-player');
+  /* v2026.08.23-C：資料量到四千多筆之後，首次 snapshot 要好幾秒才回來。
+     在那之前開歷年今日，records 還是空陣列，就會誤報「今天還沒有紀錄」。
+     資料沒到就顯示載入中，並在 snapshot 抵達後自動重開。 */
+  if(!window.__dataReady){
+    var oldL=modal.querySelector('.otd-empty'); if(oldL) oldL.remove();
+    player.style.display='none';
+    var ld=document.createElement('div');
+    ld.className='otd-empty';
+    ld.innerHTML='<span class="big">'+EMPTY_SUN+'</span>正在讀取軌跡…';
+    modal.appendChild(ld);
+    modal.classList.add('open');
+    var waited=0;
+    var iv=setInterval(function(){
+      waited+=200;
+      if(window.__dataReady){ clearInterval(iv); openOnThisDay(); }
+      else if(waited>15000){ clearInterval(iv); ld.innerHTML='<span class="big">'+EMPTY_SUN+'</span>讀取逾時，請重新整理<br><button class="otd-empty-close" onclick="closeOtdAnimated()"><span>✕</span> 關閉</button>'; }
+    },200);
+    return;
+  }
   if(!otdList.length){
     player.style.display='none';
     var pengu=EMPTY_SUN;
@@ -4016,6 +4040,9 @@ function renderOtdTrack(dir, auto){
   if(modal) modal.classList.toggle('otd-auto', !!auto);
   var y=(r.date||'').slice(0,4);
   var photo=visiblePhotos(r)[0]||'';
+  /* 背景是整片 blur(46px)，餵 1200px 原圖等於叫 GPU 模糊一張大貼圖，
+     手機上這是歷年今日最大的卡頓來源。縮圖模糊完看起來一模一樣。 */
+  var bgSrc=(visibleThumbs(r)[0]||photo);
   var art=document.getElementById('otd-art');
   art.classList.remove('slide-in-l','slide-in-r');
   if(auto){
@@ -4064,7 +4091,7 @@ function renderOtdTrack(dir, auto){
       setTimeout(function(){ layers.forEach(function(l){ if(!l.classList.contains('show')){ l.style.display='none'; l.removeAttribute('src'); } }); },FADE);
       art.setAttribute('data-empty','✦');
     }
-    setOtdBg(photo);
+    setOtdBg(bgSrc);
     // 年份
     yb.classList.remove('otd-fading','anim'); void yb.offsetWidth;
     yb.textContent=y; yb.classList.add('anim');
@@ -4108,7 +4135,7 @@ function otdPrefetch(){
   [1,2,-1].forEach(function(d){
     var k=(otdIdx+d+otdList.length)%otdList.length;
     var rr=otdList[k]; if(!rr) return;
-    var p=(visiblePhotos(rr)[0]||''); if(!p) return;
+    var p=(visibleThumbs(rr)[0]||visiblePhotos(rr)[0]||''); if(!p) return;
     var im=new Image(); im.src=p; if(im.decode) im.decode().catch(function(){});
     keep.push(im);
   });
