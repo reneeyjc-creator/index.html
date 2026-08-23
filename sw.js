@@ -5,16 +5,25 @@
    - ASSETS 字型與 Firebase SDK。網址本身帶版本，改版時舊的用不到了才需要清。
    - PHOTOS 照片。跟前兩者不同，不該隨改版被清掉——那等於每次部署都要重新下載一輪。
    要清掉字型／SDK 的舊entry時，把 BUILD 往上加一號就好；PHOTOS 不受影響。 */
-const BUILD  = 'v2';
+const BUILD  = 'v3';
 const SHELL  = 'junho-shell-' + BUILD;
 const ASSETS = 'junho-assets-' + BUILD;
 const PHOTOS = 'junho-photos';
-const KEEP   = [SHELL, ASSETS, PHOTOS];
+/* v2026.08.23：縮圖從 Firestore 的 base64 搬到 Storage 之後，也會走
+   firebasestorage 這條路。如果跟原圖擠同一個快取，250 個位置會被四千多張
+   縮圖瞬間塞滿，原圖一張都留不住。分開放，兩者的存取模式本來就不同：
+   縮圖小而多、幾乎每次瀏覽都會用到；原圖大而少、只有點開燈箱才需要。 */
+const THUMBS = 'junho-thumbs';
+const KEEP   = [SHELL, ASSETS, PHOTOS, THUMBS];
 
 /* 照片快取上限。跨網域圖片多半是 opaque response，瀏覽器計算配額時會把它們
    墊到遠大於實際大小（Chrome 是每筆數 MB 起跳）。不設上限的話，累積到撞上
    origin 配額時整個 Cache Storage 會被連鍋端掉，連頁面本體的快取都一起沒。 */
 const PHOTO_MAX = 250;
+/* 縮圖約 8–15KB，比原圖小一個量級，但 opaque response 的配額灌水是按筆數算的，
+   不是按實際大小，所以還是得設上限。600 筆大致覆蓋照片牆捲動兩三個月的量。
+   真的撞到配額就把這個數字往下調。 */
+const THUMB_MAX = 600;
 
 self.addEventListener('install', function(e){
   self.skipWaiting();
@@ -53,6 +62,7 @@ function putSafe(cacheName, req, res){
     return c.put(req, copy);
   }).then(function(){
     if(cacheName === PHOTOS) return trim(PHOTOS, PHOTO_MAX);
+    if(cacheName === THUMBS) return trim(THUMBS, THUMB_MAX);
   }).catch(function(){});
 }
 
@@ -88,9 +98,12 @@ self.addEventListener('fetch', function(e){
     return;
   }
 
-  /* 照片：獨立快取 + 數量上限 */
+  /* Storage：縮圖與原圖分流。
+     Firebase 下載網址把路徑編碼在 /o/ 後面，thumbs/xxx.jpg 會變成
+     /o/thumbs%2Fxxx.jpg，所以認 'thumbs%2F' 就能區分。 */
   if(host.indexOf('firebasestorage') > -1){
-    e.respondWith(swr(req, PHOTOS));
+    var isThumb = url.pathname.toLowerCase().indexOf('thumbs%2f') > -1;
+    e.respondWith(swr(req, isThumb ? THUMBS : PHOTOS));
     return;
   }
 
