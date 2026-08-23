@@ -169,6 +169,13 @@ body[data-theme="light"] .cal-cell.today .cell-date-row .cell-date{background:#F
 .cell-plus-row{display:inline-flex}
 .dr-label,.drc-text{display:none}
 .rec-meta{display:flex;align-items:center;flex-wrap:wrap;row-gap:4px;margin-top:6px}
+/* v2026.08.23-H：一個平台一列，平台與它自己的發布者同列。
+     IG 貼文 ↗ | post잊
+     X  貼文 ↗ | 잊官推
+   分隔線是 .rec-mi:not(:last-child)::after，:last-child 相對於父層計算，
+   所以每列各包一層 .rec-row，每列最後一項才不會多出懸空的分隔線。 */
+.rec-meta.rec-meta-2row{flex-direction:column;align-items:flex-start;row-gap:3px}
+.rec-meta .rec-row{display:flex;align-items:center;flex-wrap:wrap;row-gap:4px;min-width:0}
 .rec-meta .rec-mi{display:inline-flex;align-items:center;padding:0;font-family:'Archivo','Noto Sans TC',sans-serif;font-size:11px;letter-spacing:.08em;line-height:15px;color:rgba(255,255,255,.45);min-width:0}
 .rec-meta .rec-mi:not(:last-child)::after{content:'';flex:0 0 1px;width:1px;height:11px;margin:0 9px;background:currentColor;opacity:.3}
 .rec-meta button.rec-mi{background:none;border:none;border-radius:0;cursor:pointer;text-align:left;transition:color .15s var(--ease-out)}
@@ -3410,10 +3417,10 @@ function metaRowHTML(r){
   }
   var author=(r.author||'').replace(/[\s\u200b-\u200f\u3000\ufeff]+/g,' ').trim();
   var plat=(r.platform||'').replace(/[\s\u200b-\u200f\u3000\ufeff]+/g,' ').trim();
-  var items=[];
+  var items=[], pitems=[], extraRows=[];
   var label=plat||(srcUrl?domainOf(srcUrl):srcRaw);
   if(plat){
-    items.push('<span class="rec-mi rec-plat-wrap">'
+    pitems.push('<span class="rec-mi rec-plat-wrap">'
       +'<button class="rec-plat" data-p="'+escHtml(plat)+'" onclick="event.stopPropagation();searchPlatform(this.dataset.p)" title="只看這個平台的紀錄">'+escHtml(plat)+'</button>'
       +(srcUrl?'<a class="rec-out" href="'+escHtml(srcUrl)+'" target="_blank" rel="noopener" onclick="event.stopPropagation()" title="開啟原始貼文" aria-label="開啟原始貼文">'
       +'<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3.4 8.6L8.6 3.4M5.8 3.4h2.8v2.8"/></svg></a>':'')
@@ -3424,30 +3431,39 @@ function metaRowHTML(r){
     (r.alsoOn||[]).forEach(function(ao){
       var ap=(ao&&ao.platform||'').trim(); if(!ap) return;
       var au=(ao&&ao.source||'').trim();
-      items.push('<span class="rec-mi rec-plat-wrap">'
+      var aa=(ao&&ao.author||'').trim();
+      var row=['<span class="rec-mi rec-plat-wrap">'
         +'<button class="rec-plat" data-p="'+escHtml(ap)+'" onclick="event.stopPropagation();searchPlatform(this.dataset.p)" title="只看這個平台的紀錄">'+escHtml(ap)+'</button>'
         +(au?'<a class="rec-out" href="'+escHtml(au)+'" target="_blank" rel="noopener" onclick="event.stopPropagation()" title="開啟原始貼文" aria-label="開啟原始貼文">'
         +'<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3.4 8.6L8.6 3.4M5.8 3.4h2.8v2.8"/></svg></a>':'')
-        +'</span>');
+        +'</span>'];
+      if(aa) row.push('<button class="rec-mi rec-author" data-a="'+escHtml(aa)+'" onclick="event.stopPropagation();searchAuthor(this.dataset.a)" title="只看這個發布者的紀錄">'+escHtml(aa)+'</button>');
+      extraRows.push(row);
     });
   } else if(label){
-    items.push(srcUrl
+    pitems.push(srcUrl
       ? '<span class="rec-mi rec-link"><a href="'+escHtml(srcUrl)+'" target="_blank" rel="noopener" onclick="event.stopPropagation()">'+escHtml(label)+'</a></span>'
       : '<span class="rec-mi rec-plain">'+escHtml(label)+'</span>');
   }
   if(author){
     items.push('<button class="rec-mi rec-author" data-a="'+escHtml(author)+'" onclick="event.stopPropagation();searchAuthor(this.dataset.a)" title="只看這個發布者的紀錄">'+escHtml(author)+'</button>');
   }
-  (r.alsoOn||[]).forEach(function(ao){
-    var aa=(ao&&ao.author||'').trim(); if(!aa||aa===author) return;
-    items.push('<button class="rec-mi rec-author" data-a="'+escHtml(aa)+'" onclick="event.stopPropagation();searchAuthor(this.dataset.a)" title="只看這個發布者的紀錄">'+escHtml(aa)+'</button>');
-  });
+  /* alsoOn 的發布者已經跟著它自己的平台排在同一列，這裡不再重複。 */
   if(r.place){
     items.push('<button class="rec-mi feed-place-chip" data-s="'+escHtml(r.place)+'" onclick="searchSeries(this.dataset.s)" title="查看此地點的所有事件">⌖ '+escHtml(r.place)+'</button>');
     items.push(placeMapBtn(r.place));
   }
   items=items.filter(function(x){ return x; });
-  return items.length?'<div class="rec-meta">'+items.join('')+'</div>':'';
+  pitems=pitems.filter(function(x){ return x; });
+  var first=pitems.concat(items);
+  var rows=[];
+  if(first.length) rows.push('<div class="rec-row">'+first.join('')+'</div>');
+  extraRows.forEach(function(rw){
+    rw=rw.filter(function(x){ return x; });
+    if(rw.length) rows.push('<div class="rec-row">'+rw.join('')+'</div>');
+  });
+  if(!rows.length) return '';
+  return '<div class="rec-meta'+(rows.length>1?' rec-meta-2row':'')+'">'+rows.join('')+'</div>';
 }
 function searchAuthor(a){ searchSeries(a); }
 function searchPlatform(p){ searchSeries(p); }
