@@ -2026,7 +2026,7 @@ body[data-theme="light"] .bp-row textarea::placeholder,body[data-theme="light"] 
     <div class="form-group"><label>發布者（選填）</label><input type="text" id="f-author" list="author-list" placeholder="例：le2jh、잊官推"><datalist id="author-list"></datalist></div>
     <div class="form-group"><label>地點（選填）</label><input type="text" id="f-place" list="place-list" placeholder="例：台大體育館"><datalist id="place-list"></datalist></div>
     <div class="form-group"><label>說明（選填）</label><textarea id="f-desc" placeholder="內容、備註…"></textarea></div>
-    <div class="form-group"><label>連結（選填）</label><input type="text" id="f-source" placeholder="貼上原始貼文連結"></div>
+    <div class="form-group"><label>連結（選填）</label><input type="text" id="f-source" placeholder="貼上原始貼文連結（IG／X 會自動帶入時間）" oninput="autofillFromSource(this.value)"></div>
     <!-- v2026.08.23-I：同一份內容同時發在兩個平台時填這裡。
          寫進 alsoOn，卡片上會多一列「平台 ↗ | 發布者」。留空就沒有這一列。 -->
     <div class="form-group also-group">
@@ -3642,6 +3642,63 @@ function openEditModal(fid){
    資料量會慢慢長回去，崩潰和卡頓也會回來。
    路徑用 thumbs/ 開頭，sw.js v3 靠這個把縮圖分流到獨立快取。
    檔名隨機不重用，內容永不改變，所以設 immutable。 */
+/* v2026.08.24-C：貼上連結自動帶入發文時間（韓國時間）
+   IG shortcode 與 X snowflake 都把發文毫秒編碼在 id 裡。
+
+   X   ms = (id >> 22) + 1288834974657
+   IG  ms = (base64解碼(shortcode) >> 23) + 1314220021721
+       ⚠️ IG 是位移 23 不是 22。批次新增那邊只做了 X，IG 一直是手填。
+       用站上 8 筆已知資料驗證過，日期與分鐘都吻合。
+   ⚠️ 兩者都一定要用 BigInt —— id 早就超過 2^53，一般數字會靜默掉精度。
+
+   YouTube 的 id 沒有編碼時間，抓不到。 */
+var IG_B64='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
+
+function msFromUrl(url){
+  var u=String(url||'').trim();
+  if(!u) return null;
+  var m=u.match(/\/status\/(\d{10,25})/);
+  if(m){
+    try{ return Number((BigInt(m[1])>>22n)+1288834974657n); }catch(e){ return null; }
+  }
+  m=u.match(/instagram\.com\/(?:[^\/]+\/)?(?:p|reel|reels|tv)\/([A-Za-z0-9_-]{6,})/);
+  if(m){
+    var n=0n;
+    for(var i=0;i<m[1].length;i++){
+      var k=IG_B64.indexOf(m[1][i]);
+      if(k<0) return null;
+      n=n*64n+BigInt(k);
+    }
+    try{ return Number((n>>23n)+1314220021721n); }catch(e){ return null; }
+  }
+  return null;
+}
+
+function kstParts(ms){
+  var d=new Date(ms+9*3600*1000), p=function(x){return String(x).padStart(2,'0');};
+  return { date:d.getUTCFullYear()+'-'+p(d.getUTCMonth()+1)+'-'+p(d.getUTCDate()),
+           time:p(d.getUTCHours())+':'+p(d.getUTCMinutes()) };
+}
+
+/* 只在日期／時間還是預設值（今天、空白）時才自動帶入，
+   已經自己填過就不覆蓋 —— 免得改連結時把手動輸入的時間洗掉。 */
+function autofillFromSource(url, force){
+  var ms=msFromUrl(url);
+  if(!ms) return false;
+  var now=Date.now();
+  if(ms>now+86400000 || ms<946684800000) return false;   // 2000 年前或未來，判定解錯
+  var k=kstParts(ms);
+  var dEl=document.getElementById('f-date'), tEl=document.getElementById('f-time');
+  var todayISO=(typeof nowKST==='function')?nowKST().toISO():'';
+  var dateUntouched=!dEl.value||dEl.value===todayISO;
+  if(force||dateUntouched) dEl.value=k.date;
+  if(force||!tEl.value) tEl.value=k.time;
+  if(typeof toast==='function') toast('已帶入發文時間 '+k.date+' '+k.time);
+  return true;
+}
+window.autofillFromSource=autofillFromSource;
+window.msFromUrl=msFromUrl;
+
 function uploadThumbToStorage(dataUrl){
   if(!dataUrl || dataUrl.indexOf('data:')!==0) return Promise.resolve(dataUrl||'');
   var name='thumbs/'+Date.now()+'_'+Math.random().toString(36).slice(2,8)+'.jpg';
