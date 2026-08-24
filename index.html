@@ -169,16 +169,6 @@ body[data-theme="light"] .cal-cell.today .cell-date-row .cell-date{background:#F
 .cell-plus-row{display:inline-flex}
 .dr-label,.drc-text{display:none}
 .rec-meta{display:flex;align-items:center;flex-wrap:wrap;row-gap:4px;margin-top:6px}
-.also-row{display:flex;gap:8px}
-.also-row input{flex:1 1 0;min-width:0}
-.also-group input+input{margin-top:8px}
-/* v2026.08.23-H：一個平台一列，平台與它自己的發布者同列。
-     IG 貼文 ↗ | post잊
-     X  貼文 ↗ | 잊官推
-   分隔線是 .rec-mi:not(:last-child)::after，:last-child 相對於父層計算，
-   所以每列各包一層 .rec-row，每列最後一項才不會多出懸空的分隔線。 */
-.rec-meta.rec-meta-2row{flex-direction:column;align-items:flex-start;row-gap:3px}
-.rec-meta .rec-row{display:flex;align-items:center;flex-wrap:wrap;row-gap:4px;min-width:0}
 .rec-meta .rec-mi{display:inline-flex;align-items:center;padding:0;font-family:'Archivo','Noto Sans TC',sans-serif;font-size:11px;letter-spacing:.08em;line-height:15px;color:rgba(255,255,255,.45);min-width:0}
 .rec-meta .rec-mi:not(:last-child)::after{content:'';flex:0 0 1px;width:1px;height:11px;margin:0 9px;background:currentColor;opacity:.3}
 .rec-meta button.rec-mi{background:none;border:none;border-radius:0;cursor:pointer;text-align:left;transition:color .15s var(--ease-out)}
@@ -612,16 +602,6 @@ body[data-theme="light"] .date-range-clear:hover,body[data-theme="light"] .searc
   }
   .otd-art-wrap{max-height:38vh}
   .otd-title{font-size:17px}
-  /* blur 半徑是 GPU 成本的大宗，手機砍半；控制鈕的 backdrop-filter 是
-     另外三層獨立模糊，手機直接關掉改用實心底。 */
-  .otd-bg{filter:blur(22px) brightness(.42) saturate(1.15)}
-  .otd-ctrl{backdrop-filter:none;background:rgba(255,255,255,.14)}
-  /* v2026.08.23-D：.otd-modal 是 align-items:center。flex 置中的子元素只要
-     比容器高，就會從「上緣」溢出，而且那段捲不到 —— 標題被切就是這個，
-     跟 100vh/100dvh 沒關係。手機改成上緣對齊，由 player 自己內部捲動。 */
-  .otd-modal{align-items:flex-start}
-  .otd-player{max-height:100dvh;margin:0 auto}
-  .otd-art-wrap{max-height:32vh}
   .otd-year-big{font-size:26px;right:10px;top:8px}
   .otd-track-title{font-size:17px}
 }
@@ -2025,16 +2005,6 @@ body[data-theme="light"] .bp-row textarea::placeholder,body[data-theme="light"] 
     <div class="form-group"><label>地點（選填）</label><input type="text" id="f-place" list="place-list" placeholder="例：台大體育館"><datalist id="place-list"></datalist></div>
     <div class="form-group"><label>說明（選填）</label><textarea id="f-desc" placeholder="內容、備註…"></textarea></div>
     <div class="form-group"><label>連結（選填）</label><input type="text" id="f-source" placeholder="貼上原始貼文連結"></div>
-    <!-- v2026.08.23-I：同一份內容同時發在兩個平台時填這裡。
-         寫進 alsoOn，卡片上會多一列「平台 ↗ | 發布者」。留空就沒有這一列。 -->
-    <div class="form-group also-group">
-      <label>同步發布（選填）</label>
-      <div class="also-row">
-        <input type="text" id="f-also-platform" list="platform-list" placeholder="平台，例：X 貼文">
-        <input type="text" id="f-also-author" list="author-list" placeholder="發布者">
-      </div>
-      <input type="text" id="f-also-source" placeholder="該平台的貼文連結">
-    </div>
     <div class="form-group">
       <label>照片（無張數限制）</label>
       <div class="photo-upload-area" onclick="document.getElementById('f-photos').click()" ondragover="event.preventDefault()" ondrop="handleDrop(event)">
@@ -2607,15 +2577,6 @@ function init(){
   showStatus('連線中…',true);
   colRef.orderBy('createdAt','desc').onSnapshot(function(snap){
     records=snap.docs.map(function(d){ return Object.assign({},d.data(),{_fid:d.id}); });
-    window.__dataReady=true;
-    /* v2026.08.23-E：跨平台同步發布的重複。
-       post잊(IG) 與 잊官推(X) 常把同一份內容同時發到兩邊，內文與張數都相同。
-       X 版標記 dupOf=<IG 紀錄的 _fid> 之後在這裡濾掉 —— 資料留著（可反悔、
-       也保住「兩邊都發了」這個事實），只是不進 records，所以時間軸、搜尋、
-       歷年今日一律看不到。
-       要暫時看全部：console 執行 toggleDupes() */
-    window.__allRecords=records;
-    if(!window.SHOW_DUPES) records=records.filter(function(r){ return !r.dupOf; });
     records.sort(function(a,b){ return b.date.localeCompare(a.date)||((b.time||'').localeCompare(a.time||'')); });
     renderAll();
     renderDaySo();
@@ -2636,15 +2597,6 @@ function deleteFromDB(fid){
 }
 
 function renderAll(){ renderCalendar(); renderFeed(); }
-function toggleDupes(){
-  window.SHOW_DUPES=!window.SHOW_DUPES;
-  var all=window.__allRecords||records;
-  records=window.SHOW_DUPES?all.slice():all.filter(function(r){ return !r.dupOf; });
-  records.sort(function(a,b){ return b.date.localeCompare(a.date)||((b.time||'').localeCompare(a.time||'')); });
-  renderAll();
-  console.log(window.SHOW_DUPES?'顯示重複紀錄':'隱藏重複紀錄','／目前',records.length,'筆');
-}
-window.toggleDupes=toggleDupes;
 function toISO(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
 // Current date/time in Korea Standard Time (KST, UTC+9), returned as a Date whose
 // local getters (getFullYear/Month/Date/Hours) reflect Korean wall-clock time.
@@ -3380,14 +3332,7 @@ function renderCalendar(){
     var cellTextHTML='';
     if(dayRecs.length){
       var ttl=function(rec){
-        /* v2026.08.23-J：跨平台同步發布的紀錄（alsoOn）在月曆格裡也要看得到
-           兩個發布者，不然會誤以為那天只有一個帳號發過。 */
-        var names=[(rec.author||'').trim()];
-        (rec.alsoOn||[]).forEach(function(ao){
-          var aa=(ao&&ao.author||'').trim();
-          if(aa && names.indexOf(aa)===-1) names.push(aa);
-        });
-        var p=names.filter(function(x){ return x; }).join('・');
+        var p=(rec.author||'').trim();
         var pre=p?'<span class="ct-pre">'+escHtml(p)+'｜</span>':'';
         return '<div class="cell-title"><span class="ct-dot cdot-'+(rec.type||'')+'"></span><span class="ct-txt">'+pre+escHtml(rec.title)+'</span></div>';
       };
@@ -3437,53 +3382,28 @@ function metaRowHTML(r){
   }
   var author=(r.author||'').replace(/[\s\u200b-\u200f\u3000\ufeff]+/g,' ').trim();
   var plat=(r.platform||'').replace(/[\s\u200b-\u200f\u3000\ufeff]+/g,' ').trim();
-  var items=[], pitems=[], extraRows=[];
+  var items=[];
   var label=plat||(srcUrl?domainOf(srcUrl):srcRaw);
   if(plat){
-    pitems.push('<span class="rec-mi rec-plat-wrap">'
+    items.push('<span class="rec-mi rec-plat-wrap">'
       +'<button class="rec-plat" data-p="'+escHtml(plat)+'" onclick="event.stopPropagation();searchPlatform(this.dataset.p)" title="只看這個平台的紀錄">'+escHtml(plat)+'</button>'
       +(srcUrl?'<a class="rec-out" href="'+escHtml(srcUrl)+'" target="_blank" rel="noopener" onclick="event.stopPropagation()" title="開啟原始貼文" aria-label="開啟原始貼文">'
       +'<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3.4 8.6L8.6 3.4M5.8 3.4h2.8v2.8"/></svg></a>':'')
       +'</span>');
-    /* v2026.08.23-F：同一份內容同步發到 IG 與 X 時，合併成一筆並列兩個平台。
-       alsoOn = [{platform, source, author}]，每個都有自己的外連圖示。
-       被合併掉的那筆標了 dupOf，在載入時就濾掉了（見 onSnapshot）。 */
-    (r.alsoOn||[]).forEach(function(ao){
-      var ap=(ao&&ao.platform||'').trim(); if(!ap) return;
-      var au=(ao&&ao.source||'').trim();
-      var aa=(ao&&ao.author||'').trim();
-      var row=['<span class="rec-mi rec-plat-wrap">'
-        +'<button class="rec-plat" data-p="'+escHtml(ap)+'" onclick="event.stopPropagation();searchPlatform(this.dataset.p)" title="只看這個平台的紀錄">'+escHtml(ap)+'</button>'
-        +(au?'<a class="rec-out" href="'+escHtml(au)+'" target="_blank" rel="noopener" onclick="event.stopPropagation()" title="開啟原始貼文" aria-label="開啟原始貼文">'
-        +'<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3.4 8.6L8.6 3.4M5.8 3.4h2.8v2.8"/></svg></a>':'')
-        +'</span>'];
-      if(aa) row.push('<button class="rec-mi rec-author" data-a="'+escHtml(aa)+'" onclick="event.stopPropagation();searchAuthor(this.dataset.a)" title="只看這個發布者的紀錄">'+escHtml(aa)+'</button>');
-      extraRows.push(row);
-    });
   } else if(label){
-    pitems.push(srcUrl
+    items.push(srcUrl
       ? '<span class="rec-mi rec-link"><a href="'+escHtml(srcUrl)+'" target="_blank" rel="noopener" onclick="event.stopPropagation()">'+escHtml(label)+'</a></span>'
       : '<span class="rec-mi rec-plain">'+escHtml(label)+'</span>');
   }
   if(author){
     items.push('<button class="rec-mi rec-author" data-a="'+escHtml(author)+'" onclick="event.stopPropagation();searchAuthor(this.dataset.a)" title="只看這個發布者的紀錄">'+escHtml(author)+'</button>');
   }
-  /* alsoOn 的發布者已經跟著它自己的平台排在同一列，這裡不再重複。 */
   if(r.place){
     items.push('<button class="rec-mi feed-place-chip" data-s="'+escHtml(r.place)+'" onclick="searchSeries(this.dataset.s)" title="查看此地點的所有事件">⌖ '+escHtml(r.place)+'</button>');
     items.push(placeMapBtn(r.place));
   }
   items=items.filter(function(x){ return x; });
-  pitems=pitems.filter(function(x){ return x; });
-  var first=pitems.concat(items);
-  var rows=[];
-  if(first.length) rows.push('<div class="rec-row">'+first.join('')+'</div>');
-  extraRows.forEach(function(rw){
-    rw=rw.filter(function(x){ return x; });
-    if(rw.length) rows.push('<div class="rec-row">'+rw.join('')+'</div>');
-  });
-  if(!rows.length) return '';
-  return '<div class="rec-meta'+(rows.length>1?' rec-meta-2row':'')+'">'+rows.join('')+'</div>';
+  return items.length?'<div class="rec-meta">'+items.join('')+'</div>':'';
 }
 function searchAuthor(a){ searchSeries(a); }
 function searchPlatform(p){ searchSeries(p); }
@@ -3569,9 +3489,6 @@ function openAddForm(date){
   document.getElementById('f-desc').value='';
   refreshSeriesDatalist();
   document.getElementById('f-source').value='';
-  document.getElementById('f-also-platform').value='';
-  document.getElementById('f-also-author').value='';
-  document.getElementById('f-also-source').value='';
   document.getElementById('f-photos').value='';
   pendingPhotos=[]; renderPreviews();
   currentType='schedule';
@@ -3617,10 +3534,6 @@ function openEditModal(fid){
   document.getElementById('f-desc').value=rec.desc||'';
   refreshSeriesDatalist();
   document.getElementById('f-source').value=rec.source||'';
-  var _ao=(rec.alsoOn||[])[0]||{};
-  document.getElementById('f-also-platform').value=_ao.platform||'';
-  document.getElementById('f-also-author').value=_ao.author||'';
-  document.getElementById('f-also-source').value=_ao.source||'';
   document.getElementById('f-photos').value='';
   pendingPhotos=(rec.photos||[]).map(function(data,i){return {name:'p'+i,data:data,thumb:(rec.thumbs||[])[i]||''};});
   renderPreviews();
@@ -3660,9 +3573,6 @@ function saveRecord(){
   var source=document.getElementById('f-source').value.trim();
   var platform=normUsed(document.getElementById('f-platform').value,'platform',PLATFORM_PRESETS);
   var author=normUsed(document.getElementById('f-author').value,'author',AUTHOR_PRESETS);
-  var aoP=document.getElementById('f-also-platform').value.trim();
-  var aoA=document.getElementById('f-also-author').value.trim();
-  var aoS=document.getElementById('f-also-source').value.trim();
   /* 原本是 alert('請填寫日期和標題')：阻斷式系統彈窗，跟整站語言斷裂，
      而且不告訴你缺的是哪一個。改成 toast + 把該欄位標紅並捲過去聚焦。 */
   var missId=!date?'f-date':(!title?'f-title':null);
@@ -3686,19 +3596,6 @@ function saveRecord(){
   })).then(function(photos){
     var thumbs=photoItems.map(function(p){return p.thumb||'';});
     var record={type:currentType,date:date,time:time,title:title,series:series,platform:platform,author:author,place:place,desc:desc,source:source,photos:photos,thumbs:thumbs};
-    /* alsoOn：表單只管第一筆，既有的第二筆以後原樣保留（目前實際上都只有一筆）。
-       saveData 用的是 Firestore update()，沒列到的欄位不會被刪 —— 所以只有在
-       使用者真的動過這三格時才需要寫，清空則明確寫成空陣列。 */
-    var prevRec=null, pool=window.__allRecords||records;
-    if(eid){ for(var _i=0;_i<pool.length;_i++){ if(pool[_i]._fid===eid){ prevRec=pool[_i]; break; } } }
-    var prevAo=(prevRec&&prevRec.alsoOn)||[];
-    if(aoP){
-      record.alsoOn=[{platform:normUsed(aoP,'platform',PLATFORM_PRESETS),
-                      author:normUsed(aoA,'author',AUTHOR_PRESETS),
-                      source:aoS}].concat(prevAo.slice(1));
-    } else if(prevAo.length){
-      record.alsoOn=prevAo.slice(1);
-    }
     saveData(record, eid||null);
     showToast('✓  Saved');
   });
@@ -3874,7 +3771,7 @@ function renderFeed(){
   var filtered=records.filter(function(r){
     if(deletedIds[r._fid]) return false;
     if(currentFilter!=='all'&&r.type!==currentFilter) return false;
-    if(searchQ){var _terms=searchQ.split(/\s+/).filter(Boolean);var _hay=((r.title||'')+' '+(r.desc||'')+' '+(r.series||'')+' '+(r.place||'')+' '+(r.author||'')+' '+(r.platform||'')+' '+(r.alsoOn||[]).map(function(a){return (a.platform||'')+' '+(a.author||'');}).join(' ')).toLowerCase();for(var _ti=0;_ti<_terms.length;_ti++){if(_hay.indexOf(_terms[_ti])===-1) return false;}}
+    if(searchQ){var _terms=searchQ.split(/\s+/).filter(Boolean);var _hay=((r.title||'')+' '+(r.desc||'')+' '+(r.series||'')+' '+(r.place||'')+' '+(r.author||'')+' '+(r.platform||'')).toLowerCase();for(var _ti=0;_ti<_terms.length;_ti++){if(_hay.indexOf(_terms[_ti])===-1) return false;}}
     if(dateFrom&&r.date<dateFrom) return false;
     if(dateTo&&r.date>dateTo) return false;
     return true;
@@ -4086,25 +3983,6 @@ function openOnThisDay(){
   otdList.sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); });
   var modal=document.getElementById('otd-modal');
   var player=modal.querySelector('.otd-player');
-  /* v2026.08.23-C：資料量到四千多筆之後，首次 snapshot 要好幾秒才回來。
-     在那之前開歷年今日，records 還是空陣列，就會誤報「今天還沒有紀錄」。
-     資料沒到就顯示載入中，並在 snapshot 抵達後自動重開。 */
-  if(!window.__dataReady){
-    var oldL=modal.querySelector('.otd-empty'); if(oldL) oldL.remove();
-    player.style.display='none';
-    var ld=document.createElement('div');
-    ld.className='otd-empty';
-    ld.innerHTML='<span class="big">'+EMPTY_SUN+'</span>正在讀取軌跡…';
-    modal.appendChild(ld);
-    modal.classList.add('open');
-    var waited=0;
-    var iv=setInterval(function(){
-      waited+=200;
-      if(window.__dataReady){ clearInterval(iv); openOnThisDay(); }
-      else if(waited>15000){ clearInterval(iv); ld.innerHTML='<span class="big">'+EMPTY_SUN+'</span>讀取逾時，請重新整理<br><button class="otd-empty-close" onclick="closeOtdAnimated()"><span>✕</span> 關閉</button>'; }
-    },200);
-    return;
-  }
   if(!otdList.length){
     player.style.display='none';
     var pengu=EMPTY_SUN;
@@ -4138,9 +4016,6 @@ function renderOtdTrack(dir, auto){
   if(modal) modal.classList.toggle('otd-auto', !!auto);
   var y=(r.date||'').slice(0,4);
   var photo=visiblePhotos(r)[0]||'';
-  /* 背景是整片 blur(46px)，餵 1200px 原圖等於叫 GPU 模糊一張大貼圖，
-     手機上這是歷年今日最大的卡頓來源。縮圖模糊完看起來一模一樣。 */
-  var bgSrc=(visibleThumbs(r)[0]||photo);
   var art=document.getElementById('otd-art');
   art.classList.remove('slide-in-l','slide-in-r');
   if(auto){
@@ -4189,7 +4064,7 @@ function renderOtdTrack(dir, auto){
       setTimeout(function(){ layers.forEach(function(l){ if(!l.classList.contains('show')){ l.style.display='none'; l.removeAttribute('src'); } }); },FADE);
       art.setAttribute('data-empty','✦');
     }
-    setOtdBg(bgSrc);
+    setOtdBg(photo);
     // 年份
     yb.classList.remove('otd-fading','anim'); void yb.offsetWidth;
     yb.textContent=y; yb.classList.add('anim');
@@ -4233,7 +4108,7 @@ function otdPrefetch(){
   [1,2,-1].forEach(function(d){
     var k=(otdIdx+d+otdList.length)%otdList.length;
     var rr=otdList[k]; if(!rr) return;
-    var p=(visibleThumbs(rr)[0]||visiblePhotos(rr)[0]||''); if(!p) return;
+    var p=(visiblePhotos(rr)[0]||''); if(!p) return;
     var im=new Image(); im.src=p; if(im.decode) im.decode().catch(function(){});
     keep.push(im);
   });
