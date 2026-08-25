@@ -178,6 +178,10 @@ body[data-theme="light"] .cal-cell.today .cell-date-row .cell-date{background:#F
    並排，視覺節奏會斷掉。間距沿用 form-group 內部的既有節奏。 */
 /* 兩兩並排。子項仍是完整的 .form-group（各自有 label），
    所以視覺節奏跟單欄欄位一致，只是擠在同一列。 */
+/* 類型：label 與按鈕同一行，省掉一整段垂直空間。 */
+.type-inline{display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.type-inline>label{margin:0;flex:0 0 auto}
+.type-inline #add-type-btns{display:flex;gap:6px;flex-wrap:wrap;min-width:0}
 .f2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .f2>.form-group{margin-bottom:14px;min-width:0}
 .f2 input{width:100%;min-width:0}
@@ -236,7 +240,7 @@ body[data-theme="light"] .ct-pre{color:rgba(0,0,0,.4)}
 @keyframes otdFlash{0%{background:var(--otd-flash,rgba(255,217,64,.22))}100%{background:transparent}}
 .feed-item.otd-flash{animation:otdFlash 1.8s var(--ease-out)}
 body[data-theme="light"]{--otd-flash:rgba(255,107,61,.16)}
-.otd-jump{margin-top:14px;display:inline-flex;align-items:center;gap:5px;background:none;border:none;padding:6px 2px;cursor:pointer;font-family:inherit;font-size:12px;letter-spacing:.06em;color:rgba(255,217,64,.85);transition:color .18s var(--ease-out),gap .18s var(--ease-out)}
+.otd-jump{display:inline-flex;align-items:center;gap:5px;background:none;border:none;padding:6px 2px;cursor:pointer;font-family:inherit;font-size:12px;letter-spacing:.06em;color:rgba(255,217,64,.85);transition:color .18s var(--ease-out),gap .18s var(--ease-out)}
 .otd-jump:hover{color:#FFD940;gap:9px}
 
 .day-so-body .carousel{width:100px;height:100px;flex-shrink:0;align-self:start;overflow:hidden;border-radius:0}
@@ -358,6 +362,9 @@ body[data-theme="light"] .pw-spread-sub{color:rgba(26,23,20,.55)}
 .so-head h2{font-size:15px;font-weight:500;letter-spacing:.02em;color:#E8E4E0}
 
 .so-body{padding:20px}
+/* textarea 預設是 inline-block，底下會多出一段基線空隙（約 5px），
+   看起來就像「說明」跟「連結」之間比別處鬆。改成 block 就對齊了。 */
+.form-group textarea{display:block}
 .form-group{margin-bottom:14px}.form-group label{display:block;font-size:11px;font-weight:500;margin-bottom:5px;letter-spacing:.04em;text-transform:uppercase}
 .form-group input,.form-group textarea,.form-group select{width:100%;padding:9px 11px;border:1px solid rgba(255,255,255,.15);border-radius:var(--radius);font-family:inherit;font-size:13px;color:#E8E4E0;background:rgba(255,255,255,.06);outline:none;transition:border-color .15s}
 .form-group input:focus,.form-group textarea:focus,.form-group select:focus{border-color:var(--c-accent)}
@@ -641,7 +648,7 @@ body[data-theme="light"] .date-range-clear:hover,body[data-theme="light"] .searc
   .otd-modal{align-items:flex-start}
   .otd-player{max-height:100dvh;margin:0 auto}
   .otd-art-wrap{max-height:32vh}
-  .otd-track{height:150px}
+  .otd-track{height:116px}
   .otd-year-big{font-size:26px;right:10px;top:8px}
   .otd-track-title{font-size:17px}
 }
@@ -686,7 +693,8 @@ body[data-theme="light"] .date-range-clear:hover,body[data-theme="light"] .searc
    原本是 min-height:96px，有說明的紀錄會撐高到 160 左右，
    播放／前後鍵就跟著上下跳，連續按的時候手指要一直追。
    改成固定高度：標題不換行、說明已經 3 行截斷，內容本來就有上限。 */
-.otd-track{height:168px;overflow:hidden}
+.otd-track{height:128px;overflow:hidden}
+.otd-jump-wrap{min-height:30px;display:flex;align-items:center}
 .otd-track-title{font-size:20px;font-weight:700;color:#fff;letter-spacing:.02em;line-height:1.3;white-space:nowrap;overflow:hidden;margin:8px 0 4px;text-shadow:0 1px 8px rgba(0,0,0,.4)}.otd-track-time{font-size:11px;color:rgba(255,255,255,.4);margin-top:6px;letter-spacing:.08em}
 .otd-controls{display:flex;align-items:center;justify-content:center;gap:22px}
 .otd-ctrl{width:46px;height:46px;border-radius:50%;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);backdrop-filter:blur(8px);color:#fff;font-size:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s,transform .15s}
@@ -1878,6 +1886,7 @@ body[data-theme="light"] .bp-row textarea::placeholder,body[data-theme="light"] 
 
 <div class="batch-bar" id="batch-bar">
   <span id="batch-count">已選 0 筆</span>
+  <button class="batch-bar-btn" id="batch-all-btn" onclick="toggleBatchAll()">全選</button>
   <button class="batch-bar-btn" id="batch-edit-btn" onclick="toggleBatchPanel()">設定欄位</button>
   <button class="batch-bar-btn batch-cancel" onclick="toggleBatchMode()">✕ 取消</button>
   <div class="batch-panel" id="batch-panel">
@@ -2027,7 +2036,7 @@ body[data-theme="light"] .bp-row textarea::placeholder,body[data-theme="light"] 
         <dt>咖啡車應援感謝</dt><dd>平台 IG 限動／發布者 le2jh／不填連結</dd>
       </dl>
     </div></div>
-    <div class="form-group">
+    <div class="form-group type-inline">
       <label>類型</label>
       <div class="type-btns" id="add-type-btns">
         <button class="type-btn active-schedule" onclick="setType('schedule',this,'add')">行程</button>
@@ -2066,7 +2075,7 @@ body[data-theme="light"] .bp-row textarea::placeholder,body[data-theme="light"] 
     <div class="form-group also-group">
       <label>同步發布（選填）</label>
       <div class="f2">
-        <input type="text" id="f-also-platform" list="platform-list" placeholder="平台，例：X 貼文">
+        <input type="text" id="f-also-platform" list="platform-list" placeholder="平台，例：X">
         <input type="text" id="f-also-author" list="author-list" placeholder="發布者，例：잊官推">
       </div>
       <input type="text" id="f-also-source" placeholder="該平台的貼文連結" style="margin-top:8px">
@@ -2154,7 +2163,7 @@ body[data-theme="light"] .bp-row textarea::placeholder,body[data-theme="light"] 
     <div class="settings-item">
       <div>
         <div class="settings-item-label">版本</div>
-        <div class="settings-item-val">v2026.08.06-E</div>
+        <div class="settings-item-val">v2026.08.26-C</div>
       </div>
       <span style="font-size:14px;opacity:.5">🌻</span>
     </div>
@@ -2244,6 +2253,7 @@ body[data-theme="light"] .bp-row textarea::placeholder,body[data-theme="light"] 
       <div class="otd-year-big" id="otd-year-big"></div>
     </div>
     <div class="otd-track" id="otd-track"></div>
+    <div class="otd-jump-wrap" id="otd-jump-wrap"></div>
     <div class="otd-controls">
       <button class="otd-ctrl" onclick="otdStep(-1)">&#8249;</button>
       <button class="otd-ctrl otd-play" id="otd-play" onclick="otdTogglePlay()" title="自動播放" aria-label="自動播放"><svg id="otd-play-icon" width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M4 2.5v11l9-5.5z"/></svg></button>
@@ -3189,7 +3199,32 @@ function toggleBatchSel(fid,on){
 function updateBatchCount(){
   var el=document.getElementById('batch-count');
   if(el) el.textContent='已選 '+Object.keys(batchSel).length+' 筆';
+  var ab=document.getElementById('batch-all-btn');
+  if(ab) ab.textContent=allFeedSelected()?'取消全選':'全選';
 }
+/* 全選的範圍是「目前日誌上看得到的」，不是資料庫全部 ——
+   套用了篩選或搜尋時，使用者要的是選取眼前這一批。 */
+function feedFids(){
+  return [].slice.call(document.querySelectorAll('#feed-container .feed-item[data-fid]'))
+    .map(function(el){ return el.getAttribute('data-fid'); })
+    .filter(Boolean);
+}
+function allFeedSelected(){
+  var ids=feedFids();
+  if(!ids.length) return false;
+  for(var i=0;i<ids.length;i++){ if(!batchSel[ids[i]]) return false; }
+  return true;
+}
+function toggleBatchAll(){
+  var ids=feedFids();
+  if(!ids.length) return;
+  var on=!allFeedSelected();
+  ids.forEach(function(id){ if(on) batchSel[id]=true; else delete batchSel[id]; });
+  document.querySelectorAll('#feed-container .feed-item[data-fid] input[type="checkbox"]')
+    .forEach(function(cb){ cb.checked=on; });
+  updateBatchCount();
+}
+window.toggleBatchAll=toggleBatchAll;
 /* 批次設定面板：留空＝該欄不動，按 ∅＝該欄清空，一次 commit 全部欄位。
    原本兩顆 prompt 按鈕的問題是「一次只能改一個欄位」而且沒有預覽，
    欄位一多就要重複開關批次模式 N 次。 */
@@ -4342,8 +4377,13 @@ function renderOtdTrack(dir, auto){
     tk.innerHTML=badge
       +'<div class="otd-track-title">'+escHtml(r.title)+'</div>'
       +desc
-      +(r.time?'<div class="otd-track-time">'+escHtml(r.time)+'</div>':'')
-      +'<button class="otd-jump" data-fid="'+escHtml(r._fid||'')+'" onclick="otdJumpToFeed(this.dataset.fid)">在日誌查看 →</button>';
+      +(r.time?'<div class="otd-track-time">'+escHtml(r.time)+'</div>':'');
+    /* v2026.08.26-C：按鈕移出 .otd-track。
+       track 為了讓控制列不上下跳而設了固定高度，說明滿三行時就會把按鈕
+       裁掉（overflow:hidden）。改放獨立容器之後，固定高度只管會變動的
+       文字內容，按鈕本身也維持在同一個位置。 */
+    var jw=document.getElementById('otd-jump-wrap');
+    if(jw) jw.innerHTML='<button class="otd-jump" data-fid="'+escHtml(r._fid||'')+'" onclick="otdJumpToFeed(this.dataset.fid)">在日誌查看 →</button>';
     tk.classList.add('anim');
     var _tt=tk.querySelector('.otd-track-title');
     if(_tt){ _tt.style.fontSize=''; var _sw=_tt.scrollWidth, _cw=_tt.clientWidth; if(_cw>0&&_sw>_cw){ var _b=parseFloat(getComputedStyle(_tt).fontSize)||20; _tt.style.fontSize=Math.max(13,Math.floor(_b*_cw/_sw))+'px'; } }
