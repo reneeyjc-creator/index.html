@@ -59,7 +59,12 @@
 body{overflow-x:hidden;font-family:'Noto Sans TC',system-ui,sans-serif;background:linear-gradient(160deg,#201F1F 0%,#1A1210 60%,#1C1A22 100%);color:var(--c-text);min-height:100vh;line-height:1.5}
 
 /* ── Site header ── */
-.site-header{background:transparent;padding:54px 24px 0;margin-bottom:48px;border-bottom:none;position:relative;transition:opacity .3s ease}
+/* v2026.08.25-B：標題區改成「連續溶解 + 視差滯留」。
+   舊版是 body.scrolled 之下 opacity:0 的二元切換 —— 但 opacity:0 的元素
+   仍然佔版面（見坑 #10），往回拉時 340px 的高度就露成一片空白。
+   現在透明度與位移都由捲動量連續驅動，回捲時同比例浮回來，不會有空窗。
+   transition 必須拿掉，否則會跟每幀的 inline style 打架。 */
+.site-header{background:transparent;padding:54px 24px 0;margin-bottom:48px;border-bottom:none;position:relative;transition:none;will-change:opacity,transform}
 .cal-filter-row{display:flex;gap:22px;margin:0 0 20px;flex-wrap:wrap;justify-content:center}
 .cal-filter-btn{--fc:#FFD940;padding:3px 1px 6px;border:none;border-bottom:1px solid transparent;background:none;color:rgba(255,255,255,.5);font-family:'Archivo',sans-serif;font-size:11px;letter-spacing:.18em;cursor:pointer;transition:color var(--t),border-color var(--t);display:inline-flex;align-items:center;gap:7px}
 .cal-filter-btn:hover{color:rgba(255,255,255,.85)}
@@ -599,7 +604,7 @@ body[data-theme="light"] .date-range-clear:hover,body[data-theme="light"] .searc
 }
 
 /* ── On This Day ── */
-.otd-modal{display:none;position:fixed;inset:0;z-index:600;align-items:center;justify-content:center;overflow:hidden;background:#141210}
+.otd-modal{display:none;position:fixed;inset:0;z-index:600;align-items:center;justify-content:center;overflow:hidden;overscroll-behavior:contain;background:#141210}
 /* ===== v2026.08.23-B: 手機版 OTD 破版 =====
    .otd-player 原本 max-height:100vh。iOS Safari 的 100vh 是「網址列收起後」
    的大視窗高度，實際可視區比它矮，flex 置中之下內容就從上下兩端被切掉
@@ -624,13 +629,16 @@ body[data-theme="light"] .date-range-clear:hover,body[data-theme="light"] .searc
   .otd-modal{align-items:flex-start}
   .otd-player{max-height:100dvh;margin:0 auto}
   .otd-art-wrap{max-height:32vh}
+  .otd-track{height:150px}
   .otd-year-big{font-size:26px;right:10px;top:8px}
   .otd-track-title{font-size:17px}
 }
 .otd-modal.open{display:flex}
 .otd-bg{position:absolute;inset:-40px;background-size:cover;background-position:center;filter:blur(46px) brightness(.42) saturate(1.15);transform:scale(1.15) translateZ(0);background-color:#141210;will-change:opacity;opacity:1;transition:opacity 1.15s ease}
 .otd-bg.otd-bg-off{opacity:0}
-.otd-player{position:relative;z-index:2;width:100%;max-width:420px;padding:26px 28px 34px;display:flex;flex-direction:column;gap:16px;max-height:100vh;overflow-y:auto;overflow-x:hidden}
+/* overscroll-behavior:contain —— 播放器捲到頭之後，手勢不會再傳給底層頁面。
+   v-D 把播放器改成自己捲動之後才出現這個問題（捲動鏈結）。 */
+.otd-player{position:relative;z-index:2;width:100%;max-width:420px;padding:26px 28px 34px;display:flex;flex-direction:column;gap:16px;max-height:100vh;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain}
 .otd-player-top{display:flex;align-items:flex-start;justify-content:space-between}
 .otd-head-txt{flex:1 1 0;min-width:0}
 .otd-art-wrap{position:relative;width:100%;aspect-ratio:1;max-height:46vh;display:flex;align-items:center;justify-content:center}
@@ -662,7 +670,11 @@ body[data-theme="light"] .date-range-clear:hover,body[data-theme="light"] .searc
 .otd-track.anim>*:nth-child(3){animation-delay:.2s}
 .otd-track.anim>*:nth-child(4){animation-delay:.27s}
 @keyframes otdTrackIn{from{transform:translateY(10px);opacity:0}to{transform:translateY(0);opacity:1}}
-.otd-track{min-height:96px}
+/* v2026.08.25-B：控制列位置固定。
+   原本是 min-height:96px，有說明的紀錄會撐高到 160 左右，
+   播放／前後鍵就跟著上下跳，連續按的時候手指要一直追。
+   改成固定高度：標題不換行、說明已經 3 行截斷，內容本來就有上限。 */
+.otd-track{height:168px;overflow:hidden}
 .otd-track-title{font-size:20px;font-weight:700;color:#fff;letter-spacing:.02em;line-height:1.3;white-space:nowrap;overflow:hidden;margin:8px 0 4px;text-shadow:0 1px 8px rgba(0,0,0,.4)}.otd-track-time{font-size:11px;color:rgba(255,255,255,.4);margin-top:6px;letter-spacing:.08em}
 .otd-controls{display:flex;align-items:center;justify-content:center;gap:22px}
 .otd-ctrl{width:46px;height:46px;border-radius:50%;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);backdrop-filter:blur(8px);color:#fff;font-size:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s,transform .15s}
@@ -1082,7 +1094,7 @@ body[data-theme="light"] .feed-series-chip:hover{color:#FF6B3D;border-color:#FF6
 /* ── Mini sticky bar ── */
 .mini-bar{position:fixed;top:0;left:0;right:0;z-index:150;display:flex;align-items:center;justify-content:center;height:44px;background:rgba(28,26,24,.92);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid rgba(255,255,255,.07);transform:translateY(-100%);transition:transform .28s var(--ease-out)}
 body.scrolled .mini-bar{transform:translateY(0)}
-body.scrolled .site-header{opacity:0;pointer-events:none}
+body.scrolled .site-header{pointer-events:none}
 .mini-title{font-family:'Boldonse',sans-serif;font-size:13px;letter-spacing:.16em;color:#FFD940;text-transform:uppercase;white-space:nowrap;line-height:1}
 body[data-theme="light"] .mini-bar{background:rgba(239,235,227,.94);border-bottom-color:rgba(0,0,0,.08)}
 body[data-theme="light"] .mini-title{color:#FF6B3D}
@@ -5236,11 +5248,19 @@ document.addEventListener('keydown', function(e){
 (function(){
   var lastState=false;
   var titleEl=document.querySelector('.hdr-title-stack');
+  var hdrEl=document.querySelector('.site-header');
   var ticking=false;
   function onScroll(){
     var y=window.scrollY;
     var mobile=window.innerWidth<=700;
     var inTh=mobile?90:170, outTh=mobile?50:110;
+    /* 溶解在抵達 inTh 之前就完成，這樣 mini-bar 出現的同一刻標題區剛好歸零，
+       不會出現「已經看不見卻還佔著可視範圍」的狀態。 */
+    if(hdrEl){
+      var ft=Math.min(y/inTh,1);
+      hdrEl.style.opacity=String(1-ft);
+      hdrEl.style.transform='translateY('+(y*0.32).toFixed(1)+'px) scale('+(1-ft*0.03).toFixed(4)+')';
+    }
     var shrink=lastState ? (y>outTh) : (y>inTh);
     if(shrink!==lastState){
       document.body.classList.toggle('scrolled',shrink);
