@@ -3683,13 +3683,21 @@ function kstParts(ms){
 /* 只在日期／時間還是預設值（今天、空白）時才自動帶入，
    已經自己填過就不覆蓋 —— 免得改連結時把手動輸入的時間洗掉。 */
 function autofillFromSource(url, force){
+  try{ return _autofillFromSource(url, force); }
+  catch(e){ console.warn('autofill 失敗', e); return false; }
+}
+function _autofillFromSource(url, force){
   var ms=msFromUrl(url);
   if(!ms) return false;
   var now=Date.now();
   if(ms>now+86400000 || ms<946684800000) return false;   // 2000 年前或未來，判定解錯
   var k=kstParts(ms);
   var dEl=document.getElementById('f-date'), tEl=document.getElementById('f-time');
-  var todayISO=(typeof nowKST==='function')?nowKST().toISO():'';
+  /* ⚠️ toISO 是獨立函式，不是 nowKST() 的方法。
+     寫成 nowKST().toISO() 會拋 TypeError，整個 autofill 當場中斷 ——
+     桌機看得到紅字，手機只會覺得「貼上沒反應」。 */
+  var todayISO='';
+  try{ todayISO=toISO(nowKST()); }catch(e){}
   var dateUntouched=!dEl.value||dEl.value===todayISO;
   if(force||dateUntouched) dEl.value=k.date;
   if(force||!tEl.value) tEl.value=k.time;
