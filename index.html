@@ -957,6 +957,12 @@ body[data-theme="light"] .cell-photo .cell-plus{background:rgba(244,241,236,.94)
 .bulk-hint{font-size:11.5px;line-height:1.6;color:rgba(255,255,255,.45);letter-spacing:.02em}
 .bulk-ta{flex:1;min-height:180px;resize:vertical;padding:11px 13px;border:1px solid rgba(255,255,255,.15);border-radius:var(--radius);background:rgba(255,255,255,.06);color:#E8E4E0;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;line-height:1.7;outline:none;transition:border-color .15s}
 .bulk-ta:focus{border-color:#FFD940}
+.bulk-common{display:flex;flex-direction:column;gap:7px;padding:10px 11px;border:1px solid rgba(255,255,255,.1);border-radius:var(--radius);background:rgba(255,255,255,.03);flex-shrink:0}
+.bulk-common .bc-row{display:flex;gap:7px}
+.bulk-common input{flex:1 1 0;min-width:0;padding:7px 9px;border:1px solid rgba(255,255,255,.14);border-radius:6px;background:rgba(255,255,255,.05);color:#E8E4E0;font-family:inherit;font-size:11.5px;outline:none}
+.bulk-common input:focus{border-color:#FFD940}
+.bulk-common input::placeholder{color:rgba(255,255,255,.28)}
+body[data-theme="light"] .bulk-common input{background:rgba(0,0,0,.03);color:#1A1714;border-color:rgba(0,0,0,.14)}
 .bulk-ta::placeholder{color:rgba(255,255,255,.2)}
 .bulk-rows{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding-right:4px}
 .bulk-row{border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:9px 10px;display:flex;flex-direction:column;gap:6px;background:rgba(255,255,255,.03)}
@@ -1902,6 +1908,12 @@ body[data-theme="light"] .bp-row textarea::placeholder,body[data-theme="light"] 
     <div class="bp-row"><label>地點</label><input type="text" id="bp-place" list="place-list" placeholder="不變更"><button type="button" class="bp-clr" data-f="place" onclick="bpClr(this)" title="清空這個欄位">&#8709;</button></div>
     <div class="bp-row"><label>發布者</label><input type="text" id="bp-author" list="author-list" placeholder="不變更"><button type="button" class="bp-clr" data-f="author" onclick="bpClr(this)" title="清空這個欄位">&#8709;</button></div>
     <div class="bp-row"><label>平台</label><input type="text" id="bp-platform" list="platform-list" placeholder="不變更"><button type="button" class="bp-clr" data-f="platform" onclick="bpClr(this)" title="清空這個欄位">&#8709;</button></div>
+    <!-- v2026.08.26-F：同步發布也能批次設定。
+         三格是一組（平台／發布者／連結），要嘛整組寫入、要嘛不動。
+         連結每筆都不一樣，所以整批套用時通常留空 —— 只寫平台與發布者，
+         連結之後各自補。按 ∅ 會把整個 alsoOn 清掉。 -->
+    <div class="bp-row"><label>同步平台</label><input type="text" id="bp-aoplatform" list="platform-list" placeholder="不變更"><button type="button" class="bp-clr" data-f="alsoOn" onclick="bpClr(this)" title="清空整組同步發布">&#8709;</button></div>
+    <div class="bp-row"><label>同步發布者</label><input type="text" id="bp-aoauthor" list="author-list" placeholder="不變更"><span class="bp-clr-sp"></span></div>
     <div class="bp-row"><label>日期</label><input type="date" id="bp-date"><span class="bp-clr-sp"></span></div>
     <div class="bp-row"><label>時間</label><input type="time" id="bp-time"><button type="button" class="bp-clr" data-f="time" onclick="bpClr(this)" title="清空這個欄位">&#8709;</button></div>
     <div class="bp-block">
@@ -2273,7 +2285,7 @@ body[data-theme="light"] .bp-row textarea::placeholder,body[data-theme="light"] 
     </div>
 
     <div class="bulk-step" id="bulk-step-paste">
-      <p class="bulk-hint">貼一串網址，會自動抓出連結並去除重複；<b>X 的網址會自動帶入發文日期與時間</b>。<br>也可以從試算表整塊複製貼上，日期／時間／標題／網址／分類自動分欄，順序不拘。<br><b>沒有網址的紀錄也可以</b>——演唱會、生日、通告只要填日期和標題，分類預設「行程」。<br>照片要另外上傳。</p>
+      <p class="bulk-hint">貼一串網址，會自動抓出連結並去除重複；<b>IG 與 X 的網址都會自動帶入發文日期與時間（韓國時間）</b>。<br>也可以從試算表整塊複製貼上，日期／時間／標題／網址／分類自動分欄，順序不拘。<br><b>沒有網址的紀錄也可以</b>——演唱會、生日、通告只要填日期和標題，分類預設「行程」。<br>照片要另外上傳。</p>
       <textarea class="bulk-ta" id="bulk-ta" placeholder="https://www.instagram.com/p/xxxxx/&#10;https://www.instagram.com/p/yyyyy/&#10;…"></textarea>
       <div class="bulk-actions">
         <span class="bulk-count"></span>
@@ -2282,6 +2294,19 @@ body[data-theme="light"] .bp-row textarea::placeholder,body[data-theme="light"] 
     </div>
 
     <div class="bulk-step" id="bulk-step-rows" style="display:none">
+      <!-- v2026.08.26-G：整批共用的欄位。這些對同一批網址來說幾乎都一樣
+           （同一個帳號、同一個平台），逐筆填太累。留空就不寫。 -->
+      <div class="bulk-common">
+        <div class="bc-row">
+          <input type="text" id="bulk-platform" list="platform-list" placeholder="平台（整批共用）">
+          <input type="text" id="bulk-author" list="author-list" placeholder="發布者（整批共用）">
+        </div>
+        <div class="bc-row">
+          <input type="text" id="bulk-series" list="series-list" placeholder="主題（整批共用）">
+          <input type="text" id="bulk-ao-platform" list="platform-list" placeholder="同步平台">
+          <input type="text" id="bulk-ao-author" list="author-list" placeholder="同步發布者">
+        </div>
+      </div>
       <div class="bulk-rows" id="bulk-rows"></div>
       <div class="bulk-actions">
         <button class="bulk-back" onclick="bulkBack()">← 重貼</button>
@@ -3244,7 +3269,7 @@ window.toggleBatchAll=toggleBatchAll;
    欄位一多就要重複開關批次模式 N 次。 */
 window.toggleBatchMode=toggleBatchMode;
 window.toggleBatchSel=toggleBatchSel;
-var BP_FIELDS=['series','place','author','platform','date','time','desc'];
+var BP_FIELDS=['series','place','author','platform','date','time','desc','aoplatform','aoauthor'];
 var bpClearMap={}, bpType='', bpDescMode='replace';
 function bpReset(){
   bpClearMap={}; bpType=''; bpDescMode='replace';
@@ -3272,6 +3297,13 @@ function bpClr(btn){
   btn.classList.toggle('on',on); bpClearMap[f]=on;
   var el=document.getElementById('bp-'+f);
   if(el){ el.disabled=on; if(on) el.value=''; }
+  /* 同步發布是三格一組，data-f 對不到單一輸入框，要自己停用 */
+  if(f==='alsoOn'){
+    ['bp-aoplatform','bp-aoauthor'].forEach(function(id){
+      var e=document.getElementById(id);
+      if(e){ e.disabled=on; if(on) e.value=''; }
+    });
+  }
   /* 按了清空，覆蓋／附加就沒有意義了，一起停用免得誤會 */
   if(f==='desc'){
     var seg=document.getElementById('bp-desc-mode');
@@ -3310,6 +3342,19 @@ function applyBatchFields(){
   take('platform','平台',function(v){ return normUsed(v,'platform',PLATFORM_PRESETS); });
   take('date','日期');
   take('time','時間');
+  /* alsoOn 是陣列不是字串，take() 那套處理不了，單獨組。 */
+  if(bpClearMap.alsoOn){
+    d.alsoOn=[]; names.push('同步發布（清空）');
+  }else{
+    var _ap=(document.getElementById('bp-aoplatform').value||'').trim();
+    var _aa=(document.getElementById('bp-aoauthor').value||'').trim();
+    if(_ap||_aa){
+      d.alsoOn=[{ platform:_ap?normUsed(_ap,'platform',PLATFORM_PRESETS):'',
+                  author:_aa?normUsed(_aa,'author',AUTHOR_PRESETS):'',
+                  source:'' }];
+      names.push('同步發布');
+    }
+  }
   take('desc','說明');
   /* 附加模式下每一筆的結果都不一樣（各自的原文 + 新文字），
      沒辦法用同一份 payload 送給所有人，所以把 desc 從共用欄位裡抽出來，
@@ -5532,7 +5577,14 @@ document.addEventListener('keydown', function(e){
     records.forEach(function(r){ if(r && r.source) existing[String(r.source).trim()]=1; });
     var today=toISO(nowKST()), gotX=0;
     rows=uniq.map(function(it){
+      /* v2026.08.26-G：IG 的 shortcode 同樣編碼了發文毫秒（位移 23、
+         epoch 1314220021721），不是「隨機沒有時間資訊」——
+         舊註解那個結論是錯的。msFromUrl 兩種網址都認得。 */
       var x=xDateTimeFromUrl(it.url);
+      if(!x && typeof msFromUrl==='function'){
+        var _ms=msFromUrl(it.url);
+        if(_ms) x=kstParts(_ms);
+      }
       if(x && (!it.date || !it.time)) gotX++;
       return { url:it.url,
                date: it.date || (x?x.date:today),
@@ -5550,13 +5602,24 @@ document.addEventListener('keydown', function(e){
   window.bulkCommit=function(){
     var list=rows.filter(function(r){ return r.title.trim() && !r.dup; });
     if(!list.length){ showToast('沒有可建立的紀錄，請至少填一個標題',3500); return; }
+    function _bv(id){ var e=document.getElementById(id); return e?e.value.trim():''; }
+    var cPlat=_bv('bulk-platform'), cAuth=_bv('bulk-author'), cSeries=_bv('bulk-series');
+    var cAoP=_bv('bulk-ao-platform'), cAoA=_bv('bulk-ao-author');
+    if(cPlat) cPlat=normUsed(cPlat,'platform',PLATFORM_PRESETS);
+    if(cAuth) cAuth=normUsed(cAuth,'author',AUTHOR_PRESETS);
+    var cAlso=(cAoP||cAoA)?[{platform:cAoP?normUsed(cAoP,'platform',PLATFORM_PRESETS):'',
+                             author:cAoA?normUsed(cAoA,'author',AUTHOR_PRESETS):'',
+                             source:''}]:null;
     var btn=document.getElementById('bulk-commit');
     if(btn) btn.disabled=true;
     showToast('建立中…',60000);
     var done=0, fail=0, pending=list.length;
     list.forEach(function(r){
       var rec={type:r.type,date:r.date,time:(r.time||''),title:r.title.trim(),
-               series:'',place:'',desc:'',source:r.url,photos:[],thumbs:[]};
+               series:cSeries,place:'',desc:'',source:r.url,photos:[],thumbs:[]};
+      if(cPlat) rec.platform=cPlat;
+      if(cAuth) rec.author=cAuth;
+      if(cAlso) rec.alsoOn=cAlso;
       Promise.resolve(saveData(rec,null)).then(function(){done++;},function(){fail++;})
         .then(function(){
           if(--pending>0) return;
@@ -5588,7 +5651,8 @@ function parseSharedInput(){
    (id >> 22) + 1288834974657 就是發文的 Unix 毫秒（1288834974657 是 X 的起始時間）。
    現在的 id 約 1.9e18，已經超過 JS 安全整數上限，一定要用 BigInt，
    用一般數字算會靜默地少掉精度、算出錯誤的日期。
-   IG 的短碼是隨機的，沒有任何時間資訊，所以只有 X 能這樣做。 */
+   ⚠️ 2026-08-26 更正：IG 的短碼**也**編碼了時間（base64 解碼後位移 23 位
+   再加 epoch 1314220021721），不是隨機的。兩種都能算，見 msFromUrl()。 */
 function xDateTimeFromUrl(u){
   try{
     var m=String(u||'').match(/(?:twitter|x)\.com\/[^\/]+\/status(?:es)?\/(\d{8,25})/i);
