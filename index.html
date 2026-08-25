@@ -176,15 +176,11 @@ body[data-theme="light"] .cal-cell.today .cell-date-row .cell-date{background:#F
 .rec-meta{display:flex;align-items:center;flex-wrap:wrap;row-gap:4px;margin-top:6px}
 /* 同步發布：三格單欄堆疊。表單其他欄位都是單欄滿版，這裡如果做成兩欄
    並排，視覺節奏會斷掉。間距沿用 form-group 內部的既有節奏。 */
-/* 折疊區：不用 JS，<details> 自己就有開合。 */
-.form-more{margin-bottom:18px;border:1px solid var(--line,rgba(255,255,255,.12));border-radius:10px;overflow:hidden}
-.form-more>summary{list-style:none;cursor:pointer;padding:11px 13px;font-size:13px;letter-spacing:.04em;display:flex;align-items:center;gap:8px;user-select:none}
-.form-more>summary::-webkit-details-marker{display:none}
-.form-more>summary::before{content:'+';font-size:15px;line-height:1;opacity:.6;transition:transform .2s var(--ease-out)}
-.form-more[open]>summary::before{content:'−'}
-.fm-hint{margin-left:auto;font-size:11px;opacity:.45;letter-spacing:.06em}
-.form-more>.form-group{padding:0 13px}
-.form-more>.form-group:last-child{padding-bottom:13px}
+/* 兩兩並排。子項仍是完整的 .form-group（各自有 label），
+   所以視覺節奏跟單欄欄位一致，只是擠在同一列。 */
+.f2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.f2>.form-group{margin-bottom:14px;min-width:0}
+.f2 input{width:100%;min-width:0}
 /* 勾選框：跟其他欄位一樣單欄滿版，但不需要獨立 label 行 */
 .form-check{display:flex;align-items:center;gap:9px;margin-bottom:18px;font-size:13px;cursor:pointer;user-select:none}
 .form-check input{width:16px;height:16px;flex:0 0 auto;accent-color:#FFD940;margin:0}
@@ -376,9 +372,12 @@ body[data-theme="light"] .pw-spread-sub{color:rgba(26,23,20,.55)}
 .type-btn.active-bubble{background:rgba(155,114,225,.22);color:#b98ef0;border-color:#9b72e1;font-weight:600}
 .type-btn.active-media{background:rgba(46,204,113,.22);color:#2ECC71;border-color:#2ECC71;font-weight:600}
 .type-btn.active-message{background:rgba(255,221,199,.22);color:#ffddc7;border-color:#ffddc7;font-weight:600}
-.photo-upload-area{border:2px dashed rgba(255,255,255,.2);border-radius:var(--radius);padding:16px;text-align:center;cursor:pointer;transition:all .15s;background:rgba(255,255,255,.04)}
+/* v2026.08.26-B：照片區縮成單行。原本 16px padding + 圖示 + 兩行說明
+   佔掉將近 100px，在表單最下面等於逼使用者多捲一段。 */
+.photo-upload-area{border:1px dashed rgba(255,255,255,.22);border-radius:var(--radius);padding:11px 14px;text-align:left;cursor:pointer;transition:all .15s;background:rgba(255,255,255,.04);display:flex;align-items:center;gap:10px}
+.photo-upload-area .pu-ico{font-size:16px;line-height:1;flex:0 0 auto}
 .photo-upload-area:hover{border-color:#FFD940;background:rgba(255,217,64,.06)}
-.photo-upload-area p{font-size:11px;color:rgba(255,255,255,.35);margin-top:4px}
+.photo-upload-area p{font-size:11px;color:rgba(255,255,255,.35);margin:0}
 .photo-previews{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
 .photo-thumb{width:64px;height:64px;object-fit:cover;border-radius:var(--radius);border:1px solid var(--c-border)}
 .thumb-wrap{position:relative;display:inline-block}
@@ -2046,37 +2045,37 @@ body[data-theme="light"] .bp-row textarea::placeholder,body[data-theme="light"] 
       </div>
     </div>
     <div class="form-group"><label>標題</label><input type="text" id="f-title" placeholder="例：花絮照片、男女主角確認出演"></div>
-    <div class="form-group"><label>平台（選填）</label><input type="text" id="f-platform" list="platform-list" placeholder="例：IG 貼文、Threads、新聞媒體"><datalist id="platform-list"></datalist></div>
-    <div class="form-group"><label>發布者（選填）</label><input type="text" id="f-author" list="author-list" placeholder="例：le2jh、잊官推"><datalist id="author-list"></datalist></div>
+    <!-- v2026.08.26-B：短欄位兩兩並排。表單一路單欄排下去太長，
+         手機要捲很久才碰得到照片上傳。這四個都是短輸入，並排不影響可讀性。 -->
+    <div class="f2">
+      <div class="form-group"><label>主題（選填）</label><input type="text" id="f-series" list="series-list" placeholder="作品或系列名"><datalist id="series-list"></datalist></div>
+      <div class="form-group"><label>地點（選填）</label><input type="text" id="f-place" list="place-list" placeholder="例：台大體育館"><datalist id="place-list"></datalist></div>
+    </div>
+    <div class="f2">
+      <div class="form-group"><label>平台（選填）</label><input type="text" id="f-platform" list="platform-list" placeholder="例：IG 貼文"><datalist id="platform-list"></datalist></div>
+      <div class="form-group"><label>發布者（選填）</label><input type="text" id="f-author" list="author-list" placeholder="例：le2jh"><datalist id="author-list"></datalist></div>
+    </div>
     <div class="form-group"><label>說明（選填）</label><textarea id="f-desc" placeholder="內容、備註…"></textarea></div>
     <div class="form-group"><label>連結（選填）</label><input type="text" id="f-source" placeholder="貼上原始貼文連結（IG／X 會自動帶入時間）" oninput="autofillFromSource(this.value)"></div>
     <!-- v2026.08.26-A：手動新增時標記影片。
          批次匯入是靠 videoCount（數 mp4 檔數）判斷，手動新增沒有那個資訊，
          之前只能靠平台名稱含「YT／Reels／Shorts／影片」來猜。這裡直接寫 1。 -->
     <label class="form-check"><input type="checkbox" id="f-isvideo"><span>這是影片（縮圖右下角會出現播放標記）</span></label>
-    <!-- v2026.08.26-A：不常用的三組欄位收進折疊區。
-         表單原本 11 個區塊一路排下去，手機要捲很久才看得到照片上傳。
-         主題／地點／同步發布用到的比例低，預設收起；編輯既有紀錄時
-         如果那些欄位本來就有值，openEditModal 會自動展開。 -->
-    <details class="form-more" id="f-more">
-      <summary>更多選填欄位<span class="fm-hint">主題・地點・同步發布</span></summary>
-      <div class="form-group"><label>主題</label><input type="text" id="f-series" list="series-list" placeholder="作品或系列名，例：Paris Diaries"><datalist id="series-list"></datalist></div>
-      <div class="form-group"><label>地點</label><input type="text" id="f-place" list="place-list" placeholder="例：台大體育館"><datalist id="place-list"></datalist></div>
-      <div class="form-group also-group">
-        <label>同步發布</label>
-        <div class="also-row">
-          <input type="text" id="f-also-platform" list="platform-list" placeholder="平台，例：X 貼文">
-          <input type="text" id="f-also-author" list="author-list" placeholder="發布者，例：잊官推">
-          <input type="text" id="f-also-source" placeholder="該平台的貼文連結">
-        </div>
+    <!-- 同一份內容同時發在兩個平台時填這裡。寫進 alsoOn，
+         卡片上會多一列「平台 ↗ | 發布者」。留空就沒有這一列。 -->
+    <div class="form-group also-group">
+      <label>同步發布（選填）</label>
+      <div class="f2">
+        <input type="text" id="f-also-platform" list="platform-list" placeholder="平台，例：X 貼文">
+        <input type="text" id="f-also-author" list="author-list" placeholder="發布者，例：잊官推">
       </div>
-    </details>
+      <input type="text" id="f-also-source" placeholder="該平台的貼文連結" style="margin-top:8px">
+    </div>
     <div class="form-group">
       <label>照片（無張數限制）</label>
       <div class="photo-upload-area" onclick="document.getElementById('f-photos').click()" ondragover="event.preventDefault()" ondrop="handleDrop(event)">
-        <div style="font-size:22px">🖼</div>
-        <p>點擊或拖曳照片上傳</p>
-        <p style="margin-top:2px;font-size:10px;color:var(--c-hint)">支援 JPG · PNG · WebP · GIF，自動壓縮</p>
+        <span class="pu-ico">🖼</span>
+        <p>點擊或拖曳照片上傳<span style="opacity:.6"> · JPG/PNG/WebP/GIF，自動壓縮</span></p>
       </div>
       <button type="button" class="paste-photo-btn" id="paste-photo-btn" onclick="pastePhotoFromClipboard(event)" title="把剪貼簿裡的圖片帶進來（iOS 捷徑用）">
         <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="3.6" y="3.2" width="8.8" height="10.4" rx="1.6" stroke="currentColor" stroke-width="1.25"/><path d="M6.2 3.2V2.4a.8.8 0 0 1 .8-.8h2a.8.8 0 0 1 .8.8v.8" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round"/></svg>
@@ -3609,7 +3608,6 @@ function openAddForm(date){
   document.getElementById('f-also-author').value='';
   document.getElementById('f-also-source').value='';
   document.getElementById('f-isvideo').checked=false;
-  var _more=document.getElementById('f-more'); if(_more) _more.open=false;
   document.getElementById('f-photos').value='';
   pendingPhotos=[]; renderPreviews();
   currentType='schedule';
@@ -3660,9 +3658,6 @@ function openEditModal(fid){
   document.getElementById('f-also-author').value=_ao.author||'';
   document.getElementById('f-also-source').value=_ao.source||'';
   document.getElementById('f-isvideo').checked=((rec.videoCount||0)>0);
-  /* 折疊區裡的欄位本來就有值時自動展開，否則使用者會以為資料不見了 */
-  var _more=document.getElementById('f-more');
-  if(_more) _more.open=!!(rec.series||rec.place||_ao.platform);
   document.getElementById('f-photos').value='';
   pendingPhotos=(rec.photos||[]).map(function(data,i){return {name:'p'+i,data:data,thumb:(rec.thumbs||[])[i]||''};});
   renderPreviews();
