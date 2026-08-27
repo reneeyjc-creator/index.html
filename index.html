@@ -189,13 +189,20 @@ body[data-theme="light"] .cal-cell.today .cell-date-row .cell-date{background:#F
 .form-check{display:flex;align-items:center;gap:9px;margin-bottom:18px;font-size:13px;cursor:pointer;user-select:none}
 .form-check input{width:16px;height:16px;flex:0 0 auto;accent-color:#FFD940;margin:0}
 body[data-theme="light"] .form-check input{accent-color:#FF6B3D}
-.also-row{display:flex;flex-direction:column;gap:8px;position:relative;padding-right:82px;margin-bottom:10px}
-.also-row .also-star,.also-row .also-up,.also-row .also-del{position:absolute;top:0;width:24px;height:24px;border:none;background:none;color:var(--c-muted);font-size:14px;line-height:1;cursor:pointer;border-radius:6px;transition:color .15s,background .15s}
-.also-row .also-star{right:54px;font-size:13px}
-.also-row .also-up{right:27px}
-.also-row .also-del{right:0;font-size:15px}
-.also-row .also-star:hover,.also-row .also-up:hover{color:var(--c-accent);background:rgba(255,217,64,.1)}
-.also-row .also-del:hover{color:#E06B5A;background:rgba(224,107,90,.1)}
+.also-row{display:flex;flex-direction:column;gap:7px;margin-bottom:10px;padding:9px 10px 10px;border:1px solid rgba(255,255,255,.1);border-radius:var(--radius);background:rgba(255,255,255,.025)}
+body[data-theme="light"] .also-row{border-color:rgba(0,0,0,.1);background:rgba(0,0,0,.015)}
+.ao-head{display:flex;align-items:center;gap:8px;min-height:28px}
+.ao-idx{font-size:10.5px;letter-spacing:.1em;color:var(--c-muted);text-transform:uppercase;flex:0 0 auto}
+.ao-acts{margin-left:auto;display:flex;gap:1px;flex-wrap:wrap;justify-content:flex-end}
+.ao-act{padding:7px 9px;min-height:32px;border:none;background:none;color:var(--c-muted);font-family:inherit;font-size:11.5px;letter-spacing:.03em;cursor:pointer;border-radius:6px;transition:color .15s,background .15s;white-space:nowrap}
+.ao-act:hover:not(:disabled){color:var(--c-accent);background:rgba(255,217,64,.1)}
+.ao-act-del:hover:not(:disabled){color:#E06B5A;background:rgba(224,107,90,.1)}
+.ao-act:disabled{opacity:.3;cursor:default}
+@media(max-width:700px){
+  /* 手機把點擊區拉到 38px，並讓三顆按鈕之間有實際間隙 */
+  .ao-act{min-height:38px;padding:9px 11px;font-size:12px}
+  .ao-acts{gap:4px}
+}
 .also-add{width:100%;padding:8px;border:1px dashed rgba(255,255,255,.22);border-radius:var(--radius);background:none;color:var(--c-muted);font-family:inherit;font-size:12px;letter-spacing:.04em;cursor:pointer;transition:color .15s,border-color .15s}
 .also-add:hover{color:var(--c-accent);border-color:var(--c-accent)}
 body[data-theme="light"] .also-add{border-color:rgba(0,0,0,.2)}
@@ -2183,7 +2190,7 @@ body[data-theme="light"] .bp-row textarea::placeholder,body[data-theme="light"] 
     <div class="settings-item">
       <div>
         <div class="settings-item-label">版本</div>
-        <div class="settings-item-val">v2026.08.26-J</div>
+        <div class="settings-item-val">v2026.08.26-K</div>
       </div>
       <span style="font-size:14px;opacity:.5">🌻</span>
     </div>
@@ -2792,9 +2799,16 @@ function alsoAddRow(v){
   if(!wrap) return;
   var row=document.createElement('div');
   row.className='also-row';
-  row.innerHTML='<button type="button" class="also-star" onclick="alsoPromote(this)" title="設為主要平台（與上方的平台/發布者/連結對調）">\u2605</button>'
-    +'<button type="button" class="also-up" onclick="alsoUp(this)" title="與上一列對調">\u2191</button>'
-    +'<button type="button" class="also-del" onclick="this.parentNode.remove()" title="移除這一列">\u2715</button>'
+  /* v2026.08.26-K：動作改成標頭列的文字按鈕。
+     原本是三顆 24px 的圖示疊在右上角，手機上點擊區太小又太靠近，
+     很容易把「移除」按成「上移」。文字標籤不用猜，點擊區也拉到 38px。 */
+  row.innerHTML='<div class="ao-head">'
+    +'<span class="ao-idx"></span>'
+    +'<span class="ao-acts">'
+    +'<button type="button" class="ao-act ao-act-star" onclick="alsoPromote(this)">\u8a2d\u70ba\u4e3b\u8981</button>'
+    +'<button type="button" class="ao-act ao-act-up" onclick="alsoUp(this)">\u4e0a\u79fb</button>'
+    +'<button type="button" class="ao-act ao-act-del" onclick="alsoRemove(this)">\u79fb\u9664</button>'
+    +'</span></div>'
     +'<input type="text" class="ao-p" list="platform-list" placeholder="\u5e73\u53f0\uff0c\u4f8b\uff1aX">'
     +'<input type="text" class="ao-a" list="author-list" placeholder="\u767c\u5e03\u8005">'
     +'<input type="text" class="ao-s" placeholder="\u8a72\u5e73\u53f0\u7684\u8cbc\u6587\u9023\u7d50">';
@@ -2802,8 +2816,25 @@ function alsoAddRow(v){
   p.value=v.platform||''; a.value=v.author||''; sc.value=v.source||'';
   p.dataset.orig=p.value; a.dataset.orig=a.value;
   wrap.appendChild(row);
+  alsoRenumber();
   return row;
 }
+/* 每列的序號與「上移」的可用狀態都跟位置有關，任何增刪／換位之後都要重算。 */
+function alsoRenumber(){
+  var rows=document.querySelectorAll('#f-also-list .also-row');
+  Array.prototype.forEach.call(rows,function(r,i){
+    var idx=r.querySelector('.ao-idx');
+    if(idx) idx.textContent='同步 '+(i+1);
+    var up=r.querySelector('.ao-act-up');
+    if(up) up.disabled=(i===0);
+  });
+}
+function alsoRemove(btn){
+  var row=btn.closest('.also-row');
+  if(row) row.remove();
+  alsoRenumber();
+}
+window.alsoRemove=alsoRemove;
 /* 卡片的顯示順序就是「主要平台 → alsoOn 依序」，所以排序有兩個層次：
      ↑  只在 alsoOn 之間換位置
      ★  跟表單上方的主要平台對調
@@ -2816,15 +2847,13 @@ function alsoSwapVals(a,b){
   });
 }
 function alsoUp(btn){
-  var row=btn.parentNode, prev=row.previousElementSibling;
-  if(!prev || !prev.classList.contains('also-row')){
-    if(typeof showToast==='function') showToast('已經在最上面了，要換主要平台請按 \u2605');
-    return;
-  }
+  var row=btn.closest('.also-row'), prev=row.previousElementSibling;
+  if(!prev || !prev.classList.contains('also-row')) return;
   alsoSwapVals(row,prev);
+  alsoRenumber();
 }
 function alsoPromote(btn){
-  var row=btn.parentNode;
+  var row=btn.closest('.also-row');
   var mp=document.getElementById('f-platform'),
       ma=document.getElementById('f-author'),
       ms=document.getElementById('f-source');
