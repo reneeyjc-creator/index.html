@@ -189,11 +189,12 @@ body[data-theme="light"] .cal-cell.today .cell-date-row .cell-date{background:#F
 .form-check{display:flex;align-items:center;gap:9px;margin-bottom:18px;font-size:13px;cursor:pointer;user-select:none}
 .form-check input{width:16px;height:16px;flex:0 0 auto;accent-color:#FFD940;margin:0}
 body[data-theme="light"] .form-check input{accent-color:#FF6B3D}
-.also-row{display:flex;flex-direction:column;gap:8px;position:relative;padding-right:56px;margin-bottom:10px}
-.also-row .also-up,.also-row .also-del{position:absolute;top:0;width:24px;height:24px;border:none;background:none;color:var(--c-muted);font-size:14px;line-height:1;cursor:pointer;border-radius:6px;transition:color .15s,background .15s}
-.also-row .also-up{right:28px}
+.also-row{display:flex;flex-direction:column;gap:8px;position:relative;padding-right:82px;margin-bottom:10px}
+.also-row .also-star,.also-row .also-up,.also-row .also-del{position:absolute;top:0;width:24px;height:24px;border:none;background:none;color:var(--c-muted);font-size:14px;line-height:1;cursor:pointer;border-radius:6px;transition:color .15s,background .15s}
+.also-row .also-star{right:54px;font-size:13px}
+.also-row .also-up{right:27px}
 .also-row .also-del{right:0;font-size:15px}
-.also-row .also-up:hover{color:var(--c-accent);background:rgba(255,217,64,.1)}
+.also-row .also-star:hover,.also-row .also-up:hover{color:var(--c-accent);background:rgba(255,217,64,.1)}
 .also-row .also-del:hover{color:#E06B5A;background:rgba(224,107,90,.1)}
 .also-add{width:100%;padding:8px;border:1px dashed rgba(255,255,255,.22);border-radius:var(--radius);background:none;color:var(--c-muted);font-family:inherit;font-size:12px;letter-spacing:.04em;cursor:pointer;transition:color .15s,border-color .15s}
 .also-add:hover{color:var(--c-accent);border-color:var(--c-accent)}
@@ -2182,7 +2183,7 @@ body[data-theme="light"] .bp-row textarea::placeholder,body[data-theme="light"] 
     <div class="settings-item">
       <div>
         <div class="settings-item-label">版本</div>
-        <div class="settings-item-val">v2026.08.26-I</div>
+        <div class="settings-item-val">v2026.08.26-J</div>
       </div>
       <span style="font-size:14px;opacity:.5">🌻</span>
     </div>
@@ -2791,7 +2792,8 @@ function alsoAddRow(v){
   if(!wrap) return;
   var row=document.createElement('div');
   row.className='also-row';
-  row.innerHTML='<button type="button" class="also-up" onclick="alsoUp(this)" title="往上一列；最上面那列會跟主要平台對調">\u2191</button>'
+  row.innerHTML='<button type="button" class="also-star" onclick="alsoPromote(this)" title="設為主要平台（與上方的平台/發布者/連結對調）">\u2605</button>'
+    +'<button type="button" class="also-up" onclick="alsoUp(this)" title="與上一列對調">\u2191</button>'
     +'<button type="button" class="also-del" onclick="this.parentNode.remove()" title="移除這一列">\u2715</button>'
     +'<input type="text" class="ao-p" list="platform-list" placeholder="\u5e73\u53f0\uff0c\u4f8b\uff1aX">'
     +'<input type="text" class="ao-a" list="author-list" placeholder="\u767c\u5e03\u8005">'
@@ -2802,8 +2804,10 @@ function alsoAddRow(v){
   wrap.appendChild(row);
   return row;
 }
-/* 「↑」：不是第一列就跟上一列對調；是第一列就跟表單上方的主要平台對調。
-   卡片的顯示順序就是「主要平台 → alsoOn 依序」，所以這樣就涵蓋所有排法。 */
+/* 卡片的顯示順序就是「主要平台 → alsoOn 依序」，所以排序有兩個層次：
+     ↑  只在 alsoOn 之間換位置
+     ★  跟表單上方的主要平台對調
+   分成兩顆是因為它們的心智模型不同 —— ↑ 是微調，★ 是換主角。 */
 function alsoSwapVals(a,b){
   ['.ao-p','.ao-a','.ao-s'].forEach(function(sel){
     var x=a.querySelector(sel), y=b.querySelector(sel);
@@ -2813,8 +2817,14 @@ function alsoSwapVals(a,b){
 }
 function alsoUp(btn){
   var row=btn.parentNode, prev=row.previousElementSibling;
-  if(prev && prev.classList.contains('also-row')){ alsoSwapVals(row,prev); return; }
-  /* 已經是第一列 → 跟主要平台對調 */
+  if(!prev || !prev.classList.contains('also-row')){
+    if(typeof showToast==='function') showToast('已經在最上面了，要換主要平台請按 \u2605');
+    return;
+  }
+  alsoSwapVals(row,prev);
+}
+function alsoPromote(btn){
+  var row=btn.parentNode;
   var mp=document.getElementById('f-platform'),
       ma=document.getElementById('f-author'),
       ms=document.getElementById('f-source');
@@ -2823,12 +2833,14 @@ function alsoUp(btn){
   t=mp.value; mp.value=rp.value; rp.value=t;
   t=ma.value; ma.value=ra.value; ra.value=t;
   t=ms.value; ms.value=rs.value; rs.value=t;
-  /* 對調之後兩邊都算「使用者動過」，否則 normUsed 會把值回退成既有寫法 */
+  /* 對調之後兩邊都算「使用者動過」，否則 normUsed 會把值回退成既有寫法，
+     等於白對調。用一個不可能相符的值強制走「尊重輸入」那條路。 */
   _editOrig['f-platform']='\u0000'; _editOrig['f-author']='\u0000';
   rp.dataset.orig='\u0000'; ra.dataset.orig='\u0000';
-  if(typeof showToast==='function') showToast('已與主要平台對調');
+  if(typeof showToast==='function') showToast('已設為主要平台');
 }
 window.alsoUp=alsoUp;
+window.alsoPromote=alsoPromote;
 
 function alsoClear(){ var w=document.getElementById('f-also-list'); if(w) w.innerHTML=''; }
 function alsoLoad(list){ alsoClear(); (list||[]).forEach(function(x){ alsoAddRow(x); }); }
