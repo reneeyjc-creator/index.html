@@ -2190,7 +2190,7 @@ body[data-theme="light"] .bp-row textarea::placeholder,body[data-theme="light"] 
     <div class="settings-item">
       <div>
         <div class="settings-item-label">版本</div>
-        <div class="settings-item-val">v2026.08.26-K</div>
+        <div class="settings-item-val">v2026.08.28-A</div>
       </div>
       <span style="font-size:14px;opacity:.5">🌻</span>
     </div>
@@ -4788,19 +4788,54 @@ function importRecords(){
       var list=Array.isArray(data)?data:(data&&Array.isArray(data.records)?data.records:[]);
       list=list.filter(function(r){ return r&&r.date&&r.title; });
       if(!list.length){ showToast('檔案裡沒有可匯入的紀錄',3500); return; }
-      if(!confirm('將匯入 '+list.length+' 筆紀錄到雲端。\n來自備份的同一筆紀錄會被覆寫、不會重複。\n確定執行？')) return;
+
+      /* v2026.08.28-A：匯入防重複。
+         舊版只有帶 _fid 的紀錄（也就是本站「匯出 JSON」的備份）才會覆寫，
+         外部產生的檔案沒有 _fid，走的是 add()，同一份檔案匯入三次就長三份。
+         2026-08-28 因此清掉了 947 筆重複。
+         現在先跟現有資料比對，已經存在的直接跳過。
+         比對鍵：有連結時用「日期＋連結」，沒有連結時退回「日期＋標題」。
+         ⚠️ 連結帶 ?t= 時間參數的要算成不同筆 —— 那是同一支影片的不同段落。 */
+      var existing={};
+      (window.__allRecords||records||[]).forEach(function(r){
+        var src=String(r.source||'').trim();
+        existing[r.date+'\u0001'+(src||('T:'+String(r.title||'').trim()))]=1;
+      });
+      function dupKey(r){
+        var src=String(r.source||'').trim();
+        return r.date+'\u0001'+(src||('T:'+String(r.title||'').trim()));
+      }
+
+      var fresh=[], skipped=0;
+      list.forEach(function(r){
+        if(r._fid){ fresh.push(r); return; }        // 還原備份，照舊覆寫
+        if(existing[dupKey(r)]){ skipped++; return; }
+        existing[dupKey(r)]=1;                       // 同一檔案內也去重
+        fresh.push(r);
+      });
+
+      if(!fresh.length){
+        showToast('這 '+list.length+' 筆全部都已經存在，沒有新增',4500);
+        return;
+      }
+      var msg='將匯入 '+fresh.length+' 筆紀錄。';
+      if(skipped) msg+='\n已跳過 '+skipped+' 筆（日期與連結都相同，判定為重複）。';
+      msg+='\n\n備份檔（帶 _fid）會覆寫原紀錄；外部檔案則是新增。\n確定執行？';
+      if(!confirm(msg)) return;
+
       showToast('匯入中…', 60000);
-      var done=0, fail=0, pending=list.length;
+      var done=0, fail=0, pending=fresh.length;
       function fin(){
         pending--;
         if(pending>0) return;
-        if(fail){ showToast('完成：'+done+' 筆成功、'+fail+' 筆失敗（請確認已解鎖）',6000); }
-        else { showToast('✓ 已匯入 '+done+' 筆紀錄'); }
+        var tail=skipped?('，跳過 '+skipped+' 筆重複'):'';
+        if(fail){ showToast('完成：'+done+' 筆成功、'+fail+' 筆失敗（請確認已解鎖）'+tail,6000); }
+        else { showToast('✓ 已匯入 '+done+' 筆'+tail, skipped?5000:3000); }
         if(data&&data.marquee){
           try{ db.collection('meta').doc('header').set({marquee:data.marquee},{merge:true}); }catch(e){}
         }
       }
-      list.forEach(function(r){
+      fresh.forEach(function(r){
         var c=Object.assign({},r); var fid=c._fid; delete c._fid;
         if(!c.createdAt) c.createdAt=Date.now();
         var p = fid ? colRef.doc(fid).set(c) : colRef.add(c);
