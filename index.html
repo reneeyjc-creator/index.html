@@ -491,6 +491,11 @@ body[data-theme="light"]{--dg-label:rgba(26,23,20,.72)}
 
 /* 會員限定：memberOnly 原本只有隱藏照片的效果，卡片上完全看不出來。
    訪客看到它才知道照片為什麼是空的；站主看到它才能確認旗標有設。 */
+#f-group{width:100%;height:42px;padding:0 12px;font-family:inherit;font-size:14px;
+  color:var(--c-text);background:var(--c-bg2);border:1px solid var(--c-border2);
+  border-radius:var(--radius);-webkit-appearance:none;appearance:none;cursor:pointer}
+#f-group:disabled{opacity:.5;cursor:default}
+.f-group-hint{margin-top:6px;font-size:11px;letter-spacing:.03em;color:var(--c-muted);min-height:14px}
 .badge-member{font-size:10px;padding:3px 8px;border-radius:4px;font-weight:600;
   flex-shrink:0;letter-spacing:.08em;border:1px solid rgba(255,217,64,.35);
   color:#FFD940;background:rgba(255,217,64,.08)}
@@ -2148,7 +2153,7 @@ body[data-theme="light"] .bp-row textarea::placeholder,body[data-theme="light"] 
     <div class="form-group">
       <label>日期 / 時間</label>
       <div class="date-time-row">
-        <input type="date" id="f-date">
+        <input type="date" id="f-date" onchange="refreshGroupOptions('')">
         <input type="time" id="f-time" placeholder="時間（選填）">
       </div>
     </div>
@@ -2170,6 +2175,13 @@ body[data-theme="light"] .bp-row textarea::placeholder,body[data-theme="light"] 
          之前只能靠平台名稱含「YT／Reels／Shorts／影片」來猜。這裡直接寫 1。 -->
     <label class="form-check"><input type="checkbox" id="f-isvideo"><span>這是影片（縮圖右下角會出現播放標記）</span></label>
     <label class="form-check"><input type="checkbox" id="f-memberonly"><span>會員限定（照片不對訪客顯示，比照泡泡）</span></label>
+    <!-- v2026.08.29-H：群組改成顯式指定。選項是「同一天、本身沒有被收進別組」
+         的紀錄；選了之後這筆就收在那筆底下，標題怎麼寫都不影響。 -->
+    <div class="form-group">
+      <label>收在哪一筆之下（選填）</label>
+      <select id="f-group"><option value="">不收（獨立一筆）</option></select>
+      <div class="f-group-hint" id="f-group-hint"></div>
+    </div>
     <!-- v2026.08.26-H：同步發布改成可增減的列表。
          官方帳號常見 post잊 + o3cltv + 잊官推 三邊都發，而且往往有時間差
          （o3cltv 晚幾天補花絮），自動偵測配不起來，只能在這裡手動加。
@@ -2262,7 +2274,7 @@ body[data-theme="light"] .bp-row textarea::placeholder,body[data-theme="light"] 
     <div class="settings-item">
       <div>
         <div class="settings-item-label">版本</div>
-        <div class="settings-item-val">v2026.08.29-G</div>
+        <div class="settings-item-val">v2026.08.29-H</div>
       </div>
       <span style="font-size:14px;opacity:.5">🌻</span>
     </div>
@@ -3719,21 +3731,25 @@ function renderCalendar(){
          格子空間本來就很小，五首歌五行會把整格塞滿。 */
       /* 月曆格：舞台併進「節目本身」那一行，標成 ×N。
          原本是另外開一行，結果同一個節目名在格子裡出現兩次（站主回報的圖 4）。 */
-      var calRows=[], calSeen={}, calSolo={};
-      if(DAY_GROUP){
-        dayRecs.forEach(function(rec){
-          if((typeof dayGroupKey==='function')&&dayGroupKey(rec)) return;
-          calSolo[String(rec.title||'').trim()]=1;
-        });
-      }
+      /* v2026.08.29-H：分兩趟。第一趟先登記所有「不屬於任何群組」的紀錄，
+         第二趟才把群組併進父層那一行。原本一趟做完，父層若排在子紀錄後面
+         就會另外開一行，同一個節目名在格子裡出現兩次。 */
+      var calRows=[], calSeen={};
+      var _dgk=function(rec){
+        return DAY_GROUP?((typeof dayGroupKey==='function')?dayGroupKey(rec):null):null;
+      };
       dayRecs.forEach(function(rec){
-        var k=DAY_GROUP?((typeof dayGroupKey==='function')?dayGroupKey(rec):null):null;
-        if(!k){ var row={rec:rec,n:1}; calRows.push(row); calSeen['P\u0001'+String(rec.title||'').trim()]=row; return; }
-        var nm=k.slice(2);
-        var par=calSeen['P\u0001'+nm];
+        if(_dgk(rec)) return;
+        var row={rec:rec,n:1}; calRows.push(row);
+        calSeen['P\u0001'+String(rec._fid||'')]=row;
+      });
+      dayRecs.forEach(function(rec){
+        var k=_dgk(rec); if(!k) return;
+        var par=calSeen['P\u0001'+k];
         if(par){ par.extra=(par.extra||0)+1; return; }      // 併進父層那一行
         if(calSeen[k]){ calSeen[k].n++; return; }
-        calSeen[k]={rec:rec,n:1,name:nm}; calRows.push(calSeen[k]);
+        calSeen[k]={rec:rec,n:1,name:dgParentName(k)||String(rec.title||'').trim()};
+        calRows.push(calSeen[k]);
       });
       var ttlRow=function(x){
         if(x.extra){
@@ -3924,24 +3940,40 @@ var DAY_GROUP_MIN = 2;   // 幾筆以上才收攏。設 2 是為了行為一致 
 /* 節目名 = 標題開頭到第一個空白為止的那段，但節目名本身可能含空白
    （M COUNTDOWN、SHOW! MUSIC CORE），所以改用「共同前綴」判斷：
    同一天內兩筆標題的共同前綴夠長（≥4 字）且以空白結尾，就算同一組。 */
-var DG_SHOWS=['M COUNTDOWN','MUSIC BANK','SHOW! MUSIC CORE','INKIGAYO','THE SHOW',
-  'MBC 歌謠大祭典','SBS 歌謠大戰','KBS 歌謠大祝祭',
-  '金廷恩的巧克力','開放演唱會','柳熙烈的寫生簿','2PM 回歸秀',
-  "2PM COMEBACK SHOW 'MUST'",'2PM COMEBACK SHOW',
-  '2015 DMC Festival','2016 DMC Festival',
-  'Korean Music Wave Live In Fukuoka','Korean Music Wave in Bangkok',
-  'Incheon Korean Music Wave Live'];
-/* 用已知節目名做前綴比對，不用正則切。
-   曲名本身常含空白（해야 해 / Without U / A.D.T.O.Y.），
-   靠 \S+ 去猜曲名一定會切錯 —— 第一版就是這樣壞的。 */
-function dayGroupKey(r){
-  var t=String(r.title||'');
-  if(!/(打歌舞台|年末舞台|音放舞台|舞台|直拍)$/.test(t)) return null;
-  for(var i=0;i<DG_SHOWS.length;i++){
-    if(t.indexOf(DG_SHOWS[i])===0) return 'S\u0001'+DG_SHOWS[i];
-  }
-  return null;
+/* v2026.08.29-H：群組關係改成顯式欄位。
+   之前是從標題推導（節目名 + 空白 + 曲名 + 後綴），站主要記住格式才寫得對，
+   而且父層標題不能以後綴結尾這種隱藏規則看不出來。現在每筆子紀錄自己存
+   groupOf = 父層那筆的 _fid，表單有下拉可以選，標題怎麼寫都不影響。
+   ⚠️ dayGroupKey 現在回傳的是「父層的 _fid」，不是節目名字串。
+      要拿顯示用的名字請用 dgParentName()。
+   ⚠️ 父層被刪掉、或改成不同日期，這裡回 null —— 子紀錄安全降級成平鋪，
+      不會憑空消失。 */
+var _dgFid=null, _dgFidSrc=null;
+function dgFidIndex(){
+  /* records 每次變動都是整個陣列重新賦值（snapshot / toggleDupes），
+     所以拿陣列本身當快取鍵是安全的。 */
+  var src=(typeof records!=='undefined')?records:null;
+  if(_dgFid && _dgFidSrc===src) return _dgFid;
+  var m={};
+  (src||[]).forEach(function(r){ if(r&&r._fid) m[r._fid]=r; });
+  _dgFid=m; _dgFidSrc=src;
+  return m;
 }
+function dgParentRec(pfid){ return pfid?(dgFidIndex()[pfid]||null):null; }
+function dgParentName(pfid){
+  var p=dgParentRec(pfid);
+  return p?String(p.title||'').trim():'';
+}
+function dayGroupKey(r){
+  var g=r&&r.groupOf;
+  if(!g) return null;
+  var p=dgFidIndex()[g];
+  if(!p || p.date!==r.date) return null;
+  if(p._fid===r._fid) return null;
+  return g;
+}
+window.dayGroupKey=dayGroupKey;
+window.dgParentName=dgParentName;
 /* 借縮圖：把一組舞台紀錄的縮圖攤平，去重後取前 N 張。
    只在渲染時借用，不寫進資料 —— 照片牆走的是各自的 photos，不受影響。 */
 function dgBorrowThumbs(rows){
@@ -3989,7 +4021,7 @@ function dayGroupedHTML(recs){
   recs.forEach(function(r,i){
     var k=dayGroupKey(r);
     if(!k){ order.push({solo:r, idx:i}); return; }
-    if(!bucket[k]){ bucket[k]={key:k, name:k.slice(2), rows:[]}; bucket[k]._slot=order.length; order.push(bucket[k]); }
+    if(!bucket[k]){ bucket[k]={key:k, pfid:k, name:dgParentName(k), rows:[]}; bucket[k]._slot=order.length; order.push(bucket[k]); }
     bucket[k].rows.push({r:r, idx:i});
   });
 
@@ -4004,7 +4036,7 @@ function dayGroupedHTML(recs){
     for(var i=0;i<order.length;i++){
       var p=order[i];
       if(!p.solo) continue;
-      if(String(p.solo.title||'').trim()===o.name){ p.child=o; o.parented=true; break; }
+      if(String(p.solo._fid||'')===o.pfid){ p.child=o; o.parented=true; break; }
     }
   });
 
@@ -4055,6 +4087,44 @@ function closeDaySo(){
   currentDayISO=null; currentDayDate=null;
 }
 
+/* v2026.08.29-H：填「收在哪一筆之下」的選項。
+   同一天、且自己沒有 groupOf 的紀錄才能當父層 —— 不允許兩層以上，
+   不然收攏會遞迴，卡片要點好幾次才展得開。
+   ⚠️ 依賴 f-date 的值，所以日期一改就要重跑。 */
+function refreshGroupOptions(keep){
+  var sel=document.getElementById('f-group');
+  var hint=document.getElementById('f-group-hint');
+  if(!sel) return;
+  var date=(document.getElementById('f-date')||{}).value||'';
+  var cur=(keep!==undefined)?keep:sel.value;
+  var pool=(window.__allRecords||records||[]);
+  var cands=pool.filter(function(r){
+    return r.date===date && !r.groupOf && r._fid && r._fid!==editId;
+  }).sort(function(a,b){
+    return String(a.title||'').localeCompare(String(b.title||''));
+  });
+  var html='<option value="">不收（獨立一筆）</option>';
+  cands.forEach(function(r){
+    var t=String(r.title||'(無標題)').trim();
+    html+='<option value="'+escHtml(r._fid)+'">'+escHtml(t.length>48?t.slice(0,48)+'…':t)+'</option>';
+  });
+  var keepOk=false;
+  if(cur && cands.some(function(r){ return r._fid===cur; })) keepOk=true;
+  else if(cur){
+    var p=null;
+    for(var i=0;i<pool.length;i++){ if(pool[i]._fid===cur){ p=pool[i]; break; } }
+    /* 目前指定的父層不在候選裡（例如它自己也被收進別組了）還是留著，
+       否則一存檔就會把原本的關係悄悄清掉。指向不存在的 id 才落回空。 */
+    if(p){ html+='<option value="'+escHtml(cur)+'">'+escHtml(String(p.title||'').trim())+'（目前）</option>'; keepOk=true; }
+  }
+  sel.innerHTML=html;
+  sel.value=keepOk?cur:'';
+  sel.disabled=!date;
+  if(hint) hint.textContent = !date ? '先填日期才會有選項'
+    : (cands.length? '同一天有 '+cands.length+' 筆可以當父層' : '這天沒有其他紀錄可以收');
+}
+window.refreshGroupOptions=refreshGroupOptions;
+
 function openAddForm(date){
   editId=null;
   if(typeof toggleFormGuide==="function") toggleFormGuide(false);
@@ -4071,6 +4141,7 @@ function openAddForm(date){
   document.getElementById('f-source').value='';
   document.getElementById('f-isvideo').checked=false;
   document.getElementById('f-memberonly').checked=false;
+  refreshGroupOptions('');
   alsoClear();
   _editOrig={};
   document.getElementById('f-photos').value='';
@@ -4122,6 +4193,7 @@ function openEditModal(fid){
   alsoLoad(rec.alsoOn||[]);
   document.getElementById('f-isvideo').checked=((rec.videoCount||0)>0);
   document.getElementById('f-memberonly').checked=!!rec.memberOnly;
+  refreshGroupOptions(rec.groupOf||'');
   document.getElementById('f-photos').value='';
   pendingPhotos=(rec.photos||[]).map(function(data,i){return {name:'p'+i,data:data,thumb:(rec.thumbs||[])[i]||''};});
   renderPreviews();
@@ -4279,6 +4351,8 @@ function saveRecord(){
     var _isVid=document.getElementById('f-isvideo').checked;
     if(_isVid) record.videoCount=Math.max(1, 0);
     record.memberOnly=document.getElementById('f-memberonly').checked;
+    /* 空字串而不是 delete —— update() 要能把既有的 groupOf 清掉。 */
+    record.groupOf=(document.getElementById('f-group')||{}).value||'';
     var prevRec=null, pool=window.__allRecords||records;
     if(eid){ for(var _i=0;_i<pool.length;_i++){ if(pool[_i]._fid===eid){ prevRec=pool[_i]; break; } } }
     var prevAo=(prevRec&&prevRec.alsoOn)||[];
@@ -5120,14 +5194,14 @@ function fyGroupPlan(recs){
     var k=dayGroupKey(r);
     if(!k) return;
     var kk=r.date+'\u0001'+k;
-    if(!buckets[kk]){ buckets[kk]={name:k.slice(2), date:r.date, rows:[]}; order.push(buckets[kk]); }
+    if(!buckets[kk]){ buckets[kk]={pfid:k, name:dgParentName(k), date:r.date, rows:[]}; order.push(buckets[kk]); }
     buckets[kk].rows.push({r:r});
   });
   var skip={}, after={}, standalone={};
   order.forEach(function(g){
     var parent=null;
     for(var i=0;i<recs.length;i++){
-      if(recs[i].date===g.date && String(recs[i].title||'').trim()===g.name && !dayGroupKey(recs[i])){
+      if(String(recs[i]._fid||'')===g.pfid && !dayGroupKey(recs[i])){
         parent=recs[i]; break;
       }
     }
