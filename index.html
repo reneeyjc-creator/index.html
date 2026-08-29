@@ -436,6 +436,17 @@ body[data-theme="light"] .pw-spread-sub{color:rgba(26,23,20,.55)}
 .day-so-head{padding:16px 20px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#1A1814;z-index:1}
 .day-so-head h3{font-size:18px;font-weight:500;color:#E8E4E0;letter-spacing:.03em}
 .day-so-body{padding:0}
+.day-group{border-top:1px solid var(--c-line)}
+.day-group:first-child{border-top:none}
+.dg-head{width:100%;display:flex;align-items:center;gap:9px;padding:13px 16px;background:none;border:none;cursor:pointer;font-family:inherit;text-align:left;color:inherit}
+.dg-caret{font-size:14px;line-height:1;color:var(--c-muted);transition:transform .18s var(--ease-out);flex:0 0 auto}
+.day-group.open .dg-caret{transform:rotate(90deg)}
+.dg-name{font-size:14px;font-weight:500;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dg-count{margin-left:auto;font-size:11px;letter-spacing:.06em;color:var(--c-muted);flex:0 0 auto}
+.dg-head:hover .dg-name{color:var(--c-accent)}
+.dg-body{display:none}
+.day-group.open .dg-body{display:block}
+.day-group .dg-body .feed-item:first-child{border-top:1px solid var(--c-line)}
 
 /* ── Password modal ── */
 .pw-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:800;align-items:center;justify-content:center;padding:20px}
@@ -2190,7 +2201,7 @@ body[data-theme="light"] .bp-row textarea::placeholder,body[data-theme="light"] 
     <div class="settings-item">
       <div>
         <div class="settings-item-label">版本</div>
-        <div class="settings-item-val">v2026.08.28-A</div>
+        <div class="settings-item-val">v2026.08.28-C</div>
       </div>
       <span style="font-size:14px;opacity:.5">🌻</span>
     </div>
@@ -3791,10 +3802,75 @@ function renderDaySo(){
   var dAnnivs=getAnniversaries(currentDayISO);
   var annivBanner=dAnnivs.length?'<div class="day-anniv-banner">'+dAnnivs.map(function(a){return '<span>'+a.icon+' '+escHtml(a.label)+(a.countLabel?' '+a.countLabel:'')+'</span>';}).join('')+'</div>':'';
   document.getElementById('day-so-body').innerHTML=annivBanner+(recs.length
-    ? recs.map(function(r,i){ return dayItemHTML(r,i); }).join('')
+    ? dayGroupedHTML(recs)
     : (dAnnivs.length?'':'<div style="padding:20px;text-align:center;color:var(--c-hint);font-size:13px">本日無記錄</div>'));
   requestAnimationFrame(markClampedDescs);
 }
+/* v2026.08.28-B：當日視窗把「同一天、同一個節目」的多筆收成一組。
+   起因是音放／演唱會資料匯入後，同一天同一個節目常有三四首歌各一筆，
+   在當日視窗裡就是三四張幾乎一樣的卡片。
+   ⚠️ 只改顯示，資料維持每首一筆 —— 曲名還在標題裡（搜尋找得到）、
+      縮圖各自保留、統計也不受影響。要關掉把 DAY_GROUP 設成 false。 */
+var DAY_GROUP = true;
+var DAY_GROUP_MIN = 2;   // 幾筆以上才收攏。設 2 是為了行為一致 ——
+                         // 只要同節目有多筆就一律收，使用者不用猜哪些會收哪些不會。
+
+/* 節目名 = 標題開頭到第一個空白為止的那段，但節目名本身可能含空白
+   （M COUNTDOWN、SHOW! MUSIC CORE），所以改用「共同前綴」判斷：
+   同一天內兩筆標題的共同前綴夠長（≥4 字）且以空白結尾，就算同一組。 */
+var DG_SHOWS=['M COUNTDOWN','MUSIC BANK','SHOW! MUSIC CORE','INKIGAYO','THE SHOW',
+  'MBC 歌謠大祭典','SBS 歌謠大戰','KBS 歌謠大祝祭',
+  '金廷恩的巧克力','開放演唱會','柳熙烈的寫生簿','2PM 回歸秀',
+  "2PM COMEBACK SHOW 'MUST'",'2PM COMEBACK SHOW',
+  '2015 DMC Festival','2016 DMC Festival',
+  'Korean Music Wave Live In Fukuoka','Korean Music Wave in Bangkok',
+  'Incheon Korean Music Wave Live'];
+/* 用已知節目名做前綴比對，不用正則切。
+   曲名本身常含空白（해야 해 / Without U / A.D.T.O.Y.），
+   靠 \S+ 去猜曲名一定會切錯 —— 第一版就是這樣壞的。 */
+function dayGroupKey(r){
+  var t=String(r.title||'');
+  if(!/(打歌舞台|年末舞台|音放舞台|舞台|直拍)$/.test(t)) return null;
+  for(var i=0;i<DG_SHOWS.length;i++){
+    if(t.indexOf(DG_SHOWS[i])===0) return 'S\u0001'+DG_SHOWS[i];
+  }
+  return null;
+}
+function dayGroupedHTML(recs){
+  if(!DAY_GROUP) return recs.map(function(r,i){ return dayItemHTML(r,i); }).join('');
+  var order=[], bucket={};
+  recs.forEach(function(r,i){
+    var k=dayGroupKey(r);
+    if(!k){ order.push({solo:r, idx:i}); return; }
+    if(!bucket[k]){ bucket[k]={key:k, name:k.slice(2), rows:[]}; order.push(bucket[k]); }
+    bucket[k].rows.push({r:r, idx:i});
+  });
+  var gi=0;
+  return order.map(function(o){
+    if(o.solo) return dayItemHTML(o.solo, o.idx);
+    if(o.rows.length < DAY_GROUP_MIN)
+      return o.rows.map(function(x){ return dayItemHTML(x.r, x.idx); }).join('');
+    var id='dg'+(gi++);
+    return '<div class="day-group" id="'+id+'">'
+      +'<button class="dg-head" onclick="dgToggle(\''+id+'\')" aria-expanded="false">'
+      +'<span class="dg-caret" aria-hidden="true">\u203a</span>'
+      +'<span class="dg-name">'+escHtml(o.name)+'</span>'
+      +'<span class="dg-count">'+o.rows.length+' 首</span></button>'
+      +'<div class="dg-body">'
+      + o.rows.map(function(x){ return dayItemHTML(x.r, x.idx); }).join('')
+      +'</div></div>';
+  }).join('');
+}
+function dgToggle(id){
+  var el=document.getElementById(id);
+  if(!el) return;
+  var on=el.classList.toggle('open');
+  var b=el.querySelector('.dg-head');
+  if(b) b.setAttribute('aria-expanded', on?'true':'false');
+}
+window.dgToggle=dgToggle;
+window.dayGroupedHTML=dayGroupedHTML;
+
 function closeDaySo(){ 
   document.getElementById('day-so').classList.remove('open'); 
   document.getElementById('overlay').classList.remove('show');
