@@ -451,12 +451,25 @@ body[data-theme="light"] .pw-spread-sub{color:rgba(26,23,20,.55)}
 .day-group.dg-nested .dg-head{padding-left:34px;padding-top:9px;padding-bottom:9px}
 .day-group.dg-nested .dg-name{font-size:13px;color:var(--c-muted)}
 .ct-n{opacity:.55;font-variant-numeric:tabular-nums}
-.dg-thumbs{display:flex;gap:3px;margin-left:10px;flex:0 0 auto}
+.dg-thumbs{display:flex;gap:3px;margin-left:12px;flex:0 0 auto}
 .dg-thumbs img{width:34px;height:34px;object-fit:cover;border-radius:2px;display:block}
-.fy-group{border-top:1px solid var(--c-line)}
-.fy-group .dg-head{padding:12px 0}
-.fy-group.dg-nested .dg-head{padding-left:0}
-@media(max-width:700px){ .dg-thumbs img{width:30px;height:30px} }
+/* 日誌的群組列要跟 .feed-item 對齊：左內距 34px、日期欄 84px、間距 18px。
+   縮排對不上的話，「舞台」會孤零零掛在最左邊（站主回報的圖 2／3）。 */
+.fy-group{border-top:1px solid rgba(255,255,255,.07)}
+.fy-group .dg-head{padding:12px 16px 12px 34px}
+.dg-date{width:84px;margin-right:18px;flex:0 0 auto;text-align:left;
+  font-family:'Archivo','Noto Sans TC',sans-serif;color:var(--c-muted);line-height:1.1}
+.dg-date b{display:block;font-size:20px;font-weight:600;color:var(--c-text)}
+.dg-date i{display:block;font-size:10px;font-style:normal;letter-spacing:.1em}
+.fy-group.dg-nested .dg-date{width:84px;margin-right:18px}
+/* 當日視窗的欄寬不同（36px + 12px） */
+.day-so-body .day-group.dg-nested .dg-head{padding-left:64px}
+@media(max-width:700px){
+  .dg-thumbs img{width:30px;height:30px}
+  .fy-group .dg-head{padding-left:16px}
+  .dg-date{width:52px;margin-right:12px}
+  .dg-date b{font-size:16px}
+}
 
 /* ── Password modal ── */
 .pw-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:800;align-items:center;justify-content:center;padding:20px}
@@ -2213,7 +2226,7 @@ body[data-theme="light"] .bp-row textarea::placeholder,body[data-theme="light"] 
     <div class="settings-item">
       <div>
         <div class="settings-item-label">版本</div>
-        <div class="settings-item-val">v2026.08.29-D</div>
+        <div class="settings-item-val">v2026.08.29-E</div>
       </div>
       <span style="font-size:14px;opacity:.5">🌻</span>
     </div>
@@ -3668,14 +3681,31 @@ function renderCalendar(){
       };
       /* 月曆格同樣收攏：同一節目的多筆只佔一行，標題後面標「×N」。
          格子空間本來就很小，五首歌五行會把整格塞滿。 */
-      var calRows=[], calSeen={};
+      /* 月曆格：舞台併進「節目本身」那一行，標成 ×N。
+         原本是另外開一行，結果同一個節目名在格子裡出現兩次（站主回報的圖 4）。 */
+      var calRows=[], calSeen={}, calSolo={};
+      if(DAY_GROUP){
+        dayRecs.forEach(function(rec){
+          if((typeof dayGroupKey==='function')&&dayGroupKey(rec)) return;
+          calSolo[String(rec.title||'').trim()]=1;
+        });
+      }
       dayRecs.forEach(function(rec){
         var k=DAY_GROUP?((typeof dayGroupKey==='function')?dayGroupKey(rec):null):null;
-        if(!k){ calRows.push({rec:rec,n:1}); return; }
+        if(!k){ var row={rec:rec,n:1}; calRows.push(row); calSeen['P\u0001'+String(rec.title||'').trim()]=row; return; }
+        var nm=k.slice(2);
+        var par=calSeen['P\u0001'+nm];
+        if(par){ par.extra=(par.extra||0)+1; return; }      // 併進父層那一行
         if(calSeen[k]){ calSeen[k].n++; return; }
-        calSeen[k]={rec:rec,n:1,name:k.slice(2)}; calRows.push(calSeen[k]);
+        calSeen[k]={rec:rec,n:1,name:nm}; calRows.push(calSeen[k]);
       });
       var ttlRow=function(x){
+        if(x.extra){
+          var a0=(x.rec.author||'').trim();
+          var p0=a0?'<span class="ct-pre">'+escHtml(a0)+'｜</span>':'';
+          return '<div class="cell-title"><span class="ct-dot cdot-'+(x.rec.type||'')+'"></span>'
+            +'<span class="ct-txt">'+p0+escHtml(x.rec.title)+'<span class="ct-n"> +'+x.extra+'</span></span></div>';
+        }
         if(x.n<2) return ttl(x.rec);
         var names=[(x.rec.author||'').trim()].filter(Boolean).join('');
         var pre=names?'<span class="ct-pre">'+escHtml(names)+'｜</span>':'';
@@ -3930,9 +3960,10 @@ function dayGroupedHTML(recs){
   }
   return order.map(function(o){
     if(o.solo){
+      /* 有父層就一律收，即使只有一首 —— 否則同樣是「節目 + 舞台」，
+         有時收有時不收，使用者猜不到規則（2009-12-19 就是這種）。 */
       var html=dayItemHTML(o.solo, o.idx);
-      if(o.child && o.child.rows.length>=DAY_GROUP_MIN) html+=groupHTML(o.child, true);
-      else if(o.child) html+=o.child.rows.map(function(x){ return dayItemHTML(x.r, x.idx); }).join('');
+      if(o.child) html+=groupHTML(o.child, true);
       return html;
     }
     if(o.parented) return '';
@@ -5023,13 +5054,14 @@ function fyGroupPlan(recs){
   });
   var skip={}, after={}, standalone={};
   order.forEach(function(g){
-    if(g.rows.length<DAY_GROUP_MIN) return;
     var parent=null;
     for(var i=0;i<recs.length;i++){
       if(recs[i].date===g.date && String(recs[i].title||'').trim()===g.name && !dayGroupKey(recs[i])){
         parent=recs[i]; break;
       }
     }
+    /* 有父層就一律收（即使一首）；沒父層才需要多筆才值得收成一塊。 */
+    if(!parent && g.rows.length<DAY_GROUP_MIN) return;
     g.rows.forEach(function(x){ skip[x.r._fid]=1; });
     if(parent){ g.nested=true; after[parent._fid]=g; }
     else {
@@ -5045,10 +5077,11 @@ function fyGroupPlan(recs){
   return {skip:skip, after:after, standalone:standalone};
 }
 
-function fyGroupHTML(g, gi){
+function fyGroupHTML(g, gi, dateCell){
   var id='fg'+(g.date||'')+'-'+Math.abs(hashStr(g.name));
   return '<div class="day-group fy-group'+(g.nested?' dg-nested':'')+'" id="'+id+'">'
     +'<button class="dg-head" onclick="dgToggle(\''+id+'\')" aria-expanded="false">'
+    +'<span class="dg-date">'+(dateCell||'')+'</span>'
     +'<span class="dg-caret" aria-hidden="true">\u203a</span>'
     +'<span class="dg-name">'+escHtml(g.nested?'舞台':g.name)+'</span>'
     +'<span class="dg-count">'+g.rows.length+' 首</span>'
@@ -5088,7 +5121,12 @@ function buildFyInner(recs,startIdx){
     var sameDay=(r.date===lastDate);
     lastDate=r.date;
     var head=plan&&plan.after['__head__'+r._fid];
-    if(head){ inner+=fyGroupHTML(head, gi); gi+=head.rows.length; return; }
+    if(head){
+      /* 群組頂替了該組第一筆的位置，日期欄要由群組自己顯示，
+         否則那天的日期會整個消失（站主回報的圖 1）。 */
+      var dc=sameDay?'':('<b>'+(r.date||'').slice(8,10)+'</b><i>'+(FY_MN[parseInt((r.date||'').slice(5,7),10)-1]||'')+'</i>');
+      inner+=fyGroupHTML(head, gi, dc); gi+=head.rows.length; return;
+    }
     if(plan && skip[r._fid]) return;
     inner+=feedItemHTML(r,gi++,sameDay);
     var g=plan&&plan.after[r._fid];
