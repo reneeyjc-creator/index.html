@@ -447,6 +447,16 @@ body[data-theme="light"] .pw-spread-sub{color:rgba(26,23,20,.55)}
 .dg-body{display:none}
 .day-group.open .dg-body{display:block}
 .day-group .dg-body .feed-item:first-child{border-top:1px solid var(--c-line)}
+.day-group.dg-nested{border-top:none;margin-top:-1px}
+.day-group.dg-nested .dg-head{padding-left:34px;padding-top:9px;padding-bottom:9px}
+.day-group.dg-nested .dg-name{font-size:13px;color:var(--c-muted)}
+.ct-n{opacity:.55;font-variant-numeric:tabular-nums}
+.dg-thumbs{display:flex;gap:3px;margin-left:10px;flex:0 0 auto}
+.dg-thumbs img{width:34px;height:34px;object-fit:cover;border-radius:2px;display:block}
+.fy-group{border-top:1px solid var(--c-line)}
+.fy-group .dg-head{padding:12px 0}
+.fy-group.dg-nested .dg-head{padding-left:0}
+@media(max-width:700px){ .dg-thumbs img{width:30px;height:30px} }
 
 /* ── Password modal ── */
 .pw-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:800;align-items:center;justify-content:center;padding:20px}
@@ -1939,6 +1949,7 @@ body[data-theme="light"] .bp-row textarea::placeholder,body[data-theme="light"] 
          三格是一組（平台／發布者／連結），要嘛整組寫入、要嘛不動。
          連結每筆都不一樣，所以整批套用時通常留空 —— 只寫平台與發布者，
          連結之後各自補。按 ∅ 會把整個 alsoOn 清掉。 -->
+    <div class="bp-row"><label>會員限定</label><select id="bp-memberonly"><option value="">不變更</option><option value="1">設為會員限定</option><option value="0">取消會員限定</option></select><span class="bp-clr-sp"></span></div>
     <div class="bp-row"><label>同步平台</label><input type="text" id="bp-aoplatform" list="platform-list" placeholder="不變更"><button type="button" class="bp-clr" data-f="alsoOn" onclick="bpClr(this)" title="清空整組同步發布">&#8709;</button></div>
     <div class="bp-row"><label>同步發布者</label><input type="text" id="bp-aoauthor" list="author-list" placeholder="不變更"><span class="bp-clr-sp"></span></div>
     <div class="bp-row"><label>日期</label><input type="date" id="bp-date"><span class="bp-clr-sp"></span></div>
@@ -2109,6 +2120,7 @@ body[data-theme="light"] .bp-row textarea::placeholder,body[data-theme="light"] 
          批次匯入是靠 videoCount（數 mp4 檔數）判斷，手動新增沒有那個資訊，
          之前只能靠平台名稱含「YT／Reels／Shorts／影片」來猜。這裡直接寫 1。 -->
     <label class="form-check"><input type="checkbox" id="f-isvideo"><span>這是影片（縮圖右下角會出現播放標記）</span></label>
+    <label class="form-check"><input type="checkbox" id="f-memberonly"><span>會員限定（照片不對訪客顯示，比照泡泡）</span></label>
     <!-- v2026.08.26-H：同步發布改成可增減的列表。
          官方帳號常見 post잊 + o3cltv + 잊官推 三邊都發，而且往往有時間差
          （o3cltv 晚幾天補花絮），自動偵測配不起來，只能在這裡手動加。
@@ -2201,7 +2213,7 @@ body[data-theme="light"] .bp-row textarea::placeholder,body[data-theme="light"] 
     <div class="settings-item">
       <div>
         <div class="settings-item-label">版本</div>
-        <div class="settings-item-val">v2026.08.28-C</div>
+        <div class="settings-item-val">v2026.08.29-D</div>
       </div>
       <span style="font-size:14px;opacity:.5">🌻</span>
     </div>
@@ -2965,6 +2977,7 @@ function otdJumpToFeed(fid){
   clearAllFilters();
   window._otdJumpYear=null;
   setTimeout(function(){
+    if(typeof dgRevealFid==='function') dgRevealFid(fid);
     var item=document.querySelector('#feed-container .feed-item[data-fid="'+fid+'"]');
     if(!item) return;
     /* 瞬間定位，不做 smooth —— 跨十幾年的距離捲起來要好幾秒 */
@@ -3371,6 +3384,9 @@ function updateBatchCount(){
 }
 /* 全選的範圍是「目前日誌上看得到的」，不是資料庫全部 ——
    套用了篩選或搜尋時，使用者要的是選取眼前這一批。 */
+/* ⚠️ 收合中的群組項目仍然在 DOM 裡（父層只是 display:none），
+   所以 querySelectorAll 抓得到，全選會包含它們 —— 這是刻意的：
+   它們在這一頁的範圍內，只是收著。 */
 function feedFids(){
   return [].slice.call(document.querySelectorAll('#feed-container .feed-item[data-fid]'))
     .map(function(el){ return el.getAttribute('data-fid'); })
@@ -3397,7 +3413,7 @@ window.toggleBatchAll=toggleBatchAll;
    欄位一多就要重複開關批次模式 N 次。 */
 window.toggleBatchMode=toggleBatchMode;
 window.toggleBatchSel=toggleBatchSel;
-var BP_FIELDS=['series','place','author','platform','date','time','desc','aoplatform','aoauthor'];
+var BP_FIELDS=['series','place','author','platform','date','time','desc','aoplatform','aoauthor','memberonly'];
 var bpClearMap={}, bpType='', bpDescMode='replace';
 function bpReset(){
   bpClearMap={}; bpType=''; bpDescMode='replace';
@@ -3471,6 +3487,8 @@ function applyBatchFields(){
   take('date','日期');
   take('time','時間');
   /* alsoOn 是陣列不是字串，take() 那套處理不了，單獨組。 */
+  var _mo=document.getElementById('bp-memberonly');
+  if(_mo && _mo.value!==''){ d.memberOnly=(_mo.value==='1'); names.push(_mo.value==='1'?'會員限定':'取消會員限定'); }
   if(bpClearMap.alsoOn){
     d.alsoOn=[]; names.push('同步發布（清空）');
   }else{
@@ -3648,8 +3666,24 @@ function renderCalendar(){
         var pre=p?'<span class="ct-pre">'+escHtml(p)+'｜</span>':'';
         return '<div class="cell-title"><span class="ct-dot cdot-'+(rec.type||'')+'"></span><span class="ct-txt">'+pre+escHtml(rec.title)+'</span></div>';
       };
-      var firstTitle=ttl(dayRecs[0]);
-      var moreTitles=dayRecs.slice(1).map(ttl).join('');
+      /* 月曆格同樣收攏：同一節目的多筆只佔一行，標題後面標「×N」。
+         格子空間本來就很小，五首歌五行會把整格塞滿。 */
+      var calRows=[], calSeen={};
+      dayRecs.forEach(function(rec){
+        var k=DAY_GROUP?((typeof dayGroupKey==='function')?dayGroupKey(rec):null):null;
+        if(!k){ calRows.push({rec:rec,n:1}); return; }
+        if(calSeen[k]){ calSeen[k].n++; return; }
+        calSeen[k]={rec:rec,n:1,name:k.slice(2)}; calRows.push(calSeen[k]);
+      });
+      var ttlRow=function(x){
+        if(x.n<2) return ttl(x.rec);
+        var names=[(x.rec.author||'').trim()].filter(Boolean).join('');
+        var pre=names?'<span class="ct-pre">'+escHtml(names)+'｜</span>':'';
+        return '<div class="cell-title"><span class="ct-dot cdot-'+(x.rec.type||'')+'"></span>'
+          +'<span class="ct-txt">'+pre+escHtml(x.name)+'<span class="ct-n"> \u00d7'+x.n+'</span></span></div>';
+      };
+      var firstTitle=ttlRow(calRows[0]);
+      var moreTitles=calRows.slice(1).map(ttlRow).join('');
       var moreBlock=moreTitles?'<div class="cell-more"><div class="cell-more-inner">'+moreTitles+'</div></div>':'';
       cellTextHTML='<div class="cell-text-inner"><div class="cell-first-row">'+firstTitle+'</div>'+moreBlock+'</div>';
     }
@@ -3812,6 +3846,9 @@ function renderDaySo(){
    ⚠️ 只改顯示，資料維持每首一筆 —— 曲名還在標題裡（搜尋找得到）、
       縮圖各自保留、統計也不受影響。要關掉把 DAY_GROUP 設成 false。 */
 var DAY_GROUP = true;
+/* 收攏時把底下舞台的縮圖借到父層那張卡上 —— 收起來也看得到畫面，
+   這是「日誌不能收」那個反對理由的解法（站主提的）。 */
+var DAY_GROUP_THUMBS = 4;   // 父層最多借幾張
 var DAY_GROUP_MIN = 2;   // 幾筆以上才收攏。設 2 是為了行為一致 ——
                          // 只要同節目有多筆就一律收，使用者不用猜哪些會收哪些不會。
 
@@ -3836,29 +3873,72 @@ function dayGroupKey(r){
   }
   return null;
 }
+/* 借縮圖：把一組舞台紀錄的縮圖攤平，去重後取前 N 張。
+   只在渲染時借用，不寫進資料 —— 照片牆走的是各自的 photos，不受影響。 */
+function dgBorrowThumbs(rows){
+  var out=[], seen={};
+  for(var i=0;i<rows.length && out.length<DAY_GROUP_THUMBS;i++){
+    var ts=visibleThumbs(rows[i].r||rows[i]);
+    for(var j=0;j<ts.length && out.length<DAY_GROUP_THUMBS;j++){
+      if(ts[j] && !seen[ts[j]]){ seen[ts[j]]=1; out.push(ts[j]); }
+    }
+  }
+  return out;
+}
+function dgThumbStrip(rows){
+  var t=dgBorrowThumbs(rows);
+  if(!t.length) return '';
+  return '<span class="dg-thumbs">'+t.map(function(u){
+    return '<img src="'+escHtml(u)+'" alt="" decoding="async" loading="lazy">';
+  }).join('')+'</span>';
+}
+
 function dayGroupedHTML(recs){
   if(!DAY_GROUP) return recs.map(function(r,i){ return dayItemHTML(r,i); }).join('');
   var order=[], bucket={};
   recs.forEach(function(r,i){
     var k=dayGroupKey(r);
     if(!k){ order.push({solo:r, idx:i}); return; }
-    if(!bucket[k]){ bucket[k]={key:k, name:k.slice(2), rows:[]}; order.push(bucket[k]); }
+    if(!bucket[k]){ bucket[k]={key:k, name:k.slice(2), rows:[]}; bucket[k]._slot=order.length; order.push(bucket[k]); }
     bucket[k].rows.push({r:r, idx:i});
   });
+
+  /* 舞台群組如果同一天有一筆「節目本身」的行程紀錄（標題就等於節目名），
+     那筆才是父層 —— 舞台應該收在它底下，而不是自成一塊排在最後面。
+     這是站主實際看到才發現的：原本群組落在清單尾端，跟父層分開。 */
+  order.forEach(function(o){
+    if(o.solo || !o.rows.length) return;
+    for(var i=0;i<order.length;i++){
+      var p=order[i];
+      if(!p.solo) continue;
+      if(String(p.solo.title||'').trim()===o.name){ p.child=o; o.parented=true; break; }
+    }
+  });
+
   var gi=0;
-  return order.map(function(o){
-    if(o.solo) return dayItemHTML(o.solo, o.idx);
-    if(o.rows.length < DAY_GROUP_MIN)
-      return o.rows.map(function(x){ return dayItemHTML(x.r, x.idx); }).join('');
+  function groupHTML(o, nested){
     var id='dg'+(gi++);
-    return '<div class="day-group" id="'+id+'">'
+    return '<div class="day-group'+(nested?' dg-nested':'')+'" id="'+id+'">'
       +'<button class="dg-head" onclick="dgToggle(\''+id+'\')" aria-expanded="false">'
       +'<span class="dg-caret" aria-hidden="true">\u203a</span>'
-      +'<span class="dg-name">'+escHtml(o.name)+'</span>'
-      +'<span class="dg-count">'+o.rows.length+' 首</span></button>'
+      +'<span class="dg-name">'+escHtml(nested?'舞台':o.name)+'</span>'
+      +'<span class="dg-count">'+o.rows.length+' 首</span>'
+      +dgThumbStrip(o.rows)+'</button>'
       +'<div class="dg-body">'
       + o.rows.map(function(x){ return dayItemHTML(x.r, x.idx); }).join('')
       +'</div></div>';
+  }
+  return order.map(function(o){
+    if(o.solo){
+      var html=dayItemHTML(o.solo, o.idx);
+      if(o.child && o.child.rows.length>=DAY_GROUP_MIN) html+=groupHTML(o.child, true);
+      else if(o.child) html+=o.child.rows.map(function(x){ return dayItemHTML(x.r, x.idx); }).join('');
+      return html;
+    }
+    if(o.parented) return '';
+    if(o.rows.length < DAY_GROUP_MIN)
+      return o.rows.map(function(x){ return dayItemHTML(x.r, x.idx); }).join('');
+    return groupHTML(o, false);
   }).join('');
 }
 function dgToggle(id){
@@ -3892,6 +3972,7 @@ function openAddForm(date){
   refreshSeriesDatalist();
   document.getElementById('f-source').value='';
   document.getElementById('f-isvideo').checked=false;
+  document.getElementById('f-memberonly').checked=false;
   alsoClear();
   _editOrig={};
   document.getElementById('f-photos').value='';
@@ -3942,6 +4023,7 @@ function openEditModal(fid){
   document.getElementById('f-source').value=rec.source||'';
   alsoLoad(rec.alsoOn||[]);
   document.getElementById('f-isvideo').checked=((rec.videoCount||0)>0);
+  document.getElementById('f-memberonly').checked=!!rec.memberOnly;
   document.getElementById('f-photos').value='';
   pendingPhotos=(rec.photos||[]).map(function(data,i){return {name:'p'+i,data:data,thumb:(rec.thumbs||[])[i]||''};});
   renderPreviews();
@@ -4098,6 +4180,7 @@ function saveRecord(){
        使用者真的動過這三格時才需要寫，清空則明確寫成空陣列。 */
     var _isVid=document.getElementById('f-isvideo').checked;
     if(_isVid) record.videoCount=Math.max(1, 0);
+    record.memberOnly=document.getElementById('f-memberonly').checked;
     var prevRec=null, pool=window.__allRecords||records;
     if(eid){ for(var _i=0;_i<pool.length;_i++){ if(pool[_i]._fid===eid){ prevRec=pool[_i]; break; } } }
     var prevAo=(prevRec&&prevRec.alsoOn)||[];
@@ -4925,8 +5008,75 @@ function importRecords(){
 window.importRecords=importRecords;
 
 var FY_MN=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+/* 日誌的分組計畫。跟當日視窗同一套判斷（dayGroupKey），
+   差別在日誌是跨日期的長串，所以 key 要帶上日期。
+   skip = 這些 _fid 不單獨渲染；after[父fid] = 掛在那張卡後面的群組。
+   父層不存在時，群組掛在該組第一筆的位置。 */
+function fyGroupPlan(recs){
+  var buckets={}, order=[];
+  recs.forEach(function(r){
+    var k=dayGroupKey(r);
+    if(!k) return;
+    var kk=r.date+'\u0001'+k;
+    if(!buckets[kk]){ buckets[kk]={name:k.slice(2), date:r.date, rows:[]}; order.push(buckets[kk]); }
+    buckets[kk].rows.push({r:r});
+  });
+  var skip={}, after={}, standalone={};
+  order.forEach(function(g){
+    if(g.rows.length<DAY_GROUP_MIN) return;
+    var parent=null;
+    for(var i=0;i<recs.length;i++){
+      if(recs[i].date===g.date && String(recs[i].title||'').trim()===g.name && !dayGroupKey(recs[i])){
+        parent=recs[i]; break;
+      }
+    }
+    g.rows.forEach(function(x){ skip[x.r._fid]=1; });
+    if(parent){ g.nested=true; after[parent._fid]=g; }
+    else {
+      /* 沒有父層 → 群組頂替該組第一筆的位置 */
+      var head=g.rows[0].r;
+      delete skip[head._fid];
+      g.headFid=head._fid; g.rows=g.rows.slice();
+      standalone[head._fid]=g;
+      skip[head._fid]=1;
+      after['__head__'+head._fid]=g;
+    }
+  });
+  return {skip:skip, after:after, standalone:standalone};
+}
+
+function fyGroupHTML(g, gi){
+  var id='fg'+(g.date||'')+'-'+Math.abs(hashStr(g.name));
+  return '<div class="day-group fy-group'+(g.nested?' dg-nested':'')+'" id="'+id+'">'
+    +'<button class="dg-head" onclick="dgToggle(\''+id+'\')" aria-expanded="false">'
+    +'<span class="dg-caret" aria-hidden="true">\u203a</span>'
+    +'<span class="dg-name">'+escHtml(g.nested?'舞台':g.name)+'</span>'
+    +'<span class="dg-count">'+g.rows.length+' 首</span>'
+    +dgThumbStrip(g.rows)+'</button>'
+    +'<div class="dg-body">'
+    + g.rows.map(function(x,i){ return feedItemHTML(x.r, gi+i, false); }).join('')
+    +'</div></div>';
+}
+function hashStr(t){ var h=0,i; t=String(t||''); for(i=0;i<t.length;i++){ h=(h*31+t.charCodeAt(i))|0; } return h; }
+
+/* 跳轉到收合中的紀錄時先展開，否則 scrollIntoView 會落在 display:none 的節點上。 */
+function dgRevealFid(fid){
+  var el=document.querySelector('#feed-container .feed-item[data-fid="'+fid+'"]');
+  if(!el) return;
+  var g=el.closest('.day-group');
+  if(g && !g.classList.contains('open')) dgToggle(g.id);
+}
+window.dgRevealFid=dgRevealFid;
+
 function buildFyInner(recs,startIdx){
   var inner='', lastMonth='', lastDate='', gi=startIdx;
+  /* v2026.08.29-D：日誌比照當日視窗收攏。
+     ⚠️ 兩個相依項：
+        otdJumpToFeed 跳到收合中的紀錄時要先展開（見 dgRevealFid）
+        批次全選要包含收合中的項目 —— 它們在 DOM 裡，只是父層 display:none */
+  var plan=DAY_GROUP?fyGroupPlan(recs):null;
+  var skip={};
+  if(plan) Object.keys(plan.skip).forEach(function(k){ skip[k]=1; });
   recs.forEach(function(r){
     var ym=(r.date||'').slice(0,7);
     if(ym&&ym!==lastMonth){
@@ -4937,7 +5087,12 @@ function buildFyInner(recs,startIdx){
     }
     var sameDay=(r.date===lastDate);
     lastDate=r.date;
+    var head=plan&&plan.after['__head__'+r._fid];
+    if(head){ inner+=fyGroupHTML(head, gi); gi+=head.rows.length; return; }
+    if(plan && skip[r._fid]) return;
     inner+=feedItemHTML(r,gi++,sameDay);
+    var g=plan&&plan.after[r._fid];
+    if(g){ inner+=fyGroupHTML(g, gi); gi+=g.rows.length; }
   });
   return inner;
 }
@@ -5239,15 +5394,26 @@ function vidCls(r){ return hasVideo(r)?' has-vid':''; }
 window.hasVideo=hasVideo;
 
 function visibleThumbs(r){
+  if(isHidden(r)) return [];
   var ps=visiblePhotos(r);
   var ts=(r&&r.thumbs)||[];
   return ps.map(function(p,i){ return ts[i]||p; });
 }
+/* v2026.08.29-C：會員限定貼文的照片比照泡泡隱藏。
+   Weverse／2PM JP 之類的會員限定內容，照片不該對一般訪客顯示。
+   用獨立的 memberOnly 欄位而不是新增一個 type —— 那些貼文的分類
+   仍然是「社群」，會員限定是它的屬性，不是它的種類。 */
+function isHidden(r){
+  if(!r) return false;
+  if(isUnlocked||viewerMode) return false;
+  if(r.memberOnly) return true;
+  var t=String(r.type||'').toLowerCase();
+  return (t==='bubble'||t==='泡泡'||t.indexOf('bubble')>-1);
+}
+window.isHidden=isHidden;
+
 function visiblePhotos(r){
-  if(r&&!isUnlocked&&!viewerMode){
-    var t=String(r.type||'').toLowerCase();
-    if(t==='bubble'||t==='泡泡'||t.indexOf('bubble')>-1) return [];
-  }
+  if(isHidden(r)) return [];
   return (r&&r.photos)||[];
 }
 window.switchPage=switchPage;
