@@ -438,8 +438,8 @@ body[data-theme="light"] .pw-spread-sub{color:rgba(26,23,20,.55)}
 .day-so-body{padding:0}
 .day-group{border-top:1px solid var(--c-line)}
 .day-group:first-child{border-top:none}
-.dg-head{width:100%;display:flex;align-items:center;gap:9px;padding:13px 16px;background:none;border:none;cursor:pointer;font-family:inherit;text-align:left;color:inherit}
-.dg-caret{font-size:14px;line-height:1;color:var(--c-muted);transition:transform .18s var(--ease-out);flex:0 0 auto}
+.dg-head{width:100%;display:flex;align-items:center;gap:0;padding:13px 16px;background:none;border:none;cursor:pointer;font-family:inherit;text-align:left;color:inherit}
+.dg-caret{font-size:14px;line-height:1;color:var(--dg-label);margin-right:9px;transition:transform .18s var(--ease-out),color .15s;flex:0 0 auto}
 .day-group.open .dg-caret{transform:rotate(90deg)}
 .dg-name{font-size:14px;font-weight:500;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .dg-count{margin-left:auto;font-size:11px;letter-spacing:.06em;color:var(--c-muted);flex:0 0 auto}
@@ -449,9 +449,11 @@ body[data-theme="light"] .pw-spread-sub{color:rgba(26,23,20,.55)}
 .day-group .dg-body .feed-item:first-child{border-top:1px solid var(--c-line)}
 .day-group.dg-nested{border-top:none;margin-top:-1px}
 .day-group.dg-nested .dg-head{padding-left:34px;padding-top:9px;padding-bottom:9px}
-.day-group.dg-nested .dg-name{font-size:13px;color:var(--c-muted)}
+.day-group.dg-nested .dg-name{font-size:var(--dg-label-size);color:var(--dg-label);letter-spacing:.04em}
+.day-group.dg-nested .dg-head:hover .dg-name,.day-group.dg-nested .dg-head:hover .dg-caret{color:var(--c-accent)}
+.dg-head:hover .dg-caret{color:var(--c-accent)}
 .ct-n{opacity:.55;font-variant-numeric:tabular-nums}
-.dg-thumbs{display:flex;gap:3px;margin-left:12px;flex:0 0 auto}
+.dg-thumbs{display:flex;gap:3px;margin-left:12px;flex:0 0 auto;width:145px;justify-content:flex-end}
 .dg-thumbs img{width:34px;height:34px;object-fit:cover;border-radius:2px;display:block}
 /* 日誌的群組列要跟 .feed-item 對齊：左內距 34px、日期欄 84px、間距 18px。
    縮排對不上的話，「舞台」會孤零零掛在最左邊（站主回報的圖 2／3）。 */
@@ -464,11 +466,45 @@ body[data-theme="light"] .pw-spread-sub{color:rgba(26,23,20,.55)}
 .fy-group.dg-nested .dg-date{width:84px;margin-right:18px}
 /* 當日視窗的欄寬不同（36px + 12px） */
 .day-so-body .day-group.dg-nested .dg-head{padding-left:64px}
+/* ===== v2026.08.29-F =====
+   1) 借縮圖改掛在「父層卡片」的縮圖欄，不再掛在群組列上。
+      站主原本的提案就是這個意思，上一版誤實作成群組列。
+   2) --dg-label：巢狀「舞台」那行的顏色／字級旋鈕。
+      ⚠️ .day-group.dg-nested .dg-name 是 (0,3,0)，本來就贏過
+      .dg-head:hover .dg-name (0,2,0) —— 所以 hover 必須自己再寫一條。 */
+body{--dg-label:rgba(232,228,224,.82);--dg-label-size:14px}
+body[data-theme="light"]{--dg-label:rgba(26,23,20,.72)}
+
+.dg-borrow{position:relative;width:176px;height:176px;flex-shrink:0;align-self:start;
+  display:grid;gap:2px;padding:0;border:none;background:none;cursor:pointer;
+  font-family:inherit;text-align:left;overflow:hidden}
+.dg-borrow.n1{grid-template-columns:1fr}
+.dg-borrow.n2{grid-template-columns:1fr 1fr}
+.dg-borrow.n3,.dg-borrow.n4{grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr}
+.dg-borrow.n3 img:first-child{grid-row:span 2}
+.dg-borrow img{width:100%;height:100%;min-width:0;min-height:0;object-fit:cover;display:block}
+.dg-borrow::after{content:attr(data-n);position:absolute;right:0;bottom:0;
+  font-size:10px;letter-spacing:.08em;padding:3px 8px;background:rgba(0,0,0,.62);
+  color:#fff;pointer-events:none}
+.dg-borrow:hover{opacity:.88}
+.day-so-body .dg-borrow{width:100px;height:100px}
+
+/* 會員限定：memberOnly 原本只有隱藏照片的效果，卡片上完全看不出來。
+   訪客看到它才知道照片為什麼是空的；站主看到它才能確認旗標有設。 */
+.badge-member{font-size:10px;padding:3px 8px;border-radius:4px;font-weight:600;
+  flex-shrink:0;letter-spacing:.08em;border:1px solid rgba(255,217,64,.35);
+  color:#FFD940;background:rgba(255,217,64,.08)}
+body[data-theme="light"] .badge-member{color:#7A5A00;border-color:rgba(122,90,0,.35);background:rgba(255,217,64,.18)}
 @media(max-width:700px){
   .dg-thumbs img{width:30px;height:30px}
-  .fy-group .dg-head{padding-left:16px}
-  .dg-date{width:52px;margin-right:12px}
+  .dg-thumbs{width:129px}
+  /* 手機的 .fy-group .dg-head (0,2,0) 本來輸給 .day-group.dg-nested .dg-head (0,3,0)，
+     所以巢狀群組列吃到 34px、比卡片內容右偏。補一條同權重的才蓋得掉。
+     對齊算式：padding-left 12 + dg-date 52 + margin-right 10 = 74 = .feed-item 內容起點。 */
+  .fy-group .dg-head,.fy-group.dg-nested .dg-head{padding-left:12px}
+  .dg-date{width:52px;margin-right:10px}
   .dg-date b{font-size:16px}
+  .dg-borrow{width:90px;height:90px}
 }
 
 /* ── Password modal ── */
@@ -2226,7 +2262,7 @@ body[data-theme="light"] .bp-row textarea::placeholder,body[data-theme="light"] 
     <div class="settings-item">
       <div>
         <div class="settings-item-label">版本</div>
-        <div class="settings-item-val">v2026.08.29-E</div>
+        <div class="settings-item-val">v2026.08.29-F</div>
       </div>
       <span style="font-size:14px;opacity:.5">🌻</span>
     </div>
@@ -3812,7 +3848,7 @@ window.searchAuthor=searchAuthor;
 window.searchPlatform=searchPlatform;
 
 // ── Day panel item (separate from feed) ──
-function dayItemHTML(r, idx){
+function dayItemHTML(r, idx, borrowRows){
   var fid=r._fid||'';
   var num=String(idx+1).padStart(2,'0');
   var allPhotos=visiblePhotos(r);
@@ -3831,6 +3867,8 @@ function dayItemHTML(r, idx){
       +'<button class="carousel-btn carousel-next" style="width:24px;height:24px;font-size:14px" data-cid="'+cid+'" data-dir="1" onclick="carouselStep(this.dataset.cid,+this.dataset.dir)">&#8250;</button>'
       +'<div class="carousel-dots">'+dots+'</div></div>';
   }
+  /* 父層自己有照片就不借 —— 借來的縮圖不該蓋掉那筆本來就有的內容。 */
+  if(!thumb && borrowRows && borrowRows.length) thumb=dgBorrowTile(borrowRows);
   var dt=r.time?r.date+' '+r.time:r.date;
   var desc=r.desc?'<div class="feed-desc-wrap"><div class="feed-desc">'+escHtml(r.desc)+'</div><button class="feed-desc-more" onclick="event.stopPropagation();toggleDesc(this)">…更多</button></div>':'';
   var src=metaRowHTML(r);
@@ -3845,6 +3883,7 @@ function dayItemHTML(r, idx){
       +'<div class="feed-top">'
         +(batchMode&&isUnlocked?'<input type="checkbox" class="batch-check" data-fid="'+fid+'"'+(batchSel[fid]?' checked':'')+' onchange="toggleBatchSel(this.dataset.fid,this.checked)">':'')
         +'<span class="feed-badge badge-'+r.type+'">'+(LABELS[r.type]||r.type)+'</span>'
+        +(r.memberOnly?'<span class="feed-badge badge-member">會員限定</span>':'')
         +(r.series?'<button class="feed-series-chip" data-s="'+escHtml(r.series)+'" onclick="searchSeries(this.dataset.s)" title="查看整個系列">✦ '+escHtml(r.series)+'</button>':'')
         +'<span class="feed-meta-dt">'+dt+'</span>'
         +actions
@@ -3915,6 +3954,27 @@ function dgBorrowThumbs(rows){
   }
   return out;
 }
+/* 借縮圖磚：掛在父層卡片的縮圖欄。點下去是展開群組，不是開燈箱 ——
+   那些照片屬於子紀錄，開燈箱會讓人以為是父層自己的照片。 */
+function dgBorrowTile(rows){
+  var t=dgBorrowThumbs(rows);
+  if(!t.length) return '';
+  var n=Math.min(t.length,4);
+  return '<button type="button" class="dg-borrow n'+n+'" data-n="'+rows.length+' \u9996"'
+    +' title="\u5c55\u958b\u821e\u53f0" onclick="dgOpenNext(this)">'
+    +t.slice(0,4).map(function(u){
+        return '<img src="'+escHtml(u)+'" alt="" decoding="async" loading="lazy">';
+      }).join('')
+    +'</button>';
+}
+/* 借縮圖磚點擊 → 展開同層下一個 .day-group。
+   ⚠️ 群組一定緊接在父層卡片後面（after[父fid]），所以走 nextElementSibling。 */
+function dgOpenNext(el){
+  var it=el.closest('.feed-item'); if(!it) return;
+  var g=it.nextElementSibling;
+  while(g && !(g.classList&&g.classList.contains('day-group'))) g=g.nextElementSibling;
+  if(g) dgToggle(g.id);
+}
 function dgThumbStrip(rows){
   var t=dgBorrowThumbs(rows);
   if(!t.length) return '';
@@ -3937,7 +3997,10 @@ function dayGroupedHTML(recs){
      那筆才是父層 —— 舞台應該收在它底下，而不是自成一塊排在最後面。
      這是站主實際看到才發現的：原本群組落在清單尾端，跟父層分開。 */
   order.forEach(function(o){
-    if(o.solo || !o.rows.length) return;
+    /* v2026.08.29-F：門檻統一。父層一律補齊之後，「有父層就一律收」
+       這條特例沒有存在理由了 —— 收不收只看 DAY_GROUP_MIN 一個數字。
+       不足門檻的組不認養，會走下面的平鋪分支。 */
+    if(o.solo || o.rows.length < DAY_GROUP_MIN) return;
     for(var i=0;i<order.length;i++){
       var p=order[i];
       if(!p.solo) continue;
@@ -3953,16 +4016,16 @@ function dayGroupedHTML(recs){
       +'<span class="dg-caret" aria-hidden="true">\u203a</span>'
       +'<span class="dg-name">'+escHtml(nested?'舞台':o.name)+'</span>'
       +'<span class="dg-count">'+o.rows.length+' 首</span>'
-      +dgThumbStrip(o.rows)+'</button>'
+      +(nested?'':dgThumbStrip(o.rows))+'</button>'
       +'<div class="dg-body">'
       + o.rows.map(function(x){ return dayItemHTML(x.r, x.idx); }).join('')
       +'</div></div>';
   }
   return order.map(function(o){
     if(o.solo){
-      /* 有父層就一律收，即使只有一首 —— 否則同樣是「節目 + 舞台」，
-         有時收有時不收，使用者猜不到規則（2009-12-19 就是這種）。 */
-      var html=dayItemHTML(o.solo, o.idx);
+      /* o.child 只有通過 DAY_GROUP_MIN 才會被認養（見上面的 forEach）。
+         沒認養的舞台會走下面的平鋪分支，不會憑空消失。 */
+      var html=dayItemHTML(o.solo, o.idx, o.child?o.child.rows:null);
       if(o.child) html+=groupHTML(o.child, true);
       return html;
     }
@@ -3980,6 +4043,7 @@ function dgToggle(id){
   if(b) b.setAttribute('aria-expanded', on?'true':'false');
 }
 window.dgToggle=dgToggle;
+window.dgOpenNext=dgOpenNext;
 window.dayGroupedHTML=dayGroupedHTML;
 
 function closeDaySo(){ 
@@ -4325,7 +4389,7 @@ function showUndoToast(msg,onUndo){
 function setFilter(f,el){ currentFilter=f; document.querySelectorAll('.of-item').forEach(function(b){b.classList.remove('active');}); el.classList.add('active'); renderFeed(); }
 
 var LABELS={schedule:'行程',sns:'社群',bubble:'泡泡',media:'媒體',message:'消息'};
-function feedItemHTML(r, idx, hideDate){
+function feedItemHTML(r, idx, hideDate, borrowRows){
   var fid=r._fid||'';
   var dt=r.time?(r.date+' '+r.time):r.date;
   // Date display block
@@ -4359,6 +4423,8 @@ function feedItemHTML(r, idx, hideDate){
       +'<button class="carousel-btn carousel-next" data-cid="'+cid+'" data-dir="1" onclick="carouselStep(this.dataset.cid,+this.dataset.dir)">&#8250;</button>'
       +'<div class="carousel-dots">'+dots+'</div></div>';
   };
+  /* 父層自己有照片就不借。 */
+  if(!thumb && borrowRows && borrowRows.length) thumb=dgBorrowTile(borrowRows);
   var desc=r.desc?'<div class="feed-desc-wrap"><div class="feed-desc">'+escHtml(r.desc)+'</div><button class="feed-desc-more" onclick="event.stopPropagation();toggleDesc(this)">…更多</button></div>':'';
   var src=metaRowHTML(r);
   var actions=isUnlocked
@@ -4372,6 +4438,7 @@ function feedItemHTML(r, idx, hideDate){
       +'<div class="feed-top">'
         +(batchMode&&isUnlocked?'<input type="checkbox" class="batch-check" data-fid="'+fid+'"'+(batchSel[fid]?' checked':'')+' onchange="toggleBatchSel(this.dataset.fid,this.checked)">':'')
         +'<span class="feed-badge badge-'+r.type+'">'+(LABELS[r.type]||r.type)+'</span>'
+        +(r.memberOnly?'<span class="feed-badge badge-member">會員限定</span>':'')
         +(r.series?'<button class="feed-series-chip" data-s="'+escHtml(r.series)+'" onclick="searchSeries(this.dataset.s)" title="查看整個系列">✦ '+escHtml(r.series)+'</button>':'')
         +'<span class="feed-datetime">'+dt+'</span>'
         +actions
@@ -4732,7 +4799,8 @@ function renderOtdTrack(dir, auto){
     var badge='<span class="otd-card-badge" style="background:'+bc+';color:#1A1714;font-size:10px;padding:2px 8px;border-radius:3px;font-weight:700;letter-spacing:.06em;text-transform:uppercase">'+(LABELS[r.type]||r.type)+'</span>';
     var desc=r.desc?'<div class="otd-track-desc">'+escHtml(r.desc)+'</div>':'';
     tk.classList.remove('otd-fading','anim'); void tk.offsetWidth;
-    tk.innerHTML=badge
+    var moChip=r.memberOnly?'<span class="feed-badge badge-member" style="margin-left:6px">會員限定</span>':'';
+    tk.innerHTML=badge+moChip
       +'<div class="otd-track-title">'+escHtml(r.title)+'</div>'
       +desc
       +(r.time?'<div class="otd-track-time">'+escHtml(r.time)+'</div>':'');
@@ -5060,8 +5128,8 @@ function fyGroupPlan(recs){
         parent=recs[i]; break;
       }
     }
-    /* 有父層就一律收（即使一首）；沒父層才需要多筆才值得收成一塊。 */
-    if(!parent && g.rows.length<DAY_GROUP_MIN) return;
+    /* v2026.08.29-F：門檻統一，不再分「有沒有父層」。見 dayGroupedHTML 的註解。 */
+    if(g.rows.length<DAY_GROUP_MIN) return;
     g.rows.forEach(function(x){ skip[x.r._fid]=1; });
     if(parent){ g.nested=true; after[parent._fid]=g; }
     else {
@@ -5085,7 +5153,7 @@ function fyGroupHTML(g, gi, dateCell){
     +'<span class="dg-caret" aria-hidden="true">\u203a</span>'
     +'<span class="dg-name">'+escHtml(g.nested?'舞台':g.name)+'</span>'
     +'<span class="dg-count">'+g.rows.length+' 首</span>'
-    +dgThumbStrip(g.rows)+'</button>'
+    +(g.nested?'':dgThumbStrip(g.rows))+'</button>'
     +'<div class="dg-body">'
     + g.rows.map(function(x,i){ return feedItemHTML(x.r, gi+i, false); }).join('')
     +'</div></div>';
@@ -5128,8 +5196,8 @@ function buildFyInner(recs,startIdx){
       inner+=fyGroupHTML(head, gi, dc); gi+=head.rows.length; return;
     }
     if(plan && skip[r._fid]) return;
-    inner+=feedItemHTML(r,gi++,sameDay);
     var g=plan&&plan.after[r._fid];
+    inner+=feedItemHTML(r,gi++,sameDay, g?g.rows:null);
     if(g){ inner+=fyGroupHTML(g, gi); gi+=g.rows.length; }
   });
   return inner;
