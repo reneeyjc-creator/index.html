@@ -2262,7 +2262,7 @@ body[data-theme="light"] .bp-row textarea::placeholder,body[data-theme="light"] 
     <div class="settings-item">
       <div>
         <div class="settings-item-label">版本</div>
-        <div class="settings-item-val">v2026.08.29-F</div>
+        <div class="settings-item-val">v2026.08.29-G</div>
       </div>
       <span style="font-size:14px;opacity:.5">🌻</span>
     </div>
@@ -4008,7 +4008,10 @@ function dayGroupedHTML(recs){
     }
   });
 
-  var gi=0;
+  /* v2026.08.29-G：編號改成跟著顯示順序跑。
+     原本用的是 recs 裡的原始索引，但群組被搬到父層底下之後顯示順序已經變了，
+     結果編號會跳號（站主看到的 01 → 03）。num 只在真正輸出一張卡片時 +1。 */
+  var gi=0, num=0;
   function groupHTML(o, nested){
     var id='dg'+(gi++);
     return '<div class="day-group'+(nested?' dg-nested':'')+'" id="'+id+'">'
@@ -4018,20 +4021,20 @@ function dayGroupedHTML(recs){
       +'<span class="dg-count">'+o.rows.length+' 首</span>'
       +(nested?'':dgThumbStrip(o.rows))+'</button>'
       +'<div class="dg-body">'
-      + o.rows.map(function(x){ return dayItemHTML(x.r, x.idx); }).join('')
+      + o.rows.map(function(x){ return dayItemHTML(x.r, num++); }).join('')
       +'</div></div>';
   }
   return order.map(function(o){
     if(o.solo){
       /* o.child 只有通過 DAY_GROUP_MIN 才會被認養（見上面的 forEach）。
          沒認養的舞台會走下面的平鋪分支，不會憑空消失。 */
-      var html=dayItemHTML(o.solo, o.idx, o.child?o.child.rows:null);
+      var html=dayItemHTML(o.solo, num++, o.child?o.child.rows:null);
       if(o.child) html+=groupHTML(o.child, true);
       return html;
     }
     if(o.parented) return '';
     if(o.rows.length < DAY_GROUP_MIN)
-      return o.rows.map(function(x){ return dayItemHTML(x.r, x.idx); }).join('');
+      return o.rows.map(function(x){ return dayItemHTML(x.r, num++); }).join('');
     return groupHTML(o, false);
   }).join('');
 }
@@ -5155,7 +5158,9 @@ function fyGroupHTML(g, gi, dateCell){
     +'<span class="dg-count">'+g.rows.length+' 首</span>'
     +(g.nested?'':dgThumbStrip(g.rows))+'</button>'
     +'<div class="dg-body">'
-    + g.rows.map(function(x,i){ return feedItemHTML(x.r, gi+i, false); }).join('')
+    /* v2026.08.29-G：群組內的紀錄一律隱藏日期欄 —— 同一天的日期在父層卡片
+       或群組列的日期欄已經出現過，子紀錄再標一次是重複。 */
+    + g.rows.map(function(x,i){ return feedItemHTML(x.r, gi+i, true); }).join('')
     +'</div></div>';
 }
 function hashStr(t){ var h=0,i; t=String(t||''); for(i=0;i<t.length;i++){ h=(h*31+t.charCodeAt(i))|0; } return h; }
