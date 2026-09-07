@@ -791,9 +791,15 @@ body[data-theme="light"] .date-range-clear:hover,body[data-theme="light"] .searc
 .otd-ctrl{width:46px;height:46px;border-radius:50%;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);backdrop-filter:blur(8px);color:#fff;font-size:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s,transform .15s}
 .otd-ctrl:hover{background:#FFD940;color:#201F1F;border-color:#FFD940}
 .otd-ctrl:active{transform:scale(.92)}
-.otd-dots{display:flex;gap:7px;align-items:center}
-.otd-dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.28);border:none;padding:0;cursor:pointer;transition:all .25s}
-.otd-dot.active{background:#FFD940;width:22px;border-radius:4px}
+/* v2026.09.08-A：圓點換成進度條。
+   圓點是固定 7px + 7px 間距、沒有換行也沒有捲動的 flex，
+   一天有幾十筆就直接溢出螢幕（1/25 有 83 筆）。
+   而且到那個量級，「點第 57 顆」本來就不是真的能用的操作，
+   所以改成進度條 + 「3 / 83」—— 佔的空間更小，給的資訊反而更多。 */
+.otd-prog{width:100%;max-width:220px;display:flex;flex-direction:column;align-items:stretch;gap:9px}
+.otd-prog-track{height:3px;border-radius:2px;background:rgba(255,255,255,.16);overflow:hidden}
+.otd-prog-fill{height:100%;border-radius:2px;background:#FFD940;width:0;transition:width .3s var(--ease-out)}
+.otd-prog-txt{text-align:center;font-size:12px;letter-spacing:.1em;color:rgba(255,255,255,.55);font-variant-numeric:tabular-nums}
 .otd-title{font-family:'Noto Sans TC',sans-serif;font-weight:600;font-size:20px;color:#FFD940;letter-spacing:.04em;text-shadow:0 1px 8px rgba(0,0,0,.5)}.otd-empty{position:relative;z-index:2;text-align:center;color:rgba(255,255,255,.6);font-size:13px;padding:30px}
 .otd-empty .big{font-size:34px;display:block;margin-bottom:10px;animation:float 3s ease-in-out infinite}
 
@@ -959,7 +965,7 @@ body[data-theme="light"] .fy-planet ellipse{stroke:#FF6B3D}
 
 .otd-play{width:54px;height:54px;background:#FFD940;color:#201F1F;border-color:#FFD940}
 .otd-play:hover{background:#fff;border-color:#fff;color:#201F1F}
-.otd-dots-row{display:flex;justify-content:center}
+.otd-dots-row{display:flex;justify-content:center;padding:0 24px}
 
 @keyframes sunSpin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
 
@@ -2274,7 +2280,7 @@ body[data-theme="light"] .bp-row textarea::placeholder,body[data-theme="light"] 
     <div class="settings-item">
       <div>
         <div class="settings-item-label">版本</div>
-        <div class="settings-item-val">v2026.08.29-H</div>
+        <div class="settings-item-val">v2026.09.08-A</div>
       </div>
       <span style="font-size:14px;opacity:.5">🌻</span>
     </div>
@@ -2370,7 +2376,10 @@ body[data-theme="light"] .bp-row textarea::placeholder,body[data-theme="light"] 
       <button class="otd-ctrl otd-play" id="otd-play" onclick="otdTogglePlay()" title="自動播放" aria-label="自動播放"><svg id="otd-play-icon" width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M4 2.5v11l9-5.5z"/></svg></button>
       <button class="otd-ctrl" onclick="otdStep(1)">&#8250;</button>
     </div>
-    <div class="otd-dots-row"><div class="otd-dots" id="otd-dots"></div></div>
+    <div class="otd-dots-row"><div class="otd-prog" id="otd-prog">
+      <div class="otd-prog-track"><div class="otd-prog-fill" id="otd-prog-fill"></div></div>
+      <div class="otd-prog-txt" id="otd-prog-txt"></div>
+    </div></div>
   </div>
 </div>
 
@@ -4901,10 +4910,8 @@ function renderOtdTrack(dir, auto){
     else { bl.onload=once; bl.onerror=once; }
     setTimeout(once, 1200);            /* 保險:網路很慢時不要卡在淡出狀態不動 */
   } else { go(); }
-  // 圓點即時更新,點擊才有回饋
-  document.getElementById('otd-dots').innerHTML=otdList.map(function(_,i){
-    return '<button class="otd-dot'+(i===otdIdx?' active':'')+'" data-i="'+i+'" onclick="otdGoto(+this.dataset.i)"></button>';
-  }).join('');
+  // 進度即時更新,不等圖片淡入
+  otdProgress();
 }
 
 var _otdPre=[];
@@ -4929,6 +4936,15 @@ function otdStep(d, auto){
   renderOtdTrack(d, auto);
 }
 function otdGoto(i){ var d=i>otdIdx?1:-1; otdIdx=i; renderOtdTrack(d); }
+/* 進度條只負責顯示，沒有跳轉。otdGoto 留著給 window 匯出和之後可能的鍵盤操作用。 */
+function otdProgress(){
+  var f=document.getElementById('otd-prog-fill'), t=document.getElementById('otd-prog-txt');
+  if(!f||!t) return;
+  var n=otdList.length;
+  if(!n){ f.style.width='0'; t.textContent=''; return; }
+  f.style.width=((otdIdx+1)/n*100).toFixed(2)+'%';
+  t.textContent=(otdIdx+1)+' / '+n;
+}
 
 function buildOtdTitle(){
   var t=document.getElementById('otd-title');
