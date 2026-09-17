@@ -530,6 +530,12 @@ body[data-theme="light"] .pw-spread-sub{color:rgba(26,23,20,.55)}
    從它所屬的父層切開，所以一起拿掉。 */
 .day-group.dg-nested .dg-body .feed-item{border-bottom-color:transparent}
 .feed-item:has(+.day-group.dg-nested){border-bottom-color:transparent}
+/* v2026.09.16-I：線移到整塊的最下緣。
+   H 版把父層卡片的下緣線拿掉，但 .day-group 自己沒有下緣線，結果
+   「父層＋膠囊＋子舞台」這一整塊跟下一天的紀錄之間完全沒有分界。
+   線不是不要，是要畫在整塊的外圍而不是塊的內部。 */
+.day-group.dg-nested{border-bottom:1px solid rgba(255,255,255,.07)}
+body[data-theme="light"] .day-group.dg-nested{border-bottom-color:rgba(0,0,0,.1)}
 .day-group.dg-nested .dg-body .feed-badge:not(.badge-member){display:none}
 .day-group.dg-nested .dg-body .rec-author{display:none}
 .day-group.dg-nested .dg-body .rec-meta .rec-mi:has(+.rec-author)::after{display:none}
@@ -2425,7 +2431,7 @@ body[data-theme="light"] .bp-row textarea::placeholder,body[data-theme="light"] 
     <div class="settings-item">
       <div>
         <div class="settings-item-label">版本</div>
-        <div class="settings-item-val">v2026.09.16-H</div>
+        <div class="settings-item-val">v2026.09.16-I</div>
       </div>
       <span style="font-size:14px;opacity:.5">🌻</span>
     </div>
@@ -4219,8 +4225,14 @@ var DAY_GROUP = true;
 /* 收攏時把底下舞台的縮圖借到父層那張卡上 —— 收起來也看得到畫面，
    這是「日誌不能收」那個反對理由的解法（站主提的）。 */
 var DAY_GROUP_THUMBS = 4;   // 父層最多借幾張
-var DAY_GROUP_MIN = 2;   // 幾筆以上才收攏。設 2 是為了行為一致 ——
-                         // 只要同節目有多筆就一律收，使用者不用猜哪些會收哪些不會。
+var DAY_GROUP_MIN = 1;   /* 幾筆以上才收攏。
+   v2026.09.16-I：站主改成 1（原本是 2）。理由是邏輯一致性 —— 設 2 的時候，
+   同一天只有一支舞台的節目會平鋪，有兩支的會收進膠囊，同樣是「某節目的舞台」
+   卻有兩種長相，看的人要猜哪些收哪些不收。設 1 之後只要有父層就一律收在父層
+   底下，沒有例外。
+   代價：單支舞台也要多點一下才看得到，膠囊會顯示「舞台 1 首」。
+   （這推翻了 2026-09 的決定，當時確認維持 2，例如 2009-12-19 只有一首所以
+   不收攏是預期行為；現在那一天也會收起來了。） */
 
 /* 節目名 = 標題開頭到第一個空白為止的那段，但節目名本身可能含空白
    （M COUNTDOWN、SHOW! MUSIC CORE），所以改用「共同前綴」判斷：
