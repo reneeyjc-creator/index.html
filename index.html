@@ -513,14 +513,33 @@ body[data-theme="light"] .pw-spread-sub{color:rgba(26,23,20,.55)}
    手機 (媒體查詢內 (0,1,0))。這裡的規則是 (0,4,0)，會蓋掉後兩者，所以
    下面必須各補一條，否則當日視窗和手機的欄寬會被拉回桌機的值。 */
 .day-group.dg-nested .dg-body .feed-item{padding-top:10px;padding-bottom:10px;grid-template-columns:84px 1fr 110px}
+/* v2026.09.16-H：縮圖跟著欄寬一起縮。.carousel / .carousel-single / 兩種 img
+   的寬高都是寫死的 176px，G 版只改了 grid 欄寬（176→110），圖片自己沒縮，
+   於是被 grid 橫向擠扁、高度照舊，看起來就是拉長變形。四個選擇器都要改，
+   漏一個就會有一種情況還是壞的。 */
+.day-group.dg-nested .dg-body .carousel,
+.day-group.dg-nested .dg-body .carousel-single,
+.day-group.dg-nested .dg-body .carousel-single img,
+.day-group.dg-nested .dg-body .carousel-track img{width:110px;height:110px}
 .day-group.dg-nested .dg-body .feed-title{font-size:15px;font-weight:600;margin-bottom:5px}
 .day-group.dg-nested .dg-body .feed-desc{font-size:12px;line-height:1.55}
+/* v2026.09.16-H：群組內不畫分隔線。每條線都在暗示「這是另一筆獨立紀錄」，
+   但子舞台是同一場的一部分，線反而讓人以為它們互不相干。
+   用 transparent 不用 none，邊框仍佔 1px，間距跟改之前一致。
+   最後一條是父層卡片自己的下緣線 —— 它夾在父層和膠囊之間，會把膠囊
+   從它所屬的父層切開，所以一起拿掉。 */
+.day-group.dg-nested .dg-body .feed-item{border-bottom-color:transparent}
+.feed-item:has(+.day-group.dg-nested){border-bottom-color:transparent}
 .day-group.dg-nested .dg-body .feed-badge:not(.badge-member){display:none}
 .day-group.dg-nested .dg-body .rec-author{display:none}
 .day-group.dg-nested .dg-body .rec-meta .rec-mi:has(+.rec-author)::after{display:none}
-.day-so-body .day-group.dg-nested .dg-body .feed-item{grid-template-columns:36px 1fr 74px}
+/* 當日視窗的縮圖是 .day-so-body .carousel 的 100px，欄寬就留 100px。
+   硬縮成 74px 要連那三條 (0,2,0) 的圖片規則一起覆蓋，換來的空間很有限。 */
+.day-so-body .day-group.dg-nested .dg-body .feed-item{grid-template-columns:36px 1fr 100px}
 @media(max-width:700px){
-  .day-group.dg-nested .dg-body .feed-item{grid-template-columns:52px 1fr 68px}
+  /* 手機版縮圖是 90px 且帶 !important，非 important 的規則蓋不掉，
+     欄寬只能配合 90px，否則又會被擠扁。 */
+  .day-group.dg-nested .dg-body .feed-item{grid-template-columns:52px 1fr 90px}
   .day-group.dg-nested .dg-body .feed-title{font-size:13px}
 }
 .day-group.dg-nested{border-top:none;margin-top:-1px}
@@ -2406,7 +2425,7 @@ body[data-theme="light"] .bp-row textarea::placeholder,body[data-theme="light"] 
     <div class="settings-item">
       <div>
         <div class="settings-item-label">版本</div>
-        <div class="settings-item-val">v2026.09.16-G</div>
+        <div class="settings-item-val">v2026.09.16-H</div>
       </div>
       <span style="font-size:14px;opacity:.5">🌻</span>
     </div>
