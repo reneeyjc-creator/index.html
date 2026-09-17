@@ -37,6 +37,12 @@
 <style>
 
 *{box-sizing:border-box;margin:0;padding:0}
+/* v2026.09.09-A：固定保留捲軸溝槽。資料載入後捲軸才出現、以及燈箱／OTD 設
+   body{overflow:hidden} 時捲軸消失，兩者都會讓可視區寬度變動，所有水平置中的
+   元素（站頭 h1、footer、bottom-dock）跟著左右跳 —— 這就是 CLS 的來源。
+   overflow:hidden 仍是 scroll container，所以溝槽照樣保留，開燈箱不再跳。
+   手機是浮動捲軸，本來就不佔寬度，此宣告等於沒作用。 */
+html{scrollbar-gutter:stable}
 :root{/* Core palette */
   --c-bg:#201F1F;--c-surface:#1A1814;
   --c-border:#3A3634;--c-border2:#4A4644;
@@ -56,7 +62,7 @@
   --t:0.25s;
 
   --radius:8px;--radius-lg:14px;}
-body{overflow-x:hidden;font-family:'Noto Sans TC',system-ui,sans-serif;background:linear-gradient(160deg,#201F1F 0%,#1A1210 60%,#1C1A22 100%);color:var(--c-text);min-height:100vh;line-height:1.5}
+body{overflow-x:hidden;scrollbar-gutter:stable;font-family:'Noto Sans TC',system-ui,sans-serif;background:linear-gradient(160deg,#201F1F 0%,#1A1210 60%,#1C1A22 100%);color:var(--c-text);min-height:100vh;line-height:1.5}
 
 /* ── Site header ── */
 /* v2026.08.25-B：標題區改成「連續溶解 + 視差滯留」。
@@ -289,6 +295,27 @@ body[data-theme="light"]{--otd-flash:rgba(255,107,61,.16)}
 .feed-desc-wrap.expanded .feed-desc{max-height:none}
 .feed-desc-more{display:none;margin-top:3px;background:none;border:none;padding:0;cursor:pointer;font-family:inherit;font-size:12px;color:rgba(255,255,255,.5);letter-spacing:.03em;transition:color .15s var(--ease-out)}
 .feed-desc-wrap.is-clamped .feed-desc-more{display:inline-block}
+/* v2026.09.16-A：演出歌單。預設收合，展開才列出 —— 一場演唱會二三十首，
+   一律攤開會把日誌灌爆。每首歌是按鈕，點了就搜尋，行為等同 series chip。
+   淺色主題的 hover 各自再寫一條：body[data-theme="light"] .setlist-song
+   是 (0,2,1)，本來就贏過 .setlist-song:hover (0,1,1)。 */
+.feed-setlist{margin-top:7px}
+.setlist-toggle{background:none;border:1px solid rgba(255,255,255,.18);border-radius:3px;padding:2px 9px;font-family:'Archivo',sans-serif;font-size:10px;letter-spacing:.1em;color:rgba(255,255,255,.55);cursor:pointer;transition:color .15s,border-color .15s}
+.setlist-toggle:hover{color:var(--c-accent);border-color:var(--c-accent)}
+.setlist-list{display:none;margin:8px 0 0;padding:0;list-style:none;border-left:1px solid rgba(255,255,255,.12)}
+.feed-setlist.open .setlist-list{display:block}
+.setlist-li{display:flex;align-items:baseline;gap:7px;padding:2px 0 2px 11px}
+.setlist-no{font-family:'Archivo',sans-serif;font-size:10px;color:rgba(255,255,255,.32);min-width:17px;text-align:right;flex-shrink:0}
+.setlist-song{background:none;border:none;padding:0;font-family:inherit;font-size:12.5px;line-height:1.55;text-align:left;color:rgba(255,255,255,.72);cursor:pointer;transition:color .15s}
+.setlist-song:hover{color:var(--c-accent)}
+.setlist-note{font-size:10.5px;color:rgba(255,255,255,.38);flex-shrink:0}
+body[data-theme="light"] .setlist-toggle{border-color:rgba(26,23,20,.25);color:rgba(26,23,20,.55)}
+body[data-theme="light"] .setlist-toggle:hover{color:var(--c-accent);border-color:var(--c-accent)}
+body[data-theme="light"] .setlist-list{border-left-color:rgba(26,23,20,.14)}
+body[data-theme="light"] .setlist-no{color:rgba(26,23,20,.35)}
+body[data-theme="light"] .setlist-song{color:rgba(26,23,20,.72)}
+body[data-theme="light"] .setlist-song:hover{color:var(--c-accent)}
+body[data-theme="light"] .setlist-note{color:rgba(26,23,20,.42)}
 .feed-desc-more:hover{color:var(--c-accent)}
 body[data-theme="light"] .feed-desc-more{color:rgba(26,23,20,.5)}
 body[data-theme="light"] .feed-desc-more:hover{color:var(--c-accent)}
@@ -2175,6 +2202,8 @@ body[data-theme="light"] .bp-row textarea::placeholder,body[data-theme="light"] 
       <div class="form-group"><label>發布者（選填）</label><input type="text" id="f-author" list="author-list" placeholder="例：le2jh"><datalist id="author-list"></datalist></div>
     </div>
     <div class="form-group"><label>說明（選填）</label><textarea id="f-desc" placeholder="內容、備註…"></textarea></div>
+    <!-- v2026.09.16-A：歌單。直接貼整段，一行一首；存檔時 parse 成 setlist 陣列。 -->
+    <div class="form-group"><label>歌單（選填）</label><textarea id="f-setlist" placeholder="一行一首，可直接貼上整段&#10;1. Canvas&#10;2. 그리워하다（安可）"></textarea></div>
     <div class="form-group"><label>連結（選填）</label><input type="text" id="f-source" placeholder="貼上原始貼文連結（IG／X 會自動帶入時間）" oninput="autofillFromSource(this.value)"></div>
     <!-- v2026.08.26-A：手動新增時標記影片。
          批次匯入是靠 videoCount（數 mp4 檔數）判斷，手動新增沒有那個資訊，
@@ -2280,7 +2309,7 @@ body[data-theme="light"] .bp-row textarea::placeholder,body[data-theme="light"] 
     <div class="settings-item">
       <div>
         <div class="settings-item-label">版本</div>
-        <div class="settings-item-val">v2026.09.08-A</div>
+        <div class="settings-item-val">v2026.09.16-A</div>
       </div>
       <span style="font-size:14px;opacity:.5">🌻</span>
     </div>
@@ -3035,6 +3064,65 @@ function searchSeries(s){
   else window.scrollTo({top:0,behavior:'smooth'});
 }
 window.searchSeries=searchSeries;
+
+/* ── v2026.09.16-A：演出歌單 ──────────────────────────────────────────
+   存成 setlist:[{no,title,note}]，不是純字串 —— 這樣才做得出「這首歌唱過
+   哪幾場」。輸入端仍然是 textarea 直接貼，一行一首，存檔時才 parse 成陣列；
+   二三十首用 alsoOn 那種可增刪列輸入太折磨。
+
+   曲序剝除只在「數字後面有標點或空白」時才做，否則像《1994》這種純數字
+   歌名會被吃掉前三個字元。 */
+function parseSetlist(text){
+  var out=[], n=0;
+  String(text||'').split(/\r?\n/).forEach(function(line){
+    var s=line.trim();
+    if(!s) return;
+    s=s.replace(/^(\d{1,3})(\s*[.、)）]\s*|[ \t]+)/,'');
+    s=s.trim();
+    if(!s) return;
+    var note='';
+    var m=s.match(/[（(]([^（()）]*)[)）]\s*$/);
+    if(m && m.index>0){ note=m[1].trim(); s=s.slice(0,m.index).trim(); }
+    if(!s) return;
+    n++;
+    out.push({no:n,title:s,note:note});
+  });
+  return out;
+}
+function setlistToText(list){
+  return (list||[]).map(function(x,i){
+    var t=String((x&&x.title)||'').trim();
+    if(!t) return '';
+    return ((x&&x.no)||(i+1))+'. '+t+((x&&x.note)?'（'+x.note+'）':'');
+  }).filter(Boolean).join('\n');
+}
+function setlistHTML(r){
+  var ls=(r&&r.setlist)||[];
+  if(!ls.length) return '';
+  var items=ls.map(function(x,i){
+    var t=String((x&&x.title)||'').trim();
+    if(!t) return '';
+    return '<li class="setlist-li"><span class="setlist-no">'+(((x&&x.no)||(i+1)))+'</span>'
+      +'<button class="setlist-song" data-q="'+escHtml(t)+'" onclick="event.stopPropagation();searchSong(this.dataset.q)" title="\u67e5\u770b\u5531\u904e\u9019\u9996\u6b4c\u7684\u5834\u6b21">'+escHtml(t)+'</button>'
+      +((x&&x.note)?'<span class="setlist-note">'+escHtml(x.note)+'</span>':'')
+      +'</li>';
+  }).filter(Boolean).join('');
+  if(!items) return '';
+  return '<div class="feed-setlist">'
+    +'<button class="setlist-toggle" onclick="event.stopPropagation();toggleSetlist(this)">\u266a \u6b4c\u55ae '+ls.length+' \u9996</button>'
+    +'<ol class="setlist-list">'+items+'</ol></div>';
+}
+function toggleSetlist(btn){
+  var w=btn.parentNode;
+  if(w) w.classList.toggle('open');
+}
+/* 跟 series chip 走同一條路：切到日誌、填搜尋框、重繪、捲到頂。 */
+function searchSong(t){ searchSeries(t); }
+window.parseSetlist=parseSetlist;
+window.setlistToText=setlistToText;
+window.setlistHTML=setlistHTML;
+window.toggleSetlist=toggleSetlist;
+window.searchSong=searchSong;
 function otdJumpToFeed(fid){
   var r=null;
   for(var i=0;i<records.length;i++){ if(records[i]._fid===fid){ r=records[i]; break; } }
@@ -3914,7 +4002,7 @@ function dayItemHTML(r, idx, borrowRows){
         +actions
       +'</div>'
       +'<div class="feed-title">'+escHtml(r.title)+'</div>'
-      +desc+src
+      +desc+setlistHTML(r)+src
     +'</div>'
     +(thumb||'')
     +'</div>';
@@ -4146,6 +4234,7 @@ function openAddForm(date){
   document.getElementById('f-author').value='';
   document.getElementById('f-place').value='';
   document.getElementById('f-desc').value='';
+  { var _slNew=document.getElementById('f-setlist'); if(_slNew) _slNew.value=''; }
   refreshSeriesDatalist();
   document.getElementById('f-source').value='';
   document.getElementById('f-isvideo').checked=false;
@@ -4197,6 +4286,7 @@ function openEditModal(fid){
   document.getElementById('f-author').value=rec.author||'';
   document.getElementById('f-place').value=rec.place||'';
   document.getElementById('f-desc').value=rec.desc||'';
+  { var _slEd=document.getElementById('f-setlist'); if(_slEd) _slEd.value=setlistToText(rec.setlist||[]); }
   refreshSeriesDatalist();
   document.getElementById('f-source').value=rec.source||'';
   alsoLoad(rec.alsoOn||[]);
@@ -4369,6 +4459,11 @@ function saveRecord(){
        不再有「保留第二筆以後」那套 —— 現在每一筆都改得到。 */
     if(aoList.length) record.alsoOn=aoList;
     else if(prevAo.length) record.alsoOn=[];
+    /* v2026.09.16-A：歌單比照 alsoOn —— 清空要明確寫空陣列，update() 才刪得掉。 */
+    var _slEl=document.getElementById('f-setlist');
+    var _slNew2=parseSetlist(_slEl?_slEl.value:'');
+    if(_slNew2.length) record.setlist=_slNew2;
+    else if(prevRec && (prevRec.setlist||[]).length) record.setlist=[];
     var _p=saveData(record, eid||null);
     showToast('✓  Saved');
     /* v2026.08.26-A：編輯完直接跳到該筆。
@@ -4530,7 +4625,7 @@ function feedItemHTML(r, idx, hideDate, borrowRows){
         +actions
       +'</div>'
       +'<div class="feed-title">'+escHtml(r.title)+'</div>'
-      +desc+src
+      +desc+setlistHTML(r)+src
     +'</div>'
     +(thumb||'')
     +'</div>';
@@ -4561,7 +4656,7 @@ function renderFeed(){
   var filtered=records.filter(function(r){
     if(deletedIds[r._fid]) return false;
     if(currentFilter!=='all'&&r.type!==currentFilter) return false;
-    if(searchQ){var _terms=searchQ.split(/\s+/).filter(Boolean);var _hay=((r.title||'')+' '+(r.desc||'')+' '+(r.series||'')+' '+(r.place||'')+' '+(r.author||'')+' '+(r.platform||'')+' '+(r.alsoOn||[]).map(function(a){return (a.platform||'')+' '+(a.author||'');}).join(' ')).toLowerCase();for(var _ti=0;_ti<_terms.length;_ti++){if(_hay.indexOf(_terms[_ti])===-1) return false;}}
+    if(searchQ){var _terms=searchQ.split(/\s+/).filter(Boolean);var _hay=((r.title||'')+' '+(r.desc||'')+' '+(r.series||'')+' '+(r.place||'')+' '+(r.author||'')+' '+(r.platform||'')+' '+(r.alsoOn||[]).map(function(a){return (a.platform||'')+' '+(a.author||'');}).join(' ')+' '+(r.setlist||[]).map(function(x){return (x&&x.title||'')+' '+(x&&x.note||'');}).join(' ')).toLowerCase();for(var _ti=0;_ti<_terms.length;_ti++){if(_hay.indexOf(_terms[_ti])===-1) return false;}}
     if(dateFrom&&r.date<dateFrom) return false;
     if(dateTo&&r.date>dateTo) return false;
     return true;
