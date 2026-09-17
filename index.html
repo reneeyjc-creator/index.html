@@ -299,20 +299,42 @@ body[data-theme="light"]{--otd-flash:rgba(255,107,61,.16)}
    一律攤開會把日誌灌爆。每首歌是按鈕，點了就搜尋，行為等同 series chip。
    淺色主題的 hover 各自再寫一條：body[data-theme="light"] .setlist-song
    是 (0,2,1)，本來就贏過 .setlist-song:hover (0,1,1)。 */
-.feed-setlist{margin-top:7px}
-.setlist-toggle{background:none;border:1px solid rgba(255,255,255,.18);border-radius:3px;padding:2px 9px;font-family:'Archivo',sans-serif;font-size:10px;letter-spacing:.1em;color:rgba(255,255,255,.55);cursor:pointer;transition:color .15s,border-color .15s}
-.setlist-toggle:hover{color:var(--c-accent);border-color:var(--c-accent)}
-.setlist-list{display:none;margin:8px 0 0;padding:0;list-style:none;border-left:1px solid rgba(255,255,255,.12)}
+.feed-setlist{margin-top:9px}
+/* v2026.09.16-D：S-3。收合時是標籤左邊一小段金線，展開後同一條線往下延伸
+   成歌單的軸；加上唱片圓點。hover 時底色從左往右刷過去 —— 用 :after 的
+   scaleX(0→1) 配 transform-origin:left，不要改 width，那會觸發重排。
+   isolation:isolate 把 z-index:-1 的底色關在按鈕自己的堆疊脈絡裡，
+   不然它會掉到卡片背景後面整個看不見。 */
+.setlist-toggle{position:relative;isolation:isolate;display:inline-flex;align-items:center;gap:8px;background:none;border:none;border-radius:0;padding:5px 12px 5px 12px;font-family:'Archivo',sans-serif;font-size:10.5px;letter-spacing:.18em;color:rgba(255,255,255,.55);cursor:pointer;transition:color .18s var(--ease-out)}
+.setlist-toggle:before{content:'';position:absolute;left:0;top:1px;bottom:1px;width:2px;background:var(--c-accent);border-radius:1px}
+.setlist-toggle:after{content:'';position:absolute;left:2px;top:0;right:0;bottom:0;background:rgba(255,217,64,.13);transform:scaleX(0);transform-origin:left center;transition:transform .3s var(--ease-out);z-index:-1}
+.setlist-toggle:hover{color:var(--c-accent)}
+.setlist-toggle:hover:after{transform:scaleX(1)}
+.setlist-disc{width:12px;height:12px;border-radius:50%;border:1px solid currentColor;position:relative;flex-shrink:0}
+.setlist-disc:after{content:'';position:absolute;left:50%;top:50%;width:3px;height:3px;margin:-1.5px 0 0 -1.5px;border-radius:50%;background:currentColor}
+.setlist-caret{display:inline-block;transition:transform .25s var(--ease-out)}
+.feed-setlist.open .setlist-caret{transform:rotate(180deg)}
+.setlist-list{display:none;margin:9px 0 0;padding:0 0 0 10px;list-style:none;border-left:2px solid var(--c-accent)}
 .feed-setlist.open .setlist-list{display:block}
-.setlist-li{display:flex;align-items:baseline;gap:7px;padding:2px 0 2px 11px}
-.setlist-no{font-family:'Archivo',sans-serif;font-size:10px;color:rgba(255,255,255,.32);min-width:17px;text-align:right;flex-shrink:0}
+.setlist-li{display:flex;align-items:baseline;gap:8px;padding:3px 0}
+.setlist-no{font-family:'Archivo',sans-serif;font-size:10px;color:var(--c-accent);opacity:.6;min-width:15px;text-align:right;flex-shrink:0}
 .setlist-song{background:none;border:none;padding:0;font-family:inherit;font-size:12.5px;line-height:1.55;text-align:left;color:rgba(255,255,255,.72);cursor:pointer;transition:color .15s}
 .setlist-song:hover{color:var(--c-accent)}
 .setlist-note{font-size:10.5px;color:rgba(255,255,255,.38);flex-shrink:0}
-body[data-theme="light"] .setlist-toggle{border-color:rgba(26,23,20,.25);color:rgba(26,23,20,.55)}
-body[data-theme="light"] .setlist-toggle:hover{color:var(--c-accent);border-color:var(--c-accent)}
-body[data-theme="light"] .setlist-list{border-left-color:rgba(26,23,20,.14)}
-body[data-theme="light"] .setlist-no{color:rgba(26,23,20,.35)}
+/* v2026.09.16-B：歌單篩選中的提示條。篩選必須看得見也關得掉，
+   不然使用者會拿到一個沒有解釋、也退不出來的日誌。 */
+.song-filter-bar{display:flex;align-items:center;gap:9px;margin:0 0 14px;padding:7px 12px;border:1px solid var(--c-accent);border-radius:4px;background:rgba(255,217,64,.07)}
+.song-filter-label{font-size:12.5px;color:var(--c-text);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.song-filter-label b{font-weight:600}
+.song-filter-x{background:none;border:none;padding:0 2px;font-family:inherit;font-size:15px;line-height:1;color:rgba(255,255,255,.55);cursor:pointer;flex-shrink:0;transition:color .15s}
+.song-filter-x:hover{color:var(--c-accent)}
+body[data-theme="light"] .song-filter-bar{background:rgba(255,217,64,.14)}
+body[data-theme="light"] .song-filter-x{color:rgba(26,23,20,.55)}
+body[data-theme="light"] .song-filter-x:hover{color:var(--c-accent)}
+body[data-theme="light"] .setlist-toggle{color:rgba(26,23,20,.55)}
+body[data-theme="light"] .setlist-toggle:hover{color:var(--c-accent)}
+body[data-theme="light"] .setlist-toggle:after{background:rgba(255,107,61,.12)}
+body[data-theme="light"] .setlist-no{color:var(--c-accent)}
 body[data-theme="light"] .setlist-song{color:rgba(26,23,20,.72)}
 body[data-theme="light"] .setlist-song:hover{color:var(--c-accent)}
 body[data-theme="light"] .setlist-note{color:rgba(26,23,20,.42)}
@@ -523,10 +545,16 @@ body[data-theme="light"]{--dg-label:rgba(26,23,20,.72)}
   border-radius:var(--radius);-webkit-appearance:none;appearance:none;cursor:pointer}
 #f-group:disabled{opacity:.5;cursor:default}
 .f-group-hint{margin-top:6px;font-size:11px;letter-spacing:.03em;color:var(--c-muted);min-height:14px}
-.badge-member{font-size:10px;padding:3px 8px;border-radius:4px;font-weight:600;
-  flex-shrink:0;letter-spacing:.08em;border:1px solid rgba(255,217,64,.35);
-  color:#FFD940;background:rgba(255,217,64,.08)}
-body[data-theme="light"] .badge-member{color:#7A5A00;border-color:rgba(122,90,0,.35);background:rgba(255,217,64,.18)}
+/* v2026.09.16-D：M-D。原本是金框＋金底的方塊，跟左邊的類型徽章用同一種
+   語言（有框有底），兩個在搶同一個位置。改成鎖頭＋小字、無框無底。
+   要明確歸零 padding／border-radius／font-weight／text-transform，因為
+   markup 上還帶著 .feed-badge，那些值會從它流過來。 */
+.badge-member{display:inline-flex;align-items:center;gap:4px;font-family:'Archivo',sans-serif;
+  font-size:9.5px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;
+  padding:0;border:none;border-radius:0;background:none;flex-shrink:0;
+  color:rgba(255,217,64,.9)}
+.badge-member svg{width:10px;height:10px;flex-shrink:0}
+body[data-theme="light"] .badge-member{color:#9A7400;background:none;border:none}
 @media(max-width:700px){
   .dg-thumbs img{width:30px;height:30px}
   .dg-thumbs{width:129px}
@@ -799,7 +827,16 @@ body[data-theme="light"] .date-range-clear:hover,body[data-theme="light"] .searc
 .otd-year-big,.otd-track{transition:opacity .24s var(--ease-out),transform .24s var(--ease-out)}
 .otd-year-big.otd-fading{opacity:0;transform:translateY(-8px)}
 .otd-track.otd-fading{opacity:0;transform:translateY(6px)}
-.otd-year-big.anim{animation:otdYearIn .62s var(--ease-out) both}
+/* v2026.09.16-E：fill-mode 從 both 改成 backwards。
+   otdYearIn 的 to 狀態帶 filter:blur(0)，配 both 的話動畫結束後這個
+   filter 會永久留在元素上。filter 就算是 0 也會讓元素獨立成合成層，
+   iOS Safari 把這種層疊在圖片上時會畫出一塊矩形底 —— 就是年份後面
+   那個白框，桌機不會出現。
+   backwards 只保留動畫前的 from 狀態（延遲期間用得到），結束後回到元素
+   自己的 CSS，也就是沒有 filter。to 狀態本來就等於基礎樣式
+   （opacity:1、無位移、無模糊），所以畫面不會有跳動，進場的模糊效果也
+   照舊。 */
+.otd-year-big.anim{animation:otdYearIn .62s var(--ease-out) backwards}
 @keyframes otdYearIn{from{transform:translateY(-14px);opacity:0;filter:blur(4px)}to{transform:translateY(0);opacity:1;filter:blur(0)}}
 .otd-track.anim>*{animation:otdTrackIn .5s var(--ease-out) both}
 .otd-track.anim>*:nth-child(1){animation-delay:.06s}
@@ -2309,7 +2346,7 @@ body[data-theme="light"] .bp-row textarea::placeholder,body[data-theme="light"] 
     <div class="settings-item">
       <div>
         <div class="settings-item-label">版本</div>
-        <div class="settings-item-val">v2026.09.16-A</div>
+        <div class="settings-item-val">v2026.09.16-E</div>
       </div>
       <span style="font-size:14px;opacity:.5">🌻</span>
     </div>
@@ -3054,16 +3091,91 @@ function refreshAuthorDatalist(){
   });
   dl.innerHTML=out.concat(extra.sort()).map(function(a){ return '<option value="'+escHtml(a)+'">'; }).join('');
 }
-function searchSeries(s){
+/* ── v2026.09.16-C：chip 篩選統一機制 ────────────────────────────────
+   平台、發布者、系列、地點、歌名五種 chip 原本全都是 searchSeries()，也就是
+   把文字丟進全文搜尋框。全文搜尋比對的是 title/desc/series/place/author/
+   platform 全部欄位，所以點「IG 貼文」會把說明裡剛好提到 IG 的紀錄一起撈進來
+   —— 跟 tooltip 寫的「只看這個平台的紀錄」不符。
+
+   現在每種各自只比對自己那個欄位，而且是整格相等不是包含。一次只有一個 chip
+   篩選生效，點另一個就換掉。全文搜尋框沒有變，還是照原本比對所有欄位。
+
+   正規化沿用系列名那套（彎直引號、破折號、空白、大小寫），不然
+   GENTLEMEN'S GAME 那種變體會漏。 */
+function chipNorm(s){
+  return String(s||'').replace(/[\u2018\u2019\u201B\u02BC]/g,"'")
+    .replace(/[\u2013\u2014]/g,'-').replace(/\s+/g,' ').trim().toUpperCase();
+}
+var songNorm=chipNorm;   /* v2026.09.16-B 的舊名，保留別名 */
+var chipFilter={kind:'',value:''};
+/* 平台和發布者要連 alsoOn 一起看 —— 同步發布的那一筆，第二個平台只存在
+   alsoOn 裡，卡片上也列得出來，點下去卻搜不到自己就太怪了。 */
+function chipMatch(r){
+  var v=chipNorm(chipFilter.value);
+  if(!v) return true;
+  var k=chipFilter.kind, i, arr;
+  if(k==='song'){
+    arr=r.setlist||[];
+    for(i=0;i<arr.length;i++){ if(chipNorm(arr[i]&&arr[i].title)===v) return true; }
+    return false;
+  }
+  if(k==='platform'){
+    if(chipNorm(r.platform)===v) return true;
+    arr=r.alsoOn||[];
+    for(i=0;i<arr.length;i++){ if(chipNorm(arr[i]&&arr[i].platform)===v) return true; }
+    return false;
+  }
+  if(k==='author'){
+    if(chipNorm(r.author)===v) return true;
+    arr=r.alsoOn||[];
+    for(i=0;i<arr.length;i++){ if(chipNorm(arr[i]&&arr[i].author)===v) return true; }
+    return false;
+  }
+  if(k==='series') return chipNorm(r.series)===v;
+  if(k==='place')  return chipNorm(r.place)===v;
+  return true;
+}
+function chipFilterBarHTML(){
+  if(!chipFilter.value) return '';
+  var v=escHtml(chipFilter.value), k=chipFilter.kind, txt;
+  if(k==='song')          txt='\u266a \u5531\u904e <b>'+v+'</b> \u7684\u5834\u6b21';
+  else if(k==='platform') txt='\u5e73\u53f0\uff1a<b>'+v+'</b>';
+  else if(k==='author')   txt='\u767c\u5e03\u8005\uff1a<b>'+v+'</b>';
+  else if(k==='series')   txt='\u2726 \u7cfb\u5217\uff1a<b>'+v+'</b>';
+  else if(k==='place')    txt='\u2316 \u5730\u9ede\uff1a<b>'+v+'</b>';
+  else                    txt='<b>'+v+'</b>';
+  return '<div class="song-filter-bar"><span class="song-filter-label">'+txt+'</span>'
+    +'<button class="song-filter-x" onclick="clearChipFilter()" title="\u6e05\u9664\u7be9\u9078">\u2715</button></div>';
+}
+function setChipFilter(kind,value){
+  chipFilter={kind:kind,value:String(value||'').trim()};
+  window.chipFilter=chipFilter;
   switchPage('feed');
   var si=document.getElementById('search-input');
-  if(si){ si.value=s; }
+  if(si) si.value='';
   if(typeof toggleSearchClear==='function') toggleSearchClear();
   renderFeed();
   if(typeof window.feedScrollTop==='function') window.feedScrollTop();
   else window.scrollTo({top:0,behavior:'smooth'});
 }
+function clearChipFilter(){
+  chipFilter={kind:'',value:''};
+  window.chipFilter=chipFilter;
+  renderFeed();
+}
+function searchSeries(s){  setChipFilter('series',s); }
+function searchPlatform(p){ setChipFilter('platform',p); }
+function searchAuthor(a){  setChipFilter('author',a); }
+function searchPlace(pl){  setChipFilter('place',pl); }
+function searchSong(t){    setChipFilter('song',t); }
 window.searchSeries=searchSeries;
+window.searchPlatform=searchPlatform;
+window.searchAuthor=searchAuthor;
+window.searchPlace=searchPlace;
+window.searchSong=searchSong;
+window.setChipFilter=setChipFilter;
+window.clearChipFilter=clearChipFilter;
+window.clearSongFilter=clearChipFilter;   /* 舊名別名 */
 
 /* ── v2026.09.16-A：演出歌單 ──────────────────────────────────────────
    存成 setlist:[{no,title,note}]，不是純字串 —— 這樣才做得出「這首歌唱過
@@ -3109,20 +3221,18 @@ function setlistHTML(r){
   }).filter(Boolean).join('');
   if(!items) return '';
   return '<div class="feed-setlist">'
-    +'<button class="setlist-toggle" onclick="event.stopPropagation();toggleSetlist(this)">\u266a \u6b4c\u55ae '+ls.length+' \u9996</button>'
+    +'<button class="setlist-toggle" onclick="event.stopPropagation();toggleSetlist(this)" title="\u5c55\u958b\u6b4c\u55ae">'
+    +'<span class="setlist-disc"></span>Setlist '+ls.length+' \u9996 <span class="setlist-caret">\u2304</span></button>'
     +'<ol class="setlist-list">'+items+'</ol></div>';
 }
 function toggleSetlist(btn){
   var w=btn.parentNode;
   if(w) w.classList.toggle('open');
 }
-/* 跟 series chip 走同一條路：切到日誌、填搜尋框、重繪、捲到頂。 */
-function searchSong(t){ searchSeries(t); }
 window.parseSetlist=parseSetlist;
 window.setlistToText=setlistToText;
 window.setlistHTML=setlistHTML;
 window.toggleSetlist=toggleSetlist;
-window.searchSong=searchSong;
 function otdJumpToFeed(fid){
   var r=null;
   for(var i=0;i<records.length;i++){ if(records[i]._fid===fid){ r=records[i]; break; } }
@@ -3940,7 +4050,7 @@ function metaRowHTML(r){
   }
   /* alsoOn 的發布者已經跟著它自己的平台排在同一列，這裡不再重複。 */
   if(r.place){
-    items.push('<button class="rec-mi feed-place-chip" data-s="'+escHtml(r.place)+'" onclick="searchSeries(this.dataset.s)" title="查看此地點的所有事件">⌖ '+escHtml(r.place)+'</button>');
+    items.push('<button class="rec-mi feed-place-chip" data-s="'+escHtml(r.place)+'" onclick="searchPlace(this.dataset.s)" title="查看此地點的所有事件">⌖ '+escHtml(r.place)+'</button>');
     items.push(placeMapBtn(r.place));
   }
   items=items.filter(function(x){ return x; });
@@ -3955,8 +4065,7 @@ function metaRowHTML(r){
   if(!rows.length) return '';
   return '<div class="rec-meta'+(rows.length>1?' rec-meta-2row':'')+'">'+rows.join('')+'</div>';
 }
-function searchAuthor(a){ searchSeries(a); }
-function searchPlatform(p){ searchSeries(p); }
+/* v2026.09.16-C：改由 setChipFilter 統一處理，見上方定義。 */
 window.searchAuthor=searchAuthor;
 window.searchPlatform=searchPlatform;
 
@@ -3996,7 +4105,7 @@ function dayItemHTML(r, idx, borrowRows){
       +'<div class="feed-top">'
         +(batchMode&&isUnlocked?'<input type="checkbox" class="batch-check" data-fid="'+fid+'"'+(batchSel[fid]?' checked':'')+' onchange="toggleBatchSel(this.dataset.fid,this.checked)">':'')
         +'<span class="feed-badge badge-'+r.type+'">'+(LABELS[r.type]||r.type)+'</span>'
-        +(r.memberOnly?'<span class="feed-badge badge-member">會員限定</span>':'')
+        +(r.memberOnly?'<span class="feed-badge badge-member" title="\u6703\u54e1\u9650\u5b9a"><svg viewBox=\"0 0 12 12\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.2\" aria-hidden=\"true\"><rect x=\"2.2\" y=\"5.2\" width=\"7.6\" height=\"5.6\" rx=\"1\"/><path d=\"M4 5.2V3.6a2 2 0 014 0v1.6\"/></svg>Members</span>':'')
         +(r.series?'<button class="feed-series-chip" data-s="'+escHtml(r.series)+'" onclick="searchSeries(this.dataset.s)" title="查看整個系列">✦ '+escHtml(r.series)+'</button>':'')
         +'<span class="feed-meta-dt">'+dt+'</span>'
         +actions
@@ -4619,7 +4728,7 @@ function feedItemHTML(r, idx, hideDate, borrowRows){
       +'<div class="feed-top">'
         +(batchMode&&isUnlocked?'<input type="checkbox" class="batch-check" data-fid="'+fid+'"'+(batchSel[fid]?' checked':'')+' onchange="toggleBatchSel(this.dataset.fid,this.checked)">':'')
         +'<span class="feed-badge badge-'+r.type+'">'+(LABELS[r.type]||r.type)+'</span>'
-        +(r.memberOnly?'<span class="feed-badge badge-member">會員限定</span>':'')
+        +(r.memberOnly?'<span class="feed-badge badge-member" title="\u6703\u54e1\u9650\u5b9a"><svg viewBox=\"0 0 12 12\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.2\" aria-hidden=\"true\"><rect x=\"2.2\" y=\"5.2\" width=\"7.6\" height=\"5.6\" rx=\"1\"/><path d=\"M4 5.2V3.6a2 2 0 014 0v1.6\"/></svg>Members</span>':'')
         +(r.series?'<button class="feed-series-chip" data-s="'+escHtml(r.series)+'" onclick="searchSeries(this.dataset.s)" title="查看整個系列">✦ '+escHtml(r.series)+'</button>':'')
         +'<span class="feed-datetime">'+dt+'</span>'
         +actions
@@ -4657,6 +4766,7 @@ function renderFeed(){
     if(deletedIds[r._fid]) return false;
     if(currentFilter!=='all'&&r.type!==currentFilter) return false;
     if(searchQ){var _terms=searchQ.split(/\s+/).filter(Boolean);var _hay=((r.title||'')+' '+(r.desc||'')+' '+(r.series||'')+' '+(r.place||'')+' '+(r.author||'')+' '+(r.platform||'')+' '+(r.alsoOn||[]).map(function(a){return (a.platform||'')+' '+(a.author||'');}).join(' ')+' '+(r.setlist||[]).map(function(x){return (x&&x.title||'')+' '+(x&&x.note||'');}).join(' ')).toLowerCase();for(var _ti=0;_ti<_terms.length;_ti++){if(_hay.indexOf(_terms[_ti])===-1) return false;}}
+    if(chipFilter.value && !chipMatch(r)) return false;
     if(dateFrom&&r.date<dateFrom) return false;
     if(dateTo&&r.date>dateTo) return false;
     return true;
@@ -4676,7 +4786,7 @@ function renderFeed(){
       listHTML=years.map(function(y){
         var recs=byYear[y];
         var startIdx=gi; gi+=recs.length;
-        var isOpen=(y===thisYear||y===window._otdJumpYear||searchQ||dateFrom||dateTo);
+        var isOpen=(y===thisYear||y===window._otdJumpYear||searchQ||chipFilter.value||dateFrom||dateTo);
         var innerHTML='', lazyAttr='';
         if(isOpen){
           innerHTML=buildFyMonths(y,recs)+buildFyInner(recs,startIdx);
@@ -4697,13 +4807,14 @@ function renderFeed(){
       :(feedFiltersActive()
           ? emptyBox('還沒有找到符合的PENPEN','換個關鍵字，或者放寬日期範圍試試',EMPTY_PENPEN)
           : emptyBox('還沒有任何記錄','點右下角的 ＋ 開始第一筆'));
-  } else if(searchQ){
+  } else if(searchQ||chipFilter.value){
     /* 照片牆 + 有搜尋關鍵字 → 分割頁 */
-    container.innerHTML=renderSplit(filtered, searchQ); pwPreloadFull();
+    container.innerHTML=renderSplit(filtered, searchQ||chipFilter.value); pwPreloadFull();
     pwFull(container.querySelector('.sp-pola-ph'));   /* 拍立得換清晰原圖 */
   } else {
     container.innerHTML=renderPhotoWall(filtered); pwPreloadFull(); requestAnimationFrame(pwFitMonths);
   }
+  if(chipFilter.value) container.insertAdjacentHTML('afterbegin', chipFilterBarHTML());
   if(window.syncFeedJump) window.syncFeedJump();
   requestAnimationFrame(markClampedDescs);
 }
@@ -4829,7 +4940,7 @@ window.EMPTY_PENPEN=EMPTY_PENPEN;
 function feedFiltersActive(){
   var q=document.getElementById('search-input');
   var f=document.getElementById('date-from'), t=document.getElementById('date-to');
-  return !!((q&&q.value.trim())||(f&&f.value)||(t&&t.value)
+  return !!((q&&q.value.trim())||(f&&f.value)||(t&&t.value)||(typeof chipFilter!=='undefined'&&chipFilter.value)
             ||(typeof currentFilter!=='undefined'&&currentFilter!=='all'));
 }
 function emptyBox(msg, sub, icon){
@@ -4980,7 +5091,7 @@ function renderOtdTrack(dir, auto){
     var badge='<span class="otd-card-badge" style="background:'+bc+';color:#1A1714;font-size:10px;padding:2px 8px;border-radius:3px;font-weight:700;letter-spacing:.06em;text-transform:uppercase">'+(LABELS[r.type]||r.type)+'</span>';
     var desc=r.desc?'<div class="otd-track-desc">'+escHtml(r.desc)+'</div>':'';
     tk.classList.remove('otd-fading','anim'); void tk.offsetWidth;
-    var moChip=r.memberOnly?'<span class="feed-badge badge-member" style="margin-left:6px">會員限定</span>':'';
+    var moChip=r.memberOnly?'<span class="feed-badge badge-member" style="margin-left:6px" title="\u6703\u54e1\u9650\u5b9a"><svg viewBox=\"0 0 12 12\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.2\" aria-hidden=\"true\"><rect x=\"2.2\" y=\"5.2\" width=\"7.6\" height=\"5.6\" rx=\"1\"/><path d=\"M4 5.2V3.6a2 2 0 014 0v1.6\"/></svg>Members</span>':'';
     tk.innerHTML=badge+moChip
       +'<div class="otd-track-title">'+escHtml(r.title)+'</div>'
       +desc
