@@ -496,11 +496,71 @@ body[data-theme="light"] .pw-spread-sub{color:rgba(26,23,20,.55)}
 .dg-body{display:none}
 .day-group.open .dg-body{display:block}
 .day-group .dg-body .feed-item:first-child{border-top:1px solid var(--c-line)}
+/* ── v2026.09.16-G：群組子紀錄降階（方案表 G-2） ────────────────────────
+   子紀錄原本跟父層完全同重：同樣的 20px 標題、同樣的「行程」徽章、同樣
+   176px 縮圖欄，看不出誰是主誰是從。整體縮一級，並把父層已經講過的資訊
+   拿掉：類型徽章、發布者。外連保留 —— 那是每一支舞台各自的影片連結，
+   父層沒有，拿掉就沒有路徑可以點進去了。
+
+   .badge-member 也掛著 .feed-badge，所以隱藏類型徽章要用 :not() 排除它，
+   不然會員限定的標記會跟著消失。
+
+   .rec-meta .rec-mi:not(:last-child)::after 是那條直線分隔符，:last-child
+   是結構性的、不會因為 display:none 改變，所以隱藏發布者之後前一項會留下
+   一條後面沒東西的分隔線，要用 :has() 一起關掉。
+
+   ⚠️ 三種情境的 grid 欄寬各自要改：桌機日誌 (0,1,0)、當日視窗 (0,2,0)、
+   手機 (媒體查詢內 (0,1,0))。這裡的規則是 (0,4,0)，會蓋掉後兩者，所以
+   下面必須各補一條，否則當日視窗和手機的欄寬會被拉回桌機的值。 */
+.day-group.dg-nested .dg-body .feed-item{padding-top:10px;padding-bottom:10px;grid-template-columns:84px 1fr 110px}
+.day-group.dg-nested .dg-body .feed-title{font-size:15px;font-weight:600;margin-bottom:5px}
+.day-group.dg-nested .dg-body .feed-desc{font-size:12px;line-height:1.55}
+.day-group.dg-nested .dg-body .feed-badge:not(.badge-member){display:none}
+.day-group.dg-nested .dg-body .rec-author{display:none}
+.day-group.dg-nested .dg-body .rec-meta .rec-mi:has(+.rec-author)::after{display:none}
+.day-so-body .day-group.dg-nested .dg-body .feed-item{grid-template-columns:36px 1fr 74px}
+@media(max-width:700px){
+  .day-group.dg-nested .dg-body .feed-item{grid-template-columns:52px 1fr 68px}
+  .day-group.dg-nested .dg-body .feed-title{font-size:13px}
+}
 .day-group.dg-nested{border-top:none;margin-top:-1px}
 .day-group.dg-nested .dg-head{padding-left:34px;padding-top:9px;padding-bottom:9px}
 .day-group.dg-nested .dg-name{font-size:var(--dg-label-size);color:var(--dg-label);letter-spacing:.04em}
 .day-group.dg-nested .dg-head:hover .dg-name,.day-group.dg-nested .dg-head:hover .dg-caret{color:var(--c-accent)}
 .dg-head:hover .dg-caret{color:var(--c-accent)}
+/* ── v2026.09.16-F：巢狀「舞台」列改成膠囊按鈕（方案 C-D） ──────────────
+   原本是灰字＋細 caret，重量比父層的說明文字還輕，收合時很容易整個略過。
+
+   實作上包一層 .dg-pill，而不是直接把 .dg-head 變成膠囊。理由：fy-group 的
+   按鈕裡還有一個 .dg-date 佔位撐縮排，.dg-head 一旦變成 inline-flex 收縮成
+   內容寬，那套對齊就垮了。非巢狀群組的 .dg-pill 是 display:contents，等於
+   不存在，版面跟改之前一模一樣。
+
+   hover 填色用 scaleX(0→1)。膠囊不能讓 :after 自己帶圓角 —— 被 scaleX 壓過
+   的圓角會變成橢圓，展開過程看起來像在拉橡皮筋。改成 :after 保持方形，靠
+   .dg-pill 的 overflow:hidden＋border-radius 去裁切。
+
+   ⚠️ flex gap 會作用在所有子元素之間，而 .dg-caret 自己還有 margin-right:9px，
+   兩個會疊加，所以膠囊裡要把它歸零。.dg-count 的 margin-left:auto 同理。 */
+.dg-pill{display:contents}
+.day-group.dg-nested .dg-pill{display:inline-flex;align-items:center;gap:8px;color:var(--dg-label);
+  position:relative;isolation:isolate;overflow:hidden;
+  padding:6px 14px 6px 11px;border:1px solid var(--c-border);border-radius:100px;
+  font-family:'Archivo',sans-serif;letter-spacing:.16em;
+  transition:border-color .18s var(--ease-out)}
+.day-group.dg-nested .dg-pill:after{content:'';position:absolute;left:0;top:0;right:0;bottom:0;
+  background:rgba(255,217,64,.13);transform:scaleX(0);transform-origin:left center;
+  transition:transform .3s var(--ease-out);z-index:-1}
+.day-group.dg-nested .dg-head:hover .dg-pill{border-color:var(--c-accent);color:var(--c-accent)}
+.day-group.dg-nested .dg-head:hover .dg-pill .dg-count{color:var(--c-accent)}
+.day-group.dg-nested .dg-head:hover .dg-pill:after{transform:scaleX(1)}
+.dg-disc{width:13px;height:13px;border-radius:50%;border:1px solid currentColor;position:relative;flex:0 0 auto}
+.dg-disc:after{content:'';position:absolute;left:50%;top:50%;width:3px;height:3px;
+  margin:-1.5px 0 0 -1.5px;border-radius:50%;background:currentColor}
+.day-group.dg-nested .dg-pill .dg-name{font-size:10.5px;letter-spacing:.16em}
+.day-group.dg-nested .dg-pill .dg-count{margin-left:0;font-size:10.5px;letter-spacing:.16em}
+.day-group.dg-nested .dg-pill .dg-caret{margin-right:0;font-size:12px}
+body[data-theme="light"] .day-group.dg-nested .dg-pill:after{background:rgba(255,107,61,.12)}
 .ct-n{opacity:.55;font-variant-numeric:tabular-nums}
 .dg-thumbs{display:flex;gap:3px;margin-left:12px;flex:0 0 auto;width:145px;justify-content:flex-end}
 .dg-thumbs img{width:34px;height:34px;object-fit:cover;border-radius:2px;display:block}
@@ -2346,7 +2406,7 @@ body[data-theme="light"] .bp-row textarea::placeholder,body[data-theme="light"] 
     <div class="settings-item">
       <div>
         <div class="settings-item-label">版本</div>
-        <div class="settings-item-val">v2026.09.16-E</div>
+        <div class="settings-item-val">v2026.09.16-G</div>
       </div>
       <span style="font-size:14px;opacity:.5">🌻</span>
     </div>
@@ -4254,9 +4314,12 @@ function dayGroupedHTML(recs){
     var id='dg'+(gi++);
     return '<div class="day-group'+(nested?' dg-nested':'')+'" id="'+id+'">'
       +'<button class="dg-head" onclick="dgToggle(\''+id+'\')" aria-expanded="false">'
-      +'<span class="dg-caret" aria-hidden="true">\u203a</span>'
+      +'<span class="dg-pill">'
+      +(nested?'<span class="dg-disc" aria-hidden="true"></span>':'')
       +'<span class="dg-name">'+escHtml(nested?'舞台':o.name)+'</span>'
       +'<span class="dg-count">'+o.rows.length+' 首</span>'
+      +'<span class="dg-caret" aria-hidden="true">\u203a</span>'
+      +'</span>'
       +(nested?'':dgThumbStrip(o.rows))+'</button>'
       +'<div class="dg-body">'
       + o.rows.map(function(x){ return dayItemHTML(x.r, num++); }).join('')
@@ -5449,9 +5512,12 @@ function fyGroupHTML(g, gi, dateCell){
   return '<div class="day-group fy-group'+(g.nested?' dg-nested':'')+'" id="'+id+'">'
     +'<button class="dg-head" onclick="dgToggle(\''+id+'\')" aria-expanded="false">'
     +'<span class="dg-date">'+(dateCell||'')+'</span>'
-    +'<span class="dg-caret" aria-hidden="true">\u203a</span>'
+    +'<span class="dg-pill">'
+    +(g.nested?'<span class="dg-disc" aria-hidden="true"></span>':'')
     +'<span class="dg-name">'+escHtml(g.nested?'舞台':g.name)+'</span>'
     +'<span class="dg-count">'+g.rows.length+' 首</span>'
+    +'<span class="dg-caret" aria-hidden="true">\u203a</span>'
+    +'</span>'
     +(g.nested?'':dgThumbStrip(g.rows))+'</button>'
     +'<div class="dg-body">'
     /* v2026.08.29-G：群組內的紀錄一律隱藏日期欄 —— 同一天的日期在父層卡片
